@@ -1,5 +1,6 @@
 package kamilmilik.licencjat_gps_kid.Invite
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,7 @@ import com.google.firebase.database.ServerValue
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
+import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.models.UserUniqueKey
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -89,5 +91,16 @@ class SendInviteActivity : AppCompatActivity() {
                 throw databaseError.toException()
             }
         })
+    }
+
+    override fun onBackPressed() {
+        goToPreviousActivity()
+        super.onBackPressed()
+    }
+    private fun goToPreviousActivity(){
+        var  intent =  Intent(this@SendInviteActivity, ListOnline::class.java);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish()
     }
 }

@@ -10,6 +10,7 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Marker
+import com.google.firebase.auth.FirebaseAuth
 
 
 /**
@@ -49,12 +50,14 @@ class LocationHelper(
         Log.i(TAG,"onConnectionFailed: google maps" + p0.errorMessage)
     }
     override fun onLocationChanged(location: Location?) {
-        Log.i(TAG, "onLocationChanged")
-        mLastLocation = location!!
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker!!.remove();
+        if(FirebaseAuth.getInstance().currentUser != null){
+            Log.i(TAG, "onLocationChanged")
+            mLastLocation = location!!
+            if (mCurrLocationMarker != null) {//prevent if user click logout to not update location
+                mCurrLocationMarker!!.remove();
+            }
+            locationFirebaseHelper!!.addCurrentUserLocationToFirebase(location!!)
         }
-        locationFirebaseHelper!!.addCurrentUserLocationToFirebase(location!!)
     }
 
     fun buildGoogleApiClient() {

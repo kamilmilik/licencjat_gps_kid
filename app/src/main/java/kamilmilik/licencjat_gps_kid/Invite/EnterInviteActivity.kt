@@ -68,7 +68,7 @@ class EnterInviteActivity : AppCompatActivity() {
                     if(!checkIfGivenUsersAreDifferent(userUniqueKeyModel!!.userId,currentUser!!.uid)){//prevent add user self
                         addConnectedUserToDatabase(userUniqueKeyModel!!)
                     }
-                    goToPrevoiusActivity()
+                    goToPreviousActivity()
                 }
                 if(dataSnapshot.value == null){
                     Toast.makeText(this@EnterInviteActivity,"This code is invalid",Toast.LENGTH_LONG).show()
@@ -112,7 +112,11 @@ class EnterInviteActivity : AppCompatActivity() {
                 .child("user")
                 .setValue(currentUser)
     }
-    private fun goToPrevoiusActivity(){
+    override fun onBackPressed() {
+        goToPreviousActivity()
+        super.onBackPressed()
+    }
+    private fun goToPreviousActivity(){
         var  intent =  Intent(this@EnterInviteActivity, ListOnline::class.java);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

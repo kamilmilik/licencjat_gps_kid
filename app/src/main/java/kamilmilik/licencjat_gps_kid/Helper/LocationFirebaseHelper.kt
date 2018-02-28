@@ -24,25 +24,26 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap) {
         Log.i(TAG, "addCurrentUserLocationToFirebase")
         var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
+        if(currentUser != null){//prevent if user click logout to not update location
+            locations.child(currentUser!!.uid)
+                    .setValue(TrackingModel(currentUser.uid,
+                            currentUser!!.email!!,
+                            lastLocation.latitude.toString(),
+                            lastLocation.longitude.toString()))
 
-        locations.child(currentUser!!.uid)
-                .setValue(TrackingModel(currentUser.uid,
-                        currentUser!!.email!!,
-                        lastLocation.latitude.toString(),
-                        lastLocation.longitude.toString()))
 
+            removeOldMarker(currentUser.uid)
 
-        removeOldMarker(currentUser.uid)
+                var currentMarker = mGoogleMap!!.addMarker(MarkerOptions()
+                        .position(LatLng(lastLocation.latitude!!, lastLocation.longitude!!))
+                        .title(currentUser!!.email))
+                markersMap.put(currentUser.uid, currentMarker)
 
-            var currentMarker = mGoogleMap!!.addMarker(MarkerOptions()
-                    .position(LatLng(lastLocation.latitude!!, lastLocation.longitude!!))
-                    .title(currentUser!!.email))
-            markersMap.put(currentUser.uid, currentMarker)
+                mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lastLocation.latitude, lastLocation.longitude), 12.0f))
+                currentUserLocation = createLocationVariable(currentMarker.position)
 
-            mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lastLocation.latitude, lastLocation.longitude), 12.0f))
-            currentUserLocation = createLocationVariable(currentMarker.position)
-
-        updateMarkerSnippetDistance(currentUser!!.uid,currentUserLocation)
+            updateMarkerSnippetDistance(currentUser!!.uid,currentUserLocation)
+        }
     }
     fun listenerForLocationsChangeInFirebase(followingUserId : String){
         loadLocationsFromDatabaseForCurrentUser(followingUserId)

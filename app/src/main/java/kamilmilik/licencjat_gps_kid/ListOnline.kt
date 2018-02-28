@@ -51,7 +51,6 @@ class ListOnline : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_online)
-
         setupRecyclerView()
 
         generateCodeButtonAction()
@@ -76,7 +75,6 @@ class ListOnline : AppCompatActivity(),
 
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
-        //TODO jak user nie ma followersow i followingow to powinnismy pokazac jego znacznik
         var locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!)
         setupFinderUserConnectionHelper(locationFirebaseHelper)
         finderUserConnectionHelper!!.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
@@ -160,7 +158,6 @@ class ListOnline : AppCompatActivity(),
         buttonToActivityGenerateCode.setOnClickListener({
             var intent  = Intent(this, SendInviteActivity::class.java)
             startActivity(intent)
-            //TODO obsluzyc przycisk wstecz na telefonie bo ten w toolbarze dziala ok ale tamten nie
         })
     }
     private fun enterCodeButtonAction(){
@@ -187,7 +184,6 @@ class ListOnline : AppCompatActivity(),
                 onlineUserHelper!!.joinUserAction()
             }
             R.id.action_logout->{
-                //TODO zapobiec wylogowaniu gdy caly czas jest zmieniana lokalizacja, bo inaczej bedzie blad podczas dodawania do bazy nowej lokalizacji
                 onlineUserHelper!!.logoutUser()
                 startActivity(Intent(this, LoginActivity::class.java))
             }
@@ -200,34 +196,4 @@ class ListOnline : AppCompatActivity(),
         setSupportActionBar(toolbar)
     }
 
-//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        when(requestCode){
-//            MY_PERMISSION_REQUEST_CODE ->{
-//                    if(grantResults.isNotEmpty() && grantResults.get(0) == PackageManager.PERMISSION_GRANTED){
-//                        locationHelper!!.setupCurrentLocation()
-//                    }else{
-//                        Toast.makeText(this,"Permission denied", Toast.LENGTH_LONG).show()
-//                    }
-//            }
-//        }
-//    }
-//    override fun onStart() {
-//        super.onStart()
-//        locationHelper!!.connectToGoogleApi()
-//    }
-//
-//    override fun onStop() {
-//        locationHelper!!.disconnectGoogleApi()
-//        super.onStop()
-//    }
-//
-//    override fun onPostResume() {
-//        super.onPostResume()
-//        locationHelper!!.checkPlayServices()
-//    }
-//
-//    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-//        locationHelper!!.setupCurrentLocation()
-//    }
 }
