@@ -21,6 +21,8 @@ import kamilmilik.licencjat_gps_kid.Login.LoginActivity
 import kamilmilik.licencjat_gps_kid.Utils.RecyclerViewAdapter
 import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 import android.os.Build
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.licencjat_gps_kid.Helper.*
 
@@ -38,11 +40,12 @@ class ListOnline : AppCompatActivity(),
     lateinit var valueSet:HashSet<String>
     //permission
     private val MY_PERMISSION_REQUEST_CODE : Int = 99
-    var permissionHelper : PermissionHelper = PermissionHelper(this)
+    private var permissionHelper : PermissionHelper = PermissionHelper(this)
+    private var mPermissionDenied = false
     //Location
     private  var locationHelper : LocationHelper? = null
     private var finderUserConnectionHelper : FinderUserConnectionHelper? = null
-    private var mPermissionDenied = false
+    private var locationFirebaseHelper : LocationFirebaseHelper? = null
     //maps
     private var mGoogleMap: GoogleMap? = null
 
@@ -75,10 +78,10 @@ class ListOnline : AppCompatActivity(),
 
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
-        var locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!)
-        setupFinderUserConnectionHelper(locationFirebaseHelper)
+        locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!)
+        setupFinderUserConnectionHelper(locationFirebaseHelper!!)
         finderUserConnectionHelper!!.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
-        setupLocationHelper(locationFirebaseHelper)
+        setupLocationHelper(locationFirebaseHelper!!)
 
         //Initialize Google Play Services
         if (permissionHelper!!.checkApkVersion()) {
@@ -152,8 +155,11 @@ class ListOnline : AppCompatActivity(),
     }
     override fun setOnItemClick(view: View, position: Int) {
         var valueList = ArrayList(valueSet)
-        Log.i(TAG,"setOnItemClick: clicked to item view in RecyclerView : position: "+ position + " user " + valueList.get(position))
+        var clickedUserEmail = valueList[position].replace(" (ja)","")
+        Log.i(TAG,"setOnItemClick: clicked to item view in RecyclerView : position: "+ position + " user " + clickedUserEmail + "koniec")
+        locationFirebaseHelper!!.goToThisMarker(clickedUserEmail)
     }
+    
     private fun generateCodeButtonAction(){
         buttonToActivityGenerateCode.setOnClickListener({
             var intent  = Intent(this, SendInviteActivity::class.java)
