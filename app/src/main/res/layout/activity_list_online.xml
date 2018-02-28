@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="kamilmilik.licencjat_gps_kid.ListOnline">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            app:titleTextColor="@android:color/white">
+        </android.support.v7.widget.Toolbar>
+        <Button
+            android:id="@+id/buttonToActivityGenerateCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="generate code"
+            android:layout_below="@id/toolbar"
+            android:layout_centerHorizontal="true"
+            />
+        <Button
+            android:id="@+id/buttonToActivityEnterInvite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="enter invite code"
+            android:layout_below="@id/buttonToActivityGenerateCode"
+            android:layout_centerHorizontal="true"
+            />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/listOnline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonToActivityEnterInvite"
+            >
+        </android.support.v7.widget.RecyclerView>
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/listOnline"/>
+
+</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
