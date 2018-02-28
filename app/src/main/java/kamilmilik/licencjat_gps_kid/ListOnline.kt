@@ -18,21 +18,17 @@ import com.google.android.gms.maps.SupportMapFragment
 import kamilmilik.licencjat_gps_kid.Invite.EnterInviteActivity
 import kamilmilik.licencjat_gps_kid.Invite.SendInviteActivity
 import kamilmilik.licencjat_gps_kid.Login.LoginActivity
-import kamilmilik.licencjat_gps_kid.models.User
 import kamilmilik.licencjat_gps_kid.Utils.RecyclerViewAdapter
 import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 import android.os.Build
+import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.licencjat_gps_kid.Helper.*
 
 
 class ListOnline : AppCompatActivity(),
         OnItemClickListener,
         OnMapReadyCallback{
-
-
-
     val TAG : String = ListOnline::class.java.simpleName
-
 
     //Firebase
     private var onlineUserHelper: OnlineUserHelper? = null
@@ -42,9 +38,13 @@ class ListOnline : AppCompatActivity(),
     lateinit var valueSet:HashSet<String>
     //permission
     private val MY_PERMISSION_REQUEST_CODE : Int = 99
+    var permissionHelper : PermissionHelper = PermissionHelper(this)
     //Location
     private  var locationHelper : LocationHelper? = null
+    private var finderUserConnectionHelper : FinderUserConnectionHelper? = null
     private var mPermissionDenied = false
+    //maps
+    private var mGoogleMap: GoogleMap? = null
 
 
 
@@ -57,59 +57,46 @@ class ListOnline : AppCompatActivity(),
         generateCodeButtonAction()
         enterCodeButtonAction()
 
-
         setupToolbar()
 
-        setupFinderUserConnectionHelper()
-
         setupAddOnlineUserToDatabaseHelper()
-
-        //setupLocationHelper()
 
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
-    private fun setupFinderUserConnectionHelper(){
-//        var finderUserConnectionHelper  = FinderUserConnectionHelper(this@ListOnline, this, valueSet, adapter, recyclerView)
-//        finderUserConnectionHelper.findFollowersConnectionAndUpdateRecyclerView()
+    private fun setupFinderUserConnectionHelper(locationFirebaseHelper: LocationFirebaseHelper){
+        finderUserConnectionHelper  = FinderUserConnectionHelper(this, this, valueSet, adapter, recyclerView,locationFirebaseHelper)
     }
-    private fun setupLocationHelper(locationsFirebaseHelper : LocationsFirebaseHelper){
+    private fun setupLocationHelper(locationFirebaseHelper: LocationFirebaseHelper){
         Log.i(TAG,permissionHelper.toString() + " " + mGoogleMap)
-        locationHelper = LocationHelper(this,permissionHelper,mGoogleMap!!,locationsFirebaseHelper)
-        //locationHelper!!.setupLocationFirebaseHelper()
+        locationHelper = LocationHelper(this,permissionHelper, locationFirebaseHelper)
     }
 
-    var mGoogleMap: GoogleMap? = null
-
-    var mGoogleApiClient: GoogleApiClient? = null
-
-
-    var permissionHelper : PermissionHelper = PermissionHelper(this)
     override fun onMapReady(googleMap: GoogleMap) {
-                mGoogleMap = googleMap
+        mGoogleMap = googleMap
         //TODO jak user nie ma followersow i followingow to powinnismy pokazac jego znacznik
-        var locationsFirebaseHelper = LocationsFirebaseHelper(mGoogleMap!!)
-        var finderUserConnectionHelper  = FinderUserConnectionHelper(this, this, valueSet, adapter, recyclerView,locationsFirebaseHelper)
-        finderUserConnectionHelper.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
-        setupLocationHelper(locationsFirebaseHelper)
+        var locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!)
+        setupFinderUserConnectionHelper(locationFirebaseHelper)
+        finderUserConnectionHelper!!.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
+        setupLocationHelper(locationFirebaseHelper)
 
         //Initialize Google Play Services
         if (permissionHelper!!.checkApkVersion()) {
-            Log.i(TAG,"vers(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ion " + android.os.Build.VERSION.SDK_INT + " >= " + Build.VERSION_CODES.M)
+            Log.i(TAG, "vers(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ion " + android.os.Build.VERSION.SDK_INT + " >= " + Build.VERSION_CODES.M)
             if (permissionHelper!!.checkPermissionGranted()) {
                 Log.i(TAG, " Location Permission already granted")
                 //Location Permission already granted
                 locationHelper!!.buildGoogleApiClient()
                 mGoogleMap!!.isMyLocationEnabled = true
             } else {
-                Log.i(TAG,"Request Location Permission")
+                Log.i(TAG, "Request Location Permission")
                 //Request Location Permission
                 permissionHelper!!.checkLocationPermission()
             }
         } else {
-            Log.i(TAG,"version " + android.os.Build.VERSION.SDK_INT + " < " + Build.VERSION_CODES.M)
+            Log.i(TAG, "version " + android.os.Build.VERSION.SDK_INT + " < " + Build.VERSION_CODES.M)
             locationHelper!!.buildGoogleApiClient()
             mGoogleMap!!.isMyLocationEnabled = true
         }
@@ -126,7 +113,7 @@ class ListOnline : AppCompatActivity(),
                     // location-related task you need to do.
                     if (permissionHelper!!.checkPermissionGranted()) {
 
-                        if (mGoogleApiClient == null) {
+                        if (locationHelper!!.mGoogleApiClient == null) {
                             locationHelper!!.buildGoogleApiClient()
                         }
                         mGoogleMap!!.setMyLocationEnabled(true)
@@ -156,9 +143,10 @@ class ListOnline : AppCompatActivity(),
     private fun setupRecyclerView(){
         recyclerView =  findViewById(R.id.listOnline)
         recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
 
         valueSet = HashSet()
+        valueSet.add(FirebaseAuth.getInstance().currentUser!!.email!! + " (ja)")
         var valueList = ArrayList(valueSet)
         adapter = RecyclerViewAdapter(this@ListOnline, valueList)
         recyclerView.adapter = adapter

@@ -4,20 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.firebase.auth.FirebaseAuth
-import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
-import kamilmilik.licencjat_gps_kid.Utils.RecyclerViewAdapter
-import kamilmilik.licencjat_gps_kid.models.User
 
 
 /**
@@ -26,8 +18,7 @@ import kamilmilik.licencjat_gps_kid.models.User
 class LocationHelper(
         var context: Context,
         var permissionHelper: PermissionHelper,
-        var mGoogleMap : GoogleMap,
-        var locationsFirebaseHelper: LocationsFirebaseHelper):GoogleApiClient.ConnectionCallbacks,
+        var locationFirebaseHelper: LocationFirebaseHelper):GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener{
     var TAG : String = LocationHelper::class.java.simpleName
@@ -57,27 +48,13 @@ class LocationHelper(
     override fun onConnectionFailed(p0: ConnectionResult) {
         Log.i(TAG,"onConnectionFailed: google maps" + p0.errorMessage)
     }
-    var currentMarker: Marker? = null
-
     override fun onLocationChanged(location: Location?) {
         Log.i(TAG, "onLocationChanged")
         mLastLocation = location!!
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker!!.remove();
         }
-        locationsFirebaseHelper!!.addCurrentUserLocationToFirebase(location!!)
-
-//        var finderUserConnectionHelper  = FinderUserConnectionHelper(context, listener, valueSet, adapter, recyclerView, locationsFirebaseHelper!!,location)
-//        finderUserConnectionHelper.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
-//
-//        if(currentMarker!=null){
-//            currentMarker!!.remove()
-//        }
-//        var currentUser = FirebaseAuth.getInstance().currentUser
-//        currentMarker = mGoogleMap!!.addMarker(MarkerOptions()
-//                .position(LatLng(location.latitude!!, location.longitude!!))
-//                .title(currentUser!!.email))
-        //locationsFirebaseHelper!!.loadLocationsFromDatabaseForCurrentUser("lurFM7tblDTaxNqIbaCnF9Dnv8k1", location!!.latitude, location!!.longitude)
+        locationFirebaseHelper!!.addCurrentUserLocationToFirebase(location!!)
     }
 
     fun buildGoogleApiClient() {

@@ -181,9 +181,9 @@ class PermissionHelper(var context : Context){
 //        val mapFragment = supportFragmentManager
 //                .findFragmentById(R.id.map) as SupportMapFragment
 //        mapFragment.getMapAsync(this)
-////        var locationsFirebaseHelper = LocationsFirebaseHelper(mapFragment)
-////        locationsFirebaseHelper.initMapAsynch()
-////        locationsFirebaseHelper.loadLocationsFromDatabaseForCurrentUser("lurFM7tblDTaxNqIbaCnF9Dnv8k1",65.9666967,-18.5333)
+////        var locationFirebaseHelper = LocationFirebaseHelper(mapFragment)
+////        locationFirebaseHelper.initMapAsynch()
+////        locationFirebaseHelper.loadLocationsFromDatabaseForCurrentUser("lurFM7tblDTaxNqIbaCnF9Dnv8k1",65.9666967,-18.5333)
 //
 //    }
 //
