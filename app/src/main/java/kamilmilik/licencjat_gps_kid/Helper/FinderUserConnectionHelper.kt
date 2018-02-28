@@ -45,10 +45,11 @@ class FinderUserConnectionHelper(var context : Context, var listener : OnItemCli
                         valueSet.add(userFollowers.email)
                         locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(userFollowers.userId!!)
                     }
-                    locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(currentUser.uid)
+                    //locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(currentUser.uid)
                 }
                 if(dataSnapshot.value == null){//nothing found
                     Log.i(TAG,"nothing found in onDataChange in followers")
+
                 }else{
                     for(user in valueSet){
                         Log.i(TAG,"user complete : " + user)
@@ -74,7 +75,7 @@ class FinderUserConnectionHelper(var context : Context, var listener : OnItemCli
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
-                    locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(currentUser.uid)
+                    //locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(currentUser.uid)
                     for(childSingleSnapshot in singleSnapshot.children){
                         var userFollowing = childSingleSnapshot.child("user").getValue(User::class.java)
                         Log.i(TAG,"value following: " + userFollowing.userId + " " + userFollowing.email)

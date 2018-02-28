@@ -30,6 +30,19 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap) {
                         currentUser!!.email!!,
                         lastLocation.latitude.toString(),
                         lastLocation.longitude.toString()))
+
+
+        removeOldMarker(currentUser.uid)
+
+            var currentMarker = mGoogleMap!!.addMarker(MarkerOptions()
+                    .position(LatLng(lastLocation.latitude!!, lastLocation.longitude!!))
+                    .title(currentUser!!.email))
+            markersMap.put(currentUser.uid, currentMarker)
+
+            mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lastLocation.latitude, lastLocation.longitude), 12.0f))
+            currentUserLocation = createLocationVariable(currentMarker.position)
+
+        updateMarkerSnippetDistance(currentUser!!.uid,currentUserLocation)
     }
     fun listenerForLocationsChangeInFirebase(followingUserId : String){
         loadLocationsFromDatabaseForCurrentUser(followingUserId)
@@ -49,18 +62,13 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap) {
                     var userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
                     var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation.lat!!.toDouble(), userWhoChangeLocation.lng!!.toDouble())
 
+//                    if(userId == FirebaseAuth.getInstance().currentUser!!.uid){
+//                        currentUserLocation = createLocationVariable(userWhoChangeLocation)
+//
+//                        updateMarkerSnippetDistance(userId,currentUserLocation)
+//
+//                    }else{
                     removeOldMarker(userId)
-                    if(userId == FirebaseAuth.getInstance().currentUser!!.uid){
-                        currentUserLocation = createLocationVariable(userWhoChangeLocation)
-                        var currentUser = FirebaseAuth.getInstance().currentUser
-                        var currentMarker = mGoogleMap!!.addMarker(MarkerOptions()
-                                    .position(LatLng(currentUserLocation.latitude!!, currentUserLocation.longitude!!))
-                                    .title(currentUser!!.email))
-                        markersMap.put(userId, currentMarker)
-                        updateMarkerSnippetDistance(userId,currentUserLocation)
-
-                        mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(currentUserLocation.latitude, currentUserLocation.longitude),12.0f))
-                    }else{
                         var location = createLocationVariable(locationOfTheUserWhoChangeLocation)
                         var firstDistanceSecondMeasure = calculateDistanceBetweenTwoPoints(currentUserLocation,location)
                         Log.i(TAG,"ustawiam marker obserwowanego na pozycje : " + locationOfTheUserWhoChangeLocation + " dla " + userWhoChangeLocation.email)
@@ -71,7 +79,7 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap) {
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
                         mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(locationOfTheUserWhoChangeLocation.latitude, locationOfTheUserWhoChangeLocation.longitude),12.0f))
                         markersMap.put(userId, markerFollowingUser)
-                    }
+//                    }
 
                 }
 
