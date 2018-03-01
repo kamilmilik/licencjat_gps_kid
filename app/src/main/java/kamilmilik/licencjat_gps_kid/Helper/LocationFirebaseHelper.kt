@@ -63,19 +63,19 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap) {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 for (singleSnapshot in dataSnapshot!!.children) {
                     var userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
-                    var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation.lat!!.toDouble(), userWhoChangeLocation.lng!!.toDouble())
+                    var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())
 
-                    removeOldMarker(userWhoChangeLocation.email)
+                    removeOldMarker(userWhoChangeLocation!!.email)
                     var location = createLocationVariable(locationOfTheUserWhoChangeLocation)
                     var firstDistanceSecondMeasure = calculateDistanceBetweenTwoPoints(currentUserLocation, location)
-                    Log.i(TAG, "ustawiam marker obserwowanego na pozycje : " + locationOfTheUserWhoChangeLocation + " dla " + userWhoChangeLocation.email)
+                    Log.i(TAG, "ustawiam marker obserwowanego na pozycje : " + locationOfTheUserWhoChangeLocation + " dla " + userWhoChangeLocation!!.email)
                     var markerFollowingUser = mGoogleMap!!.addMarker(MarkerOptions()
                             .position(locationOfTheUserWhoChangeLocation)
-                            .title(userWhoChangeLocation.email)
+                            .title(userWhoChangeLocation!!.email)
                             .snippet("Distance " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
                     //mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(locationOfTheUserWhoChangeLocation.latitude, locationOfTheUserWhoChangeLocation.longitude), 12.0f))
-                    markersMap.put(userWhoChangeLocation.email, markerFollowingUser)
+                    markersMap.put(userWhoChangeLocation!!.email, markerFollowingUser)
 
                 }
 

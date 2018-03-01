@@ -24,7 +24,7 @@ class OnlineUserHelper {
             }
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 var connected = dataSnapshot.getValue(Boolean::class.java)
-                if (connected) {
+                if (connected!!) {
                     currentUserRef.onDisconnect().removeValue()//Remove the value at this location when the client disconnects
                     //add to last_online current user
                     counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid, FirebaseAuth.getInstance().currentUser!!.email!!))

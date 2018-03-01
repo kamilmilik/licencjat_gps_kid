@@ -11,6 +11,8 @@ import android.graphics.Color
 import android.support.v4.app.NotificationCompat
 import kamilmilik.licencjat_gps_kid.MainActivity
 import android.text.TextUtils
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.database.FirebaseDatabase
 import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.R
 
@@ -83,7 +85,7 @@ class GeofenceService : IntentService {
     private fun createNotification(msg: String, notificationPendingIntent: PendingIntent): Notification {
         val notificationBuilder = NotificationCompat.Builder(this)
         notificationBuilder
-                .setSmallIcon(R.drawable.ic_audiotrack)
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                 .setColor(Color.RED)
                 .setContentTitle(msg)
                 .setContentText("Geofence Notification!")
@@ -101,6 +103,20 @@ class GeofenceService : IntentService {
             GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS -> return "Too many pending intents"
             else -> return "Unknown error."
         }
+    }
+    fun notificationsToAnotherDevice(currentUserId : String,userIdToSendNotification : String){
+        var notificationsDatabase = FirebaseDatabase.getInstance().reference.child("notifications")
+
+        var notificationData : HashMap<String, String> = HashMap()
+        notificationData.put("from", currentUserId)
+        notificationData.put("type","request")
+
+        notificationsDatabase.child(userIdToSendNotification).push().setValue(notificationData).addOnSuccessListener { object : OnSuccessListener<Void>{
+            override fun onSuccess(void: Void?) {
+                Log.i(TAG,"success set value in notifications in " + currentUserId)
+            }
+
+        }}
     }
 
 

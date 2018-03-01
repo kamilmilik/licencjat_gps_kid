@@ -13,7 +13,12 @@ import kamilmilik.licencjat_gps_kid.models.User
 /**
  * Created by kamil on 24.02.2018.
  */
-class FinderUserConnectionHelper(var context: Context, var listener: OnItemClickListener, var valueSet: HashSet<String>, var adapter: RecyclerViewAdapter, var recyclerView: RecyclerView, var locationFirebaseHelper: LocationFirebaseHelper) {
+class FinderUserConnectionHelper(var context: Context,
+                                 var listener: OnItemClickListener,
+                                 var valueSet: HashSet<String>,
+                                 var adapter: RecyclerViewAdapter,
+                                 var recyclerView: RecyclerView,
+                                 var locationFirebaseHelper: LocationFirebaseHelper) {
     private val TAG = FinderUserConnectionHelper::class.java.simpleName
     fun listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView() {
         findFollowersConnectionAndUpdateRecyclerView()
@@ -25,7 +30,6 @@ class FinderUserConnectionHelper(var context: Context, var listener: OnItemClick
         val reference = FirebaseDatabase.getInstance().reference
         findFollowersUser(reference, currentUser!!)
         findFollowingUser(reference, currentUser!!)
-
     }
 
     /**
@@ -42,7 +46,7 @@ class FinderUserConnectionHelper(var context: Context, var listener: OnItemClick
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         var userFollowers = childSingleSnapshot.child("user").getValue(User::class.java)
-                        Log.i(TAG, "value followers: " + userFollowers.userId + " " + userFollowers.email)
+                        Log.i(TAG, "value followers: " + userFollowers!!.userId + " " + userFollowers.email)
                         valueSet.add(userFollowers.email)
                         locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(userFollowers.userId!!)
                     }
@@ -79,8 +83,8 @@ class FinderUserConnectionHelper(var context: Context, var listener: OnItemClick
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         var userFollowing = childSingleSnapshot.child("user").getValue(User::class.java)
-                        Log.i(TAG, "value following: " + userFollowing.userId + " " + userFollowing.email)
-                        valueSet.add(userFollowing.email)
+                        Log.i(TAG, "value following: " + userFollowing!!.userId + " " + userFollowing!!.email)
+                        valueSet.add(userFollowing!!.email)
                         locationFirebaseHelper!!.loadLocationsFromDatabaseForCurrentUser(userFollowing.userId!!)
                     }
                 }

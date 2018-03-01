@@ -85,6 +85,7 @@ class ListOnline : AppCompatActivity(),
         setupFinderUserConnectionHelper(locationFirebaseHelper!!)
         finderUserConnectionHelper!!.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
         setupLocationHelper(locationFirebaseHelper!!)
+
         //Initialize Google Play Services
         if (permissionHelper!!.checkApkVersion()) {
             Log.i(TAG, "vers(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ion " + android.os.Build.VERSION.SDK_INT + " >= " + Build.VERSION_CODES.M)
