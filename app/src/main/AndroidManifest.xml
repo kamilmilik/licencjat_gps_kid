@@ -62,6 +62,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <service android:name=".Utils.GeofenceService" android:exported="true" android:enabled="true"/>
     </application>
 
 </manifest>

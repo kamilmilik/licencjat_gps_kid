@@ -37,6 +37,7 @@ class OnlineUserHelper {
         counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().getCurrentUser()!!.uid,FirebaseAuth.getInstance().getCurrentUser()!!.getEmail()!!))
     }
     fun logoutUser(){
+        //maybye disconect googleapi
         currentUserRef.onDisconnect().removeValue()
         counterRef.onDisconnect().removeValue()
         currentUserRef.removeValue()

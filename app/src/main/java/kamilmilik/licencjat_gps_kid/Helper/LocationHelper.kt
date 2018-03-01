@@ -1,16 +1,31 @@
 package kamilmilik.licencjat_gps_kid.Helper
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.ResultCallback
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.firebase.auth.FirebaseAuth
+import kamilmilik.licencjat_gps_kid.Utils.GeofenceService
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.Circle
+
+
+
+
 
 
 /**
@@ -19,10 +34,10 @@ import com.google.firebase.auth.FirebaseAuth
 class LocationHelper(
         var context: Context,
         var permissionHelper: PermissionHelper,
-        var locationFirebaseHelper: LocationFirebaseHelper):GoogleApiClient.ConnectionCallbacks,
+        var locationFirebaseHelper: LocationFirebaseHelper) : GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener{
-    var TAG : String = LocationHelper::class.java.simpleName
+        com.google.android.gms.location.LocationListener {
+    var TAG: String = LocationHelper::class.java.simpleName
 
 
     var mLocationRequest: LocationRequest? = null
@@ -33,8 +48,9 @@ class LocationHelper(
 
     @SuppressLint("MissingPermission")
     override fun onConnected(p0: Bundle?) {
-        Log.i(TAG,"onConnected")
+        Log.i(TAG, "onConnected")
         createLocationRequest()
+        startGeofence()
         if (permissionHelper!!.checkPermissionGranted()) {
             Log.i(TAG, "start request location updates ")
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
@@ -42,15 +58,19 @@ class LocationHelper(
     }
 
     override fun onConnectionSuspended(p0: Int) {
-        Log.i(TAG,"onConnectionSuspended")
+        Log.i(TAG, "onConnectionSuspended")
         mGoogleApiClient!!.connect()
     }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.i(TAG,"onConnectionFailed: google maps" + p0.errorMessage)
+    private fun startGeofence(){
+        var geofence = kamilmilik.licencjat_gps_kid.Geofence(context, mGoogleApiClient!!, permissionHelper, locationFirebaseHelper!!)
+        geofence.startGeofence()
     }
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        Log.i(TAG, "onConnectionFailed: google maps" + p0.errorMessage)
+    }
+
     override fun onLocationChanged(location: Location?) {
-        if(FirebaseAuth.getInstance().currentUser != null){
+        if (FirebaseAuth.getInstance().currentUser != null) {
             Log.i(TAG, "onLocationChanged")
             mLastLocation = location!!
             if (mCurrLocationMarker != null) {//prevent if user click logout to not update location
@@ -61,22 +81,25 @@ class LocationHelper(
     }
 
     fun buildGoogleApiClient() {
-        synchronized(this){
+        synchronized(this) {
             Log.i(TAG, "buildGoogleApiClient")
-            mGoogleApiClient =  GoogleApiClient.Builder(context)
+            mGoogleApiClient = GoogleApiClient.Builder(context)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
-                    .build();
-            mGoogleApiClient!!.connect();
+                    .build()
+            mGoogleApiClient!!.connect()
         }
     }
+
     fun createLocationRequest() {
-        Log.i(TAG,"createLocationRequest")
+        Log.i(TAG, "createLocationRequest")
         mLocationRequest = LocationRequest()
         mLocationRequest!!.interval = 100
         mLocationRequest!!.fastestInterval = 100
         mLocationRequest!!.smallestDisplacement = 1F
         mLocationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
+
+
 }

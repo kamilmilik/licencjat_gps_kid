@@ -1,5 +1,6 @@
 package kamilmilik.licencjat_gps_kid
 
+import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -21,6 +22,8 @@ import kamilmilik.licencjat_gps_kid.Login.LoginActivity
 import kamilmilik.licencjat_gps_kid.Utils.RecyclerViewAdapter
 import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 import android.os.Build
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
@@ -82,7 +85,6 @@ class ListOnline : AppCompatActivity(),
         setupFinderUserConnectionHelper(locationFirebaseHelper!!)
         finderUserConnectionHelper!!.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
         setupLocationHelper(locationFirebaseHelper!!)
-
         //Initialize Google Play Services
         if (permissionHelper!!.checkApkVersion()) {
             Log.i(TAG, "vers(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ion " + android.os.Build.VERSION.SDK_INT + " >= " + Build.VERSION_CODES.M)
@@ -159,7 +161,7 @@ class ListOnline : AppCompatActivity(),
         Log.i(TAG,"setOnItemClick: clicked to item view in RecyclerView : position: "+ position + " user " + clickedUserEmail + "koniec")
         locationFirebaseHelper!!.goToThisMarker(clickedUserEmail)
     }
-    
+
     private fun generateCodeButtonAction(){
         buttonToActivityGenerateCode.setOnClickListener({
             var intent  = Intent(this, SendInviteActivity::class.java)
@@ -200,6 +202,17 @@ class ListOnline : AppCompatActivity(),
     private fun setupToolbar(){
         toolbar.title = "Presence System"
         setSupportActionBar(toolbar)
+    }
+
+    override fun onResume() {
+        Log.i(TAG,"onResume")
+        super.onResume()
+
+        var response = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
+        if(response != ConnectionResult.SUCCESS){
+            Log.i(TAG, "Google Play services not available")
+            GoogleApiAvailability.getInstance().getErrorDialog(this,response,1).show()
+        }
     }
 
 }
