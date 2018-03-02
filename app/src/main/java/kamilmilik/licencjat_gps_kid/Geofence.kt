@@ -26,20 +26,22 @@ import java.lang.Exception
 /**
  * Created by kamil on 01.03.2018.
  */
-class Geofence(var context : Context, var permissionHelper: PermissionHelper, var locationFirebaseHelper: LocationFirebaseHelper){
-    private var  TAG = Geofence::class.java.simpleName
+class Geofence(var context: Context, var permissionHelper: PermissionHelper, var locationFirebaseHelper: LocationFirebaseHelper) {
+    private var TAG = Geofence::class.java.simpleName
     private val GEOFENCE_REQ_ID = "My Geofence"
     private val GEOFENCE_RADIUS = 500.0f // in meters
 
     private var mGeofencingClient: GeofencingClient? = null
-    private var mGeofenceList : ArrayList<Geofence>? = null
+    private var mGeofenceList: ArrayList<Geofence>? = null
+
     fun startGeofence() {
         Log.i(TAG, "startGeofence()")
-        createGeofence(LatLng(65.97056135, -18.53131691),GEOFENCE_RADIUS)
+        createGeofence(LatLng(65.97056135, -18.53131691), GEOFENCE_RADIUS)
         getGeofencingRequest()
         addGeofence()
     }
-    private fun createGeofence(latLng: LatLng, radius: Float){
+
+    private fun createGeofence(latLng: LatLng, radius: Float) {
         mGeofencingClient = LocationServices.getGeofencingClient(context)
         mGeofenceList = ArrayList()
         mGeofenceList!!.add(Geofence.Builder()
@@ -68,28 +70,30 @@ class Geofence(var context : Context, var permissionHelper: PermissionHelper, va
         return PendingIntent.getService(
                 context, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
+
     @SuppressLint("MissingPermission")
-    private fun addGeofence(){
-        if (permissionHelper.checkPermissionGranted()){
+    private fun addGeofence() {
+        if (permissionHelper.checkPermissionGranted()) {
             mGeofencingClient!!.addGeofences(getGeofencingRequest(), createGeofencePendingIntent())
-                    .addOnSuccessListener ( context as Activity,object : OnSuccessListener<Void>{
+                    .addOnSuccessListener(context as Activity, object : OnSuccessListener<Void> {
                         override fun onSuccess(void: Void?) {
                             Log.i(TAG, "Successfully added geofence")
                             drawGeofence(LatLng(65.97056135, -18.53131691))
                         }
 
                     })
-                    .addOnFailureListener( context as Activity,object : OnFailureListener{
+                    .addOnFailureListener(context as Activity, object : OnFailureListener {
                         override fun onFailure(e: Exception) {
-                            Log.i(TAG,"Failed to add geofence " + e.toString())
+                            Log.i(TAG, "Failed to add geofence " + e.toString())
                         }
 
                     })
 
         }
     }
+
     private var geoFenceLimits: Circle? = null
-    private fun drawGeofence(position : LatLng) {
+    private fun drawGeofence(position: LatLng) {
         Log.d(TAG, "drawGeofence()")
         if (geoFenceLimits != null)
             geoFenceLimits!!.remove()
