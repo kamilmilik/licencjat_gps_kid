@@ -33,11 +33,14 @@ class GeofenceService : IntentService {
             return
         }else{
             var transition = event.geofenceTransition
-            var geofences : List<Geofence> = event.triggeringGeofences
-            var geofence = geofences[0]
-            var requestId = geofence.requestId
+//          unneeded ?
+//           var geofences : List<Geofence> = event.triggeringGeofences
+//            var geofence = geofences[0]
+//            var requestId = geofence.requestId
 
             if(transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_EXIT){
+                // Get the geofences that were triggered. A single event can trigger
+                // multiple geofences.
                 val triggeringGeofences  : List<Geofence> = event.triggeringGeofences
                 // Create a detail message with Geofences received
                 val geofenceTransitionDetails = getGeofenceTransitionDetails(transition, triggeringGeofences)

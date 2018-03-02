@@ -50,7 +50,6 @@ class LocationHelper(
     override fun onConnected(p0: Bundle?) {
         Log.i(TAG, "onConnected")
         createLocationRequest()
-        startGeofence()
         if (permissionHelper!!.checkPermissionGranted()) {
             Log.i(TAG, "start request location updates ")
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
@@ -60,10 +59,6 @@ class LocationHelper(
     override fun onConnectionSuspended(p0: Int) {
         Log.i(TAG, "onConnectionSuspended")
         mGoogleApiClient!!.connect()
-    }
-    private fun startGeofence(){
-        var geofence = kamilmilik.licencjat_gps_kid.Geofence(context, mGoogleApiClient!!, permissionHelper, locationFirebaseHelper!!)
-        geofence.startGeofence()
     }
     override fun onConnectionFailed(p0: ConnectionResult) {
         Log.i(TAG, "onConnectionFailed: google maps" + p0.errorMessage)

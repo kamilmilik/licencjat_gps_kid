@@ -18,7 +18,8 @@ class FinderUserConnectionHelper(var context: Context,
                                  var valueSet: HashSet<String>,
                                  var adapter: RecyclerViewAdapter,
                                  var recyclerView: RecyclerView,
-                                 var locationFirebaseHelper: LocationFirebaseHelper) {
+                                 var locationFirebaseHelper: LocationFirebaseHelper,
+                                 var permissionHelper: PermissionHelper) {
     private val TAG = FinderUserConnectionHelper::class.java.simpleName
     fun listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView() {
         findFollowersConnectionAndUpdateRecyclerView()
@@ -30,8 +31,12 @@ class FinderUserConnectionHelper(var context: Context,
         val reference = FirebaseDatabase.getInstance().reference
         findFollowersUser(reference, currentUser!!)
         findFollowingUser(reference, currentUser!!)
+        startGeofence()
     }
-
+    private fun startGeofence(){
+        var geofence = kamilmilik.licencjat_gps_kid.Geofence(context, permissionHelper, locationFirebaseHelper!!)
+        geofence.startGeofence()
+    }
     /**
      * listener for followers in database,  this method run listener for location change in database and add to recycler view followers user
      * @param reference

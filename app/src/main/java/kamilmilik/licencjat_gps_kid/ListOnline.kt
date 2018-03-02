@@ -72,7 +72,7 @@ class ListOnline : AppCompatActivity(),
     }
 
     private fun setupFinderUserConnectionHelper(locationFirebaseHelper: LocationFirebaseHelper){
-        finderUserConnectionHelper  = FinderUserConnectionHelper(this, this, valueSet, adapter, recyclerView,locationFirebaseHelper)
+        finderUserConnectionHelper  = FinderUserConnectionHelper(this, this, valueSet, adapter, recyclerView,locationFirebaseHelper,permissionHelper)
     }
     private fun setupLocationHelper(locationFirebaseHelper: LocationFirebaseHelper){
         Log.i(TAG,permissionHelper.toString() + " " + mGoogleMap)
