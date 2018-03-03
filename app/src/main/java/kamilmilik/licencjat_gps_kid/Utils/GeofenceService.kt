@@ -176,7 +176,7 @@ class GeofenceService : IntentService {
                         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER ){
                             saveToDatabaseNotificationsToAnotherDevice(userFollowing.user_id!!,currentUser.uid)
                         }else if(transition == Geofence.GEOFENCE_TRANSITION_EXIT){
-                            removeValueFromDatabaseNotifications(currentUser.uid)
+                            removeValueFromDatabaseNotifications(userFollowing.user_id!!)
                         }
                     }
                 }
