@@ -13,6 +13,7 @@ import com.google.firebase.database.ServerValue
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.models.UserUniqueKey
 import java.util.*
@@ -50,7 +51,9 @@ class SendInviteActivity : AppCompatActivity() {
         var userId = FirebaseAuth.getInstance().getCurrentUser()!!.uid
         var userEmail = FirebaseAuth.getInstance().getCurrentUser()!!.email
         var uniqueKeyId = FirebaseDatabase.getInstance().reference.push().key
-        var userUniqueKey  = UserUniqueKey(userId, userEmail!!,generatedUniqueKey)
+        var deviceTokenId = FirebaseInstanceId.getInstance().token
+
+        var userUniqueKey  = UserUniqueKey(userId, userEmail!!,generatedUniqueKey,deviceTokenId!!)
         FirebaseDatabase.getInstance().reference
                 .child("user_keys")
                 .child(uniqueKeyId)
@@ -59,7 +62,7 @@ class SendInviteActivity : AppCompatActivity() {
 
     }
     private fun addTimeDateToDatabase(uniqueKeyId : String){
-        var userId = FirebaseAuth.getInstance().getCurrentUser()!!.uid
+        var userId = FirebaseAuth.getInstance().currentUser!!.uid
         val ref = FirebaseDatabase.getInstance().reference
         var map   = HashMap<String,Any>() as MutableMap<String,Any>
         map.put("time", ServerValue.TIMESTAMP)

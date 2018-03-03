@@ -5,13 +5,13 @@ package kamilmilik.licencjat_gps_kid.models
  */
 class TrackingModel{
     var email: String = ""
-    var userId : String? = null
+    var user_id: String? = null
     var lat : String? = null
     var lng : String? = null
 
     constructor() {}
-    constructor(userId : String,email : String, lat : String, lng : String){
-        this.userId = userId
+    constructor(user_id : String,email : String, lat : String, lng : String){
+        this.user_id = user_id
         this.email = email
         this.lat = lat
         this.lng = lng

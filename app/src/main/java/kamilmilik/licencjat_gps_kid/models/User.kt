@@ -5,11 +5,13 @@ package kamilmilik.licencjat_gps_kid.models
  */
 class User{
     var email: String = ""
-    var userId : String? = null
+    var user_id: String? = null
+    var device_token: String? = null
 
     constructor() {}
-    constructor(userId : String,email : String){
-        this.userId = userId
+    constructor(userId : String,email : String, deviceToken : String){
+        this.user_id = userId
         this.email = email
+        this.device_token = deviceToken
     }
 }

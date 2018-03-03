@@ -4,14 +4,16 @@ package kamilmilik.licencjat_gps_kid.models
  * Created by kamil on 20.02.2018.
  */
 class UserUniqueKey{
-    var uniqueKey: String = ""
-    var userId : String? = null
-    var userEmail : String? = null
+    var unique_key: String = ""
+    var user_id: String? = null
+    var user_email: String? = null
+    var device_token : String? = null
     var time : Long? = null
     constructor() {}
-    constructor(userId : String, userEmail : String,uniqueKey: String){
-        this.userId = userId
-        this.uniqueKey = uniqueKey
-        this.userEmail = userEmail
+    constructor(userId : String, user_email: String, unique_key: String, device_token : String){
+        this.user_id = userId
+        this.unique_key = unique_key
+        this.user_email = user_email
+        this.device_token = device_token
     }
 }

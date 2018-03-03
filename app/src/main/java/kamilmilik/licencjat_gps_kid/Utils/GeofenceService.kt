@@ -10,7 +10,6 @@ import android.content.Context
 import android.graphics.Color
 import android.support.v4.app.NotificationCompat
 import android.text.TextUtils
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
@@ -140,11 +139,11 @@ class GeofenceService : IntentService {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         var userFollowers = childSingleSnapshot.child("user").getValue(User::class.java)
-                        Log.i(TAG, "value followers: " + userFollowers!!.userId + " " + userFollowers.email)
+                        Log.i(TAG, "value followers: " + userFollowers!!.user_id + " " + userFollowers.email)
                         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER ){
-                            saveToDatabaseNotificationsToAnotherDevice(userFollowers.userId!!,currentUser.uid)
+                            saveToDatabaseNotificationsToAnotherDevice(userFollowers.user_id!!,currentUser.uid)
                         }else if(transition == Geofence.GEOFENCE_TRANSITION_EXIT){
-                            removeValueFromDatabaseNotifications(currentUser.uid)
+                            removeValueFromDatabaseNotifications(userFollowers.user_id!!)
                         }
                     }
                 }
@@ -173,9 +172,9 @@ class GeofenceService : IntentService {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         var userFollowing = childSingleSnapshot.child("user").getValue(User::class.java)
-                        Log.i(TAG, "value following: " + userFollowing!!.userId + " " + userFollowing!!.email)
+                        Log.i(TAG, "value following: " + userFollowing!!.user_id + " " + userFollowing!!.email)
                         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER ){
-                            saveToDatabaseNotificationsToAnotherDevice(userFollowing.userId!!,currentUser.uid)
+                            saveToDatabaseNotificationsToAnotherDevice(userFollowing.user_id!!,currentUser.uid)
                         }else if(transition == Geofence.GEOFENCE_TRANSITION_EXIT){
                             removeValueFromDatabaseNotifications(currentUser.uid)
                         }
@@ -194,18 +193,18 @@ class GeofenceService : IntentService {
     fun saveToDatabaseNotificationsToAnotherDevice(userIdToSendNotification: String, currentUserId: String){
 
         var notificationData : HashMap<String, String> = HashMap()
-        Log.i(TAG, "robie mape z wartoci " + userIdToSendNotification)
-        notificationData.put("from", userIdToSendNotification)
+        Log.i(TAG, "robie mape z wartoci " + currentUserId)
+        notificationData.put("from", currentUserId)
         notificationData.put("type","request")
 
         addNotificationIfUserNotExistInDatabase(currentUserId,userIdToSendNotification,notificationData)
     }
     private fun addNotificationIfUserNotExistInDatabase(currentUserId: String,userIdToSendNotification: String, notificationData : HashMap<String,String>){
         var notificationsDatabase = FirebaseDatabase.getInstance().reference.child("notifications")
-        notificationsDatabase.child(currentUserId).orderByChild("from").equalTo(userIdToSendNotification).addListenerForSingleValueEvent(object : ValueEventListener{
+        notificationsDatabase.child(userIdToSendNotification).orderByChild("from").equalTo(currentUserId).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 if(!dataSnapshot!!.exists()){
-                    notificationsDatabase.child(currentUserId).push().setValue(notificationData)
+                    notificationsDatabase.child(userIdToSendNotification).push().setValue(notificationData)
                 }
             }
             override fun onCancelled(databaseError: DatabaseError?) {}

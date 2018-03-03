@@ -31,7 +31,7 @@ class RecyclerViewAdapter(internal var context: Context, internal var dataList: 
 
 //        holder.itemView.setOnClickListener(View.OnClickListener {
 //            var intent = Intent(context,MapTrackingActivity::class.java)
-//            intent.putExtra("userId", data.userId)
+//            intent.putExtra("user_id", data.user_id)
 //            context.startActivity(intent)
 //        })
 

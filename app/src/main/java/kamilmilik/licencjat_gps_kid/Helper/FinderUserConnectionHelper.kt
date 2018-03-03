@@ -1,13 +1,11 @@
 package kamilmilik.licencjat_gps_kid.Helper
 
 import android.content.Context
-import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import kamilmilik.licencjat_gps_kid.Utils.GeofenceService
 import kamilmilik.licencjat_gps_kid.Utils.OnGetDataListener
 import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 import kamilmilik.licencjat_gps_kid.Utils.RecyclerViewAdapter
@@ -68,9 +66,9 @@ class FinderUserConnectionHelper(var context: Context,
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         var userFollowers = childSingleSnapshot.child("user").getValue(User::class.java)
-                        Log.i(TAG, "value followers: " + userFollowers!!.userId + " " + userFollowers.email)
+                        Log.i(TAG, "value followers: " + userFollowers!!.user_id + " " + userFollowers.email)
                         valueSet.add(userFollowers.email)
-                        locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(userFollowers.userId!!)
+                        locationFirebaseHelper!!.listenerForLocationsChangeInFirebase(userFollowers.user_id!!)
                     }
                 }
                 if (dataSnapshot.value == null) {//nothing found
@@ -108,9 +106,9 @@ class FinderUserConnectionHelper(var context: Context,
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         var userFollowing = childSingleSnapshot.child("user").getValue(User::class.java)
-                        Log.i(TAG, "value following: " + userFollowing!!.userId + " " + userFollowing!!.email)
+                        Log.i(TAG, "value following: " + userFollowing!!.user_id + " " + userFollowing!!.email)
                         valueSet.add(userFollowing!!.email)
-                        locationFirebaseHelper!!.loadLocationsFromDatabaseForCurrentUser(userFollowing.userId!!)
+                        locationFirebaseHelper!!.loadLocationsFromDatabaseForCurrentUser(userFollowing.user_id!!)
                     }
                 }
                 if (dataSnapshot.value == null) {//nothing found

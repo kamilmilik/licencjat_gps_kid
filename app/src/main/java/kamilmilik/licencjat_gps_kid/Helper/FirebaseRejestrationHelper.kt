@@ -10,6 +10,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.models.User
@@ -69,7 +70,9 @@ class FirebaseRejestrationHelper {
      */
     fun addNewUserAccount(email : String){
         Log.i(TAG, "addNewUserAccount: add new user to database")
-        var user : User = User(userId!!,email)
+        var deviceTokenId = FirebaseInstanceId.getInstance().token
+        var user = User(userId!!,email,deviceTokenId!!)
+
         databaseReference!!.child(context!!.getString(R.string.db_user_account_settings_node_name))
                 .child(userId)
                 .setValue(user)

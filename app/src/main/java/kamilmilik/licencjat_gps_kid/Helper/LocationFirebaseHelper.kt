@@ -56,11 +56,12 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap) {
     fun loadLocationsFromDatabaseForCurrentUser(userId: String) {
         Log.i(TAG, "loadLocationsFromDatabaseForCurrentUser")
         var locations = FirebaseDatabase.getInstance().getReference("Locations")
-        var query: Query = locations.orderByChild("userId").equalTo(userId)
+        var query: Query = locations.orderByChild("user_id").equalTo(userId)
 
         //addValueEventListeners The listener is triggered once for the initial state of the data and again anytime the data changes
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                Log.i(TAG,"onDataChange in Locations listener " + dataSnapshot.toString() )
                 for (singleSnapshot in dataSnapshot!!.children) {
                     var userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
                     var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())

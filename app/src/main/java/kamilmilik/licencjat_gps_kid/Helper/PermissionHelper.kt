@@ -279,7 +279,7 @@ class PermissionHelper(var context : Context){
 //    fun loadLocationsFromDatabaseForCurrentUser(followingUserId : String, currentUserLat : Double, currentUserLng : Double){
 //
 //        var locations = FirebaseDatabase.getInstance().getReference("Locations")
-//        var query : Query = locations.orderByChild("userId").equalTo(followingUserId)
+//        var query : Query = locations.orderByChild("user_id").equalTo(followingUserId)
 //        query.addValueEventListener(object : ValueEventListener {
 //            override fun onDataChange(dataSnapshot: DataSnapshot?) {
 //                for(singleSnapshot in dataSnapshot!!.children){
@@ -405,7 +405,7 @@ class PermissionHelper(var context : Context){
 //    override fun setOnItemClick(view: View, position: Int) {
 //        Log.i(TAG,"setOnItemClick: clicked to item view in RecyclerView : position: "+ position + " user " + valueSet.get(position).email)
 ////        var intent = Intent(this, MapTrackingActivity::class.java)
-////        intent.putExtra("followingUserId", valueSet.get(position).userId)
+////        intent.putExtra("followingUserId", valueSet.get(position).user_id)
 ////        intent.putExtra("currentUserLat", locationHelper!!.lastLocation.latitude)
 ////        intent.putExtra("currentUserLng", locationHelper!!.lastLocation.longitude)
 ////        startActivity(intent)

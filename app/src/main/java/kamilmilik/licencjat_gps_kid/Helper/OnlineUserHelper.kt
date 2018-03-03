@@ -3,6 +3,7 @@ package kamilmilik.licencjat_gps_kid.Helper
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.models.User
 
 /**
@@ -27,14 +28,17 @@ class OnlineUserHelper {
                 if (connected!!) {
                     currentUserRef.onDisconnect().removeValue()//Remove the value at this location when the client disconnects
                     //add to last_online current user
-                    counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid, FirebaseAuth.getInstance().currentUser!!.email!!))
+                    var deviceTokenId = FirebaseInstanceId.getInstance().token
+
+                    counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid, FirebaseAuth.getInstance().currentUser!!.email!!,deviceTokenId!!))
                     // adapter!!.notifyDataSetChanged()
                 }
             }
         })
     }
     fun joinUserAction(){
-        counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().getCurrentUser()!!.uid,FirebaseAuth.getInstance().getCurrentUser()!!.getEmail()!!))
+        var deviceTokenId = FirebaseInstanceId.getInstance().token
+        counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid,FirebaseAuth.getInstance().currentUser!!.email!!,deviceTokenId!!))
     }
     fun logoutUser(){
         //maybye disconect googleapi

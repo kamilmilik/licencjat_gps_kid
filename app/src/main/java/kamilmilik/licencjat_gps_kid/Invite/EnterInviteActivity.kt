@@ -15,6 +15,7 @@ import kamilmilik.licencjat_gps_kid.models.UserUniqueKey
 import kotlinx.android.synthetic.main.activity_enter_invite.*
 import android.text.InputFilter
 import android.widget.Toast
+import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.models.User
 
@@ -57,15 +58,15 @@ class EnterInviteActivity : AppCompatActivity() {
     private fun findUserWhichGeneratedInviteCode(enteredInviteCode : String)  {
         val reference = FirebaseDatabase.getInstance().reference
         val query = reference.child("user_keys")
-                .orderByChild("uniqueKey")
+                .orderByChild("unique_key")
                 .equalTo(enteredInviteCode)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     userUniqueKeyModel = singleSnapshot.getValue(UserUniqueKey::class.java)
-                    Log.i(TAG, "found user : " + userUniqueKeyModel!!.userId)
+                    Log.i(TAG, "found user : " + userUniqueKeyModel!!.user_id)
                     var currentUser = FirebaseAuth.getInstance().currentUser
-                    if(!checkIfGivenUsersAreDifferent(userUniqueKeyModel!!.userId,currentUser!!.uid)){//prevent add user self
+                    if(!checkIfGivenUsersAreDifferent(userUniqueKeyModel!!.user_id,currentUser!!.uid)){//prevent add user self
                         addConnectedUserToDatabase(userUniqueKeyModel!!)
                     }
                     goToPreviousActivity()
@@ -96,19 +97,20 @@ class EnterInviteActivity : AppCompatActivity() {
         Log.i(TAG, "addConnectedUserToDatabase: add user data following and followers to database")
         var currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
         var currentUserEmail = FirebaseAuth.getInstance().currentUser!!.email
-        var currentUser = User(currentUserId, currentUserEmail!!)
-        var followedUser = User(userUniqueKeyModel.userId!!, userUniqueKeyModel!!.userEmail!!)
+        var deviceTokenId = FirebaseInstanceId.getInstance().token
+        var currentUser = User(currentUserId, currentUserEmail!!,deviceTokenId!!)
+        var followedUser = User(userUniqueKeyModel.user_id!!, userUniqueKeyModel!!.user_email!!,userUniqueKeyModel.device_token!!)
         FirebaseDatabase.getInstance().getReference()
                 .child("following")
-                .child(currentUser.userId)
-                .child(followedUser!!.userId)
+                .child(currentUser.user_id)
+                .child(followedUser!!.user_id)
                 .child("user")
                 .setValue(followedUser);
 
         FirebaseDatabase.getInstance().getReference()
                 .child("followers")
-                .child(userUniqueKeyModel!!.userId)
-                .child(currentUser.userId)
+                .child(userUniqueKeyModel!!.user_id)
+                .child(currentUser.user_id)
                 .child("user")
                 .setValue(currentUser)
     }

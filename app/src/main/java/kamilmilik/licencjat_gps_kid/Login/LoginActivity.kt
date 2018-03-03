@@ -10,6 +10,9 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.Utils.CheckValidDataInEditText
@@ -19,6 +22,8 @@ import kotlinx.android.synthetic.main.activity_login.*
 class LoginActivity : AppCompatActivity() {
     private val TAG : String = "LoginActivity"
     private var firebaseAuth: FirebaseAuth? = null
+
+    private var userDatabase : DatabaseReference? =null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -37,11 +42,18 @@ class LoginActivity : AppCompatActivity() {
                         progressDialog.dismiss()
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show()
-                            val intent = Intent(this, ListOnline::class.java)
-                            intent.putExtra("Email", firebaseAuth!!.currentUser!!.email)
-                            intent.setFlags((Intent.FLAG_ACTIVITY_NEW_TASK ) or Intent.FLAG_ACTIVITY_CLEAR_TASK )
-                            startActivity(intent)
-                            finish()
+
+                            userDatabase = FirebaseDatabase.getInstance().reference.child("user_account_settings")
+                            var currentUserId = firebaseAuth!!.currentUser!!.uid
+                            var deviceTokenId = FirebaseInstanceId.getInstance().token
+                            userDatabase!!.child(currentUserId).child("device_token").setValue(deviceTokenId).addOnSuccessListener {
+                                val intent = Intent(this, ListOnline::class.java)
+                                intent.putExtra("Email", firebaseAuth!!.currentUser!!.email)
+                                intent.setFlags((Intent.FLAG_ACTIVITY_NEW_TASK ) or Intent.FLAG_ACTIVITY_CLEAR_TASK )
+                                startActivity(intent)
+                                finish()
+                            }
+
                         } else {
                             Log.e("ERROR", task.exception!!.toString())
                             Toast.makeText(this, task.exception!!.message, Toast.LENGTH_LONG).show()
