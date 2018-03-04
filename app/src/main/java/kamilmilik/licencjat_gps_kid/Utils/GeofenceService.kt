@@ -50,7 +50,7 @@ class GeofenceService : IntentService {
                 // Create a detail message with Geofences received
                 val geofenceTransitionDetails = getGeofenceTransitionDetails(transition, triggeringGeofences)
                 // Send notification details as a String
-                sendNotification(geofenceTransitionDetails)
+                //sendNotification(geofenceTransitionDetails)
             }
 
         }
@@ -143,7 +143,7 @@ class GeofenceService : IntentService {
                         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER ){
                             saveToDatabaseNotificationsToAnotherDevice(userFollowers.user_id!!,currentUser.uid)
                         }else if(transition == Geofence.GEOFENCE_TRANSITION_EXIT){
-                            removeValueFromDatabaseNotifications(userFollowers.user_id!!)
+                            removeValueFromDatabaseNotifications(userFollowers.user_id!!,currentUser.uid)
                         }
                     }
                 }
@@ -176,7 +176,7 @@ class GeofenceService : IntentService {
                         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER ){
                             saveToDatabaseNotificationsToAnotherDevice(userFollowing.user_id!!,currentUser.uid)
                         }else if(transition == Geofence.GEOFENCE_TRANSITION_EXIT){
-                            removeValueFromDatabaseNotifications(userFollowing.user_id!!)
+                            removeValueFromDatabaseNotifications(userFollowing.user_id!!, currentUser.uid)
                         }
                     }
                 }
@@ -210,10 +210,22 @@ class GeofenceService : IntentService {
             override fun onCancelled(databaseError: DatabaseError?) {}
         })
     }
-    fun removeValueFromDatabaseNotifications(userIdToDelete : String){
+    fun removeValueFromDatabaseNotifications(userIdToDelete : String, currentUserId: String){
         Log.i(TAG,"removeValueFromDatabaseNotifications userIdToDelete" +  userIdToDelete)
         var notificationsDatabase = FirebaseDatabase.getInstance().reference.child("notifications")
-        notificationsDatabase.child(userIdToDelete).removeValue()
+//        notificationsDatabase.child(userIdToDelete).removeValue() it is done in javascript functions file 
+        var map   = java.util.HashMap<String, Any>() as MutableMap<String,Any>
+        map.put("from", currentUserId)
+        map.put("type", "delete")
+        notificationsDatabase.child(userIdToDelete).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                Log.i(TAG, dataSnapshot.toString() + "  " + dataSnapshot!!.children.toString())
+                for(snapshot in dataSnapshot!!.children){
+                    notificationsDatabase.child(userIdToDelete).child(snapshot.key).setValue(map)
+                }
+            }
+            override fun onCancelled(databaseError: DatabaseError?) {}
+        })
     }
 
 }
