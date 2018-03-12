@@ -183,7 +183,7 @@ class PermissionHelper(var context : Context){
 //        mapFragment.getMapAsync(this)
 ////        var locationFirebaseHelper = LocationFirebaseHelper(mapFragment)
 ////        locationFirebaseHelper.initMapAsynch()
-////        locationFirebaseHelper.loadLocationsFromDatabaseForCurrentUser("lurFM7tblDTaxNqIbaCnF9Dnv8k1",65.9666967,-18.5333)
+////        locationFirebaseHelper.loadLocationsFromDatabaseForGivenUserId("lurFM7tblDTaxNqIbaCnF9Dnv8k1",65.9666967,-18.5333)
 //
 //    }
 //
@@ -264,7 +264,7 @@ class PermissionHelper(var context : Context){
 //            mCurrLocationMarker!!.remove();
 //        }
 //        addCurrentUserLocationToFirebase(location!!)
-//        loadLocationsFromDatabaseForCurrentUser("lurFM7tblDTaxNqIbaCnF9Dnv8k1", location!!.latitude, location!!.longitude)
+//        loadLocationsFromDatabaseForGivenUserId("lurFM7tblDTaxNqIbaCnF9Dnv8k1", location!!.latitude, location!!.longitude)
 //    }
 //    private fun addCurrentUserLocationToFirebase( lastLocation : Location){
 //        var locations = FirebaseDatabase.getInstance().getReference("Locations")
@@ -276,7 +276,7 @@ class PermissionHelper(var context : Context){
 //                        lastLocation.latitude.toString(),
 //                        lastLocation.longitude.toString()))
 //    }
-//    fun loadLocationsFromDatabaseForCurrentUser(followingUserId : String, currentUserLat : Double, currentUserLng : Double){
+//    fun loadLocationsFromDatabaseForGivenUserId(followingUserId : String, currentUserLat : Double, currentUserLng : Double){
 //
 //        var locations = FirebaseDatabase.getInstance().getReference("Locations")
 //        var query : Query = locations.orderByChild("user_id").equalTo(followingUserId)

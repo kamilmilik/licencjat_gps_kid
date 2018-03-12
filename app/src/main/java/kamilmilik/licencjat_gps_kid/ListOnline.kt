@@ -87,6 +87,10 @@ class ListOnline : AppCompatActivity(),
 
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
+        locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!,this)
+        setupFinderUserConnectionHelper(locationFirebaseHelper!!)
+        finderUserConnectionHelper!!.listenerForConnectionsUserChangeInFirebaseAndUpdateRecyclerView()
+        setupLocationHelper(locationFirebaseHelper!!)
         drawButton.setOnClickListener {
             buttonClickedToDrawPolyline = !buttonClickedToDrawPolyline!!
             if(!buttonClickedToDrawPolyline!!) {
@@ -94,53 +98,13 @@ class ListOnline : AppCompatActivity(),
             }else{
                 draggable.setOnTouchListener(object : View.OnTouchListener{
                     override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
-
-                        var position = mGoogleMap!!.projection.fromScreenLocation(
-                                Point( motionEvent!!.x.toInt(), motionEvent!!.y.toInt()));
-                        var action = motionEvent.action
-                        Log.i(TAG,"action " + action)
-                        when(action){
-                            MotionEvent.ACTION_DOWN -> {
-                                Log.i(TAG,"Action Down")
-                                if (polygon != null) {
-                                    //polygon!!.remove()
-                                    polygon = null
-                                    polygonPoints.clear();
-                                }
-                                polygonPoints.add(position);
-                                polygon = mGoogleMap!!.addPolygon(PolygonOptions().addAll(polygonPoints))
-                                polygon!!.setClickable(true)
-                            }
-                            MotionEvent.ACTION_MOVE -> {
-                                Log.i(TAG,"Action Move")
-                                polygonPoints.add(position);
-                                polygon!!.points = polygonPoints
-                            }
-                            MotionEvent.ACTION_UP -> {
-                                mGoogleMap!!.setOnPolygonClickListener (object : GoogleMap.OnPolygonClickListener{
-                                    override fun onPolygonClick(polygon: Polygon?) {
-                                        Log.i(TAG, "clicked " + polygon!!.remove())
-                                    }
-
-                                })
-                                Log.i(TAG,"Action Up")
-                                Log.i(TAG, " "+ PolyUtil.containsLocation(LatLng(65.9667,-18.5333), polygonPoints, false) )
-                                createGeofencePendingIntent()
-
-                                // Close the polyline?
-                                // Send the polyline to make a search?
-                            }
-                        }
+                        locationFirebaseHelper!!.onTouchAction(motionEvent)
                         return buttonClickedToDrawPolyline!!
                     }
 
                 })
             }
         }
-        locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!)
-        setupFinderUserConnectionHelper(locationFirebaseHelper!!)
-        finderUserConnectionHelper!!.listenerForConnectionsUserChangeInFirebaseAndUpdateRecyclerView()
-        setupLocationHelper(locationFirebaseHelper!!)
 
         //Initialize Google Play Services
         if (permissionHelper!!.checkApkVersion()) {
@@ -161,30 +125,7 @@ class ListOnline : AppCompatActivity(),
             mGoogleMap!!.isMyLocationEnabled = true
         }
     }
-    private var isInAreaBoolean : Boolean? = null
-    fun isInArea(): Boolean{
-        if(isInAreaBoolean != null){
-            if(isInAreaBoolean!!){
 
-            }
-        }else{
-            isInAreaBoolean = PolyUtil.containsLocation(LatLng(65.9667,-18.5333), polygonPoints, false)
-        }
-
-        return isInAreaBoolean!!
-    }
-    private val geoFencePendingIntent: PendingIntent? = null
-    private fun createGeofencePendingIntent(): PendingIntent {
-        Log.d(TAG, "createGeofencePendingIntent")
-        if (geoFencePendingIntent != null)
-            return geoFencePendingIntent
-
-        val intent = Intent(this, PolygonService::class.java)
-        startService(Intent(intent))
-
-        return PendingIntent.getService(
-                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){

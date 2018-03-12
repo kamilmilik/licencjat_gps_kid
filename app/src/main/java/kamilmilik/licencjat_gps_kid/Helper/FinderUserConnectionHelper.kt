@@ -109,7 +109,7 @@ class FinderUserConnectionHelper(var context: Context,
                         var userFollowing = childSingleSnapshot.child("user").getValue(User::class.java)
                         Log.i(TAG, "value following: " + userFollowing!!.user_id + " " + userFollowing!!.email)
                         valueSet.add(userFollowing!!.email)
-                        locationFirebaseHelper!!.loadLocationsFromDatabaseForCurrentUser(userFollowing.user_id!!)
+                        locationFirebaseHelper!!.loadLocationsFromDatabaseForGivenUserId(userFollowing.user_id!!)
                     }
                 }
                 if (dataSnapshot.value == null) {//nothing found
