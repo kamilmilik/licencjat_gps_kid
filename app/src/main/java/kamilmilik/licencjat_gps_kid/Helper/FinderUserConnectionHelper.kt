@@ -35,7 +35,8 @@ class FinderUserConnectionHelper(var context: Context,
     }
 
     private val TAG = FinderUserConnectionHelper::class.java.simpleName
-    fun listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView() {
+
+    fun listenerForConnectionsUserChangeInFirebaseAndUpdateRecyclerView() {
         findFollowersConnectionAndUpdateRecyclerView()
     }
 

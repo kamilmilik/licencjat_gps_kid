@@ -1,6 +1,6 @@
 package kamilmilik.licencjat_gps_kid
 
-import android.content.Context
+import android.app.PendingIntent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -9,10 +9,10 @@ import android.util.Log
 import android.view.Menu
 import kotlinx.android.synthetic.main.activity_list_online.*
 import android.content.Intent
+import android.graphics.Point
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -24,10 +24,12 @@ import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 import android.os.Build
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.licencjat_gps_kid.Helper.*
+import android.view.MotionEvent
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.PolyUtil
+import kamilmilik.licencjat_gps_kid.Utils.PolygonService
 
 
 class ListOnline : AppCompatActivity(),
@@ -79,11 +81,65 @@ class ListOnline : AppCompatActivity(),
         locationHelper = LocationHelper(this,permissionHelper, locationFirebaseHelper)
     }
 
+    private var polygonPoints: ArrayList<LatLng> = ArrayList()
+    private var polygon : Polygon? = null
+    var buttonClickedToDrawPolyline: Boolean? = false // to detect map is movable
+
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
+        drawButton.setOnClickListener {
+            buttonClickedToDrawPolyline = !buttonClickedToDrawPolyline!!
+            if(!buttonClickedToDrawPolyline!!) {
+                draggable.setOnTouchListener(null)
+            }else{
+                draggable.setOnTouchListener(object : View.OnTouchListener{
+                    override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
+
+                        var position = mGoogleMap!!.projection.fromScreenLocation(
+                                Point( motionEvent!!.x.toInt(), motionEvent!!.y.toInt()));
+                        var action = motionEvent.action
+                        Log.i(TAG,"action " + action)
+                        when(action){
+                            MotionEvent.ACTION_DOWN -> {
+                                Log.i(TAG,"Action Down")
+                                if (polygon != null) {
+                                    //polygon!!.remove()
+                                    polygon = null
+                                    polygonPoints.clear();
+                                }
+                                polygonPoints.add(position);
+                                polygon = mGoogleMap!!.addPolygon(PolygonOptions().addAll(polygonPoints))
+                                polygon!!.setClickable(true)
+                            }
+                            MotionEvent.ACTION_MOVE -> {
+                                Log.i(TAG,"Action Move")
+                                polygonPoints.add(position);
+                                polygon!!.points = polygonPoints
+                            }
+                            MotionEvent.ACTION_UP -> {
+                                mGoogleMap!!.setOnPolygonClickListener (object : GoogleMap.OnPolygonClickListener{
+                                    override fun onPolygonClick(polygon: Polygon?) {
+                                        Log.i(TAG, "clicked " + polygon!!.remove())
+                                    }
+
+                                })
+                                Log.i(TAG,"Action Up")
+                                Log.i(TAG, " "+ PolyUtil.containsLocation(LatLng(65.9667,-18.5333), polygonPoints, false) )
+                                createGeofencePendingIntent()
+
+                                // Close the polyline?
+                                // Send the polyline to make a search?
+                            }
+                        }
+                        return buttonClickedToDrawPolyline!!
+                    }
+
+                })
+            }
+        }
         locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!)
         setupFinderUserConnectionHelper(locationFirebaseHelper!!)
-        finderUserConnectionHelper!!.listenerForConnectionsUserChangeinFirebaseAndUpdateRecyclerView()
+        finderUserConnectionHelper!!.listenerForConnectionsUserChangeInFirebaseAndUpdateRecyclerView()
         setupLocationHelper(locationFirebaseHelper!!)
 
         //Initialize Google Play Services
@@ -105,7 +161,30 @@ class ListOnline : AppCompatActivity(),
             mGoogleMap!!.isMyLocationEnabled = true
         }
     }
+    private var isInAreaBoolean : Boolean? = null
+    fun isInArea(): Boolean{
+        if(isInAreaBoolean != null){
+            if(isInAreaBoolean!!){
 
+            }
+        }else{
+            isInAreaBoolean = PolyUtil.containsLocation(LatLng(65.9667,-18.5333), polygonPoints, false)
+        }
+
+        return isInAreaBoolean!!
+    }
+    private val geoFencePendingIntent: PendingIntent? = null
+    private fun createGeofencePendingIntent(): PendingIntent {
+        Log.d(TAG, "createGeofencePendingIntent")
+        if (geoFencePendingIntent != null)
+            return geoFencePendingIntent
+
+        val intent = Intent(this, PolygonService::class.java)
+        startService(Intent(intent))
+
+        return PendingIntent.getService(
+                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){

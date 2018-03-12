@@ -34,76 +34,16 @@ class GeofenceService : IntentService {
             return
         }else{
             var transition = event.geofenceTransition
-//          unneeded ?
-//           var geofences : List<Geofence> = event.triggeringGeofences
-//            var geofence = geofences[0]
-//            var requestId = geofence.requestId
 
             if(transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_EXIT){
 
                 findFollowersConnection(transition)
 
-
-                // Get the geofences that were triggered. A single event can trigger
-                // multiple geofences.
-                val triggeringGeofences  : List<Geofence> = event.triggeringGeofences
-                // Create a detail message with Geofences received
-                val geofenceTransitionDetails = getGeofenceTransitionDetails(transition, triggeringGeofences)
-                // Send notification details as a String
-                //sendNotification(geofenceTransitionDetails)
             }
 
         }
     }
 
-    // Create a detail message with Geofences received
-    private fun getGeofenceTransitionDetails(geoFenceTransition: Int, triggeringGeofences: List<Geofence>): String {
-        // get the ID of each geofence triggered
-        val triggeringGeofencesList : ArrayList<String> = ArrayList()
-        for (geofence in triggeringGeofences) {
-            triggeringGeofencesList.add(geofence.requestId)
-        }
-
-        var status: String? = null
-        if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER)
-            status = "Entering "
-        else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT)
-            status = "Exiting "
-        return status!! + TextUtils.join(", ", triggeringGeofencesList)
-    }
-
-    // Send a notification
-    private fun sendNotification(msg: String) {
-        Log.i(TAG, "sendNotification: " + msg)
-
-        // Intent to start the main Activity
-        val notificationIntent  = Intent(applicationContext,ListOnline::class.java)
-
-        val stackBuilder = TaskStackBuilder.create(this)
-        stackBuilder.addParentStack(ListOnline::class.java)
-        stackBuilder.addNextIntent(notificationIntent)
-        val notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        // Creating and sending Notification
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(
-                GEOFENCE_NOTIFICATION_ID,
-                createNotification(msg, notificationPendingIntent))
-    }
-
-    // Create a notification
-    private fun createNotification(msg: String, notificationPendingIntent: PendingIntent): Notification {
-        val notificationBuilder = NotificationCompat.Builder(this)
-        notificationBuilder
-                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                .setColor(Color.RED)
-                .setContentTitle(msg)
-                .setContentText("Geofence Notification!")
-                .setContentIntent(notificationPendingIntent)
-                .setDefaults(Notification.DEFAULT_LIGHTS or Notification.DEFAULT_VIBRATE or Notification.DEFAULT_SOUND)
-                .setAutoCancel(true)
-        return notificationBuilder.build()
-    }
 
     // Handle errors
     private fun getErrorString(errorCode: Int): String {
@@ -213,7 +153,7 @@ class GeofenceService : IntentService {
     fun removeValueFromDatabaseNotifications(userIdToDelete : String, currentUserId: String){
         Log.i(TAG,"removeValueFromDatabaseNotifications userIdToDelete" +  userIdToDelete)
         var notificationsDatabase = FirebaseDatabase.getInstance().reference.child("notifications")
-//        notificationsDatabase.child(userIdToDelete).removeValue() it is done in javascript functions file 
+//        notificationsDatabase.child(userIdToDelete).removeValue() it is done in javascript functions file
         var map   = java.util.HashMap<String, Any>() as MutableMap<String,Any>
         map.put("from", currentUserId)
         map.put("type", "delete")

@@ -68,6 +68,9 @@
             android:value="@string/google_maps_key" />
 
         <service android:name=".Utils.GeofenceService" android:exported="true" android:enabled="true"/>
+
+        <service android:name=".Utils.PolygonService" android:exported="true" android:enabled="true" />
+
         <service
             android:name=".Utils.FirebaseMessagingService">
             <intent-filter>

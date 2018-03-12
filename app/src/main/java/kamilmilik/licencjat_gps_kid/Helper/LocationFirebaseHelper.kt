@@ -138,5 +138,4 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap) {
         return markersMap.getValue(searchedMarkerKey)
     }
 
-
 }
