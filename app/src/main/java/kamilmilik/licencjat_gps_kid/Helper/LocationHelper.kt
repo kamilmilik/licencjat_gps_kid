@@ -22,6 +22,11 @@ import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.licencjat_gps_kid.Utils.GeofenceService
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Circle
+import com.firebase.ui.auth.AuthUI.getApplicationContext
+import com.google.gson.Gson
+import kamilmilik.licencjat_gps_kid.Utils.LocationUpdateService
+
+
 
 
 
@@ -45,7 +50,7 @@ class LocationHelper(
     var mLastLocation: Location? = null
     var mCurrLocationMarker: Marker? = null
 
-
+    var mRequestLocationUpdatesPendingIntent : PendingIntent? = null
     @SuppressLint("MissingPermission")
     override fun onConnected(p0: Bundle?) {
         Log.i(TAG, "onConnected")
@@ -53,6 +58,16 @@ class LocationHelper(
         if (permissionHelper!!.checkPermissionGranted()) {
             Log.i(TAG, "start request location updates ")
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
+
+            val mRequestLocationUpdatesIntent = Intent(context, LocationUpdateService::class.java)
+            // create a PendingIntent
+            mRequestLocationUpdatesPendingIntent = PendingIntent.getService(context, 0,
+                    mRequestLocationUpdatesIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT)
+            // request location updates
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                    mLocationRequest,
+                    mRequestLocationUpdatesPendingIntent)
         }
     }
 
@@ -68,6 +83,7 @@ class LocationHelper(
         if (FirebaseAuth.getInstance().currentUser != null) {
             Log.i(TAG, "onLocationChanged")
             mLastLocation = location!!
+            //TODO czy to cos robi?
             if (mCurrLocationMarker != null) {//prevent if user click logout to not update location
                 mCurrLocationMarker!!.remove();
             }

@@ -34,7 +34,7 @@ import kamilmilik.licencjat_gps_kid.Utils.PolygonService
 
 class ListOnline : AppCompatActivity(),
         OnItemClickListener,
-        OnMapReadyCallback{
+        OnMapReadyCallback {
     val TAG : String = ListOnline::class.java.simpleName
 
     //Firebase
@@ -81,8 +81,6 @@ class ListOnline : AppCompatActivity(),
         locationHelper = LocationHelper(this,permissionHelper, locationFirebaseHelper)
     }
 
-    private var polygonPoints: ArrayList<LatLng> = ArrayList()
-    private var polygon : Polygon? = null
     var buttonClickedToDrawPolyline: Boolean? = false // to detect map is movable
 
     override fun onMapReady(googleMap: GoogleMap) {

@@ -15,6 +15,7 @@ import com.google.firebase.database.*
 import com.google.maps.android.PolyUtil
 import kamilmilik.licencjat_gps_kid.Utils.PolygonService
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
+import java.io.Serializable
 import java.text.DecimalFormat
 
 
@@ -22,6 +23,7 @@ import java.text.DecimalFormat
  * Created by kamil on 25.02.2018.
  */
 class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context : Context) {
+    @Transient private val serialVersionUID = 1L
     private val TAG: String = LocationFirebaseHelper::class.java.simpleName
 
     var currentMarkerPosition : LatLng? = null
@@ -207,13 +209,10 @@ private var polygonPoints: ArrayList<LatLng> = ArrayList()
         var listOfIsInArea : ArrayList<Int> = ArrayList()
         for(polygon in polygonsMap){
             //Log.i(TAG, polygon.key + "\n${polygon.value}")
-            var isInAreaReturn = isInArea(polygon.key,polygon.value)
-            Log.i(TAG, "isInArea " + isInAreaReturn)
-            listOfIsInArea.add(isInAreaReturn)
-            Log.i(TAG, "lista po dodaniu " + listOfIsInArea.toString())
+            Log.i(TAG, "isInArea " + isInArea(polygon.key,polygon.value))
+            listOfIsInArea.add(isInArea(polygon.key,polygon.value))
+            Log.i(TAG, "lista po dodani")
         }
-        Log.i(TAG, "lista po dodaniu2 " + listOfIsInArea.toString())
-
         intent.putExtra("isInArea", listOfIsInArea)
         context.startService(Intent(intent))
 
@@ -241,13 +240,13 @@ private var polygonPoints: ArrayList<LatLng> = ArrayList()
                 return STILL_OUTSIDE_OR_INSIDE
             }
         }
-        if (previousValueInMap == isInArea) {
-            return STILL_OUTSIDE_OR_INSIDE
-        } else if (previousValueInMap == false && isInArea == true) {
-            return ENTER
-        } else if (previousValueInMap == true && isInArea == false) {
-            return EXIT
-        }
+        if(previousValueInMap == isInArea){
+                return STILL_OUTSIDE_OR_INSIDE
+            }else if (previousValueInMap == false && isInArea == true){
+                return ENTER
+            }else if (previousValueInMap == true && isInArea == false){
+                return EXIT
+            }
 
         return STILL_OUTSIDE_OR_INSIDE
     }
