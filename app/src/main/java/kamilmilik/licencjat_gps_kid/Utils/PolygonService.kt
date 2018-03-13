@@ -146,10 +146,4 @@ private fun findFollowersConnection(transition : Int) {
     }
 
 
-
-
-    //0 is still outside or inside
-    //1 enter
-    //2 exit
-
 }

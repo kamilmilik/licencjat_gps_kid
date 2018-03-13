@@ -60,7 +60,7 @@ class LocationHelper(
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
 
             val mRequestLocationUpdatesIntent = Intent(context, LocationUpdateService::class.java)
-            // create a PendingIntent
+            // create a PendingIntent to start LocationUpdateService
             mRequestLocationUpdatesPendingIntent = PendingIntent.getService(context, 0,
                     mRequestLocationUpdatesIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT)

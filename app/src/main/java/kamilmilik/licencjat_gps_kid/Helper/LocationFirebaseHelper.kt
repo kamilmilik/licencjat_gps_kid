@@ -55,7 +55,7 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
                 Log.i(TAG, "polygon " + polygon.key + " \n ${polygon.value}")
             }
             currentMarkerPosition = currentMarker.position
-            createGeofencePendingIntent()
+            //createGeofencePendingIntent()
 
         }
     }
@@ -196,7 +196,8 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
                         polygonsMap2.remove(polygon!!.tag.toString())
                         removePolygonFromDatabase(polygon!!.tag.toString())
                         polygon!!.remove()
-                        createGeofencePendingIntent()
+                        //createGeofencePendingIntent()
+
                     }
                 })
                 Log.i(TAG, "Action Up")
@@ -208,7 +209,12 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
                 polygonsMap.put(polygon!!.tag.toString(), copyPolygonPoints)
                 polygonsMap2.put(polygon!!.tag.toString(), copyPolygonPoints2)
 
-                createGeofencePendingIntent()
+                for (polygon in polygonsMap) {
+                    //Log.i(TAG, polygon.key + "\n${polygon.value}")
+                    Log.i(TAG, "polygonMAPSIZE " + polygonsMap.size)
+                    savePolygonToDatabase(Test(polygon.key,polygon.value))
+                }
+                //createGeofencePendingIntent()
             }
         }
     }
@@ -259,23 +265,15 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
         var currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {//prevent if user click logout
             var query: Query = databaseReference.orderByKey().equalTo(currentUser.uid)
-
-            //addValueEventListeners The listener is triggered once for the initial state of the data and again anytime the data changes
-
             query.addListenerForSingleValueEvent(object : ValueEventListener {
-
                 override fun onDataChange(dataSnapshot: DataSnapshot?) {
                     for (singleSnapshot in dataSnapshot!!.children) {
                         for(child in singleSnapshot.children){
                             var polygonsFromDbMap   = child.getValue(Test::class.java)
-                            Log.i(TAG,polygonsFromDbMap!!.tag + " " + polygonsFromDbMap!!.list)
+                            //Log.i(TAG,polygonsFromDbMap!!.tag + " " + polygonsFromDbMap!!.list)
                             polygonsMap.put(polygonsFromDbMap!!.tag!!,polygonsFromDbMap!!.list!!)
-                            //polygonMap.put(polygonsFromDbMap!!.tag!!, polygonsFromDbMap!!.list!! as java.util.ArrayList<LatLng>)
                             var newList : ArrayList<LatLng> = ArrayList(polygonsFromDbMap!!.list!!.size)
-                            for(value in polygonsFromDbMap!!.list!!){
-                                var latlng  = LatLng(value.latitude!!,value.longitude!!)
-                                newList.add(latlng)
-                            }
+                            polygonsFromDbMap!!.list!!.mapTo(newList) { LatLng(it.latitude!!, it.longitude!!) }
                             polygonsMap2.put(polygonsFromDbMap!!.tag!!,newList)
                             drawPolygonFromDatabase(polygonsFromDbMap!!.tag!!,newList)
 
@@ -303,7 +301,7 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
                 polygonsMap2.remove(polygon!!.tag.toString())
                 removePolygonFromDatabase(polygon!!.tag.toString())
                 polygon!!.remove()
-                createGeofencePendingIntent()
+                //createGeofencePendingIntent()
             }
         })
     }
