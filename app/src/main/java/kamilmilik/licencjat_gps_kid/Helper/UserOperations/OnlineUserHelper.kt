@@ -1,4 +1,4 @@
-package kamilmilik.licencjat_gps_kid.Helper
+package kamilmilik.licencjat_gps_kid.Helper.UserOperations
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
@@ -15,7 +15,7 @@ class OnlineUserHelper {
     lateinit var currentUserRef : DatabaseReference
     lateinit var counterRef : DatabaseReference
     fun addOnlineUserToDatabase() {
-        Log.i(TAG, "addOnlineUserToDatabase: set up online account to list")
+        Log.i(TAG, "addOnlineUserToDatabase: set up online account to polygonLatLngList")
         onlineRef = FirebaseDatabase.getInstance().reference.child(".info/connected")
         counterRef = FirebaseDatabase.getInstance().getReference("last_online")
         currentUserRef = FirebaseDatabase.getInstance().getReference("last_online").child(FirebaseAuth.getInstance().currentUser!!.uid)

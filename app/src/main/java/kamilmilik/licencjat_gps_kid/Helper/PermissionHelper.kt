@@ -108,14 +108,14 @@ class PermissionHelper(var context : Context){
 //import com.google.android.gms.maps.GoogleMap
 //import com.google.android.gms.maps.OnMapReadyCallback
 //import com.google.android.gms.maps.SupportMapFragment
-//import kamilmilik.licencjat_gps_kid.Helper.OnlineUserHelper
+//import kamilmilik.licencjat_gps_kid.Helper.UserOperations.OnlineUserHelper
 //import kamilmilik.licencjat_gps_kid.Invite.EnterInviteActivity
 //import kamilmilik.licencjat_gps_kid.Invite.SendInviteActivity
 //import kamilmilik.licencjat_gps_kid.Login.LoginActivity
 //import kamilmilik.licencjat_gps_kid.models.User
 //import kamilmilik.licencjat_gps_kid.Utils.RecyclerViewAdapter
 //import kamilmilik.licencjat_gps_kid.Helper.FinderUserConnectionHelper
-//import kamilmilik.licencjat_gps_kid.Helper.LocationHelper
+//import kamilmilik.licencjat_gps_kid.Helper.UserOperations.LocationOperation.LocationHelper
 //import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 //import com.google.android.gms.maps.model.Marker
 //import com.google.android.gms.location.LocationRequest

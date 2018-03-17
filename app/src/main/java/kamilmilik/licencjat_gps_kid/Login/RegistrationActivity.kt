@@ -14,7 +14,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DataSnapshot
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.Utils.CheckValidDataInEditText
-import kamilmilik.licencjat_gps_kid.Helper.FirebaseRejestrationHelper
+import kamilmilik.licencjat_gps_kid.Helper.UserOperations.FirebaseRejestrationHelper
 
 
 class RegistrationActivity : AppCompatActivity() {

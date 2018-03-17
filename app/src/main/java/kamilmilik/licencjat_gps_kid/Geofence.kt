@@ -7,14 +7,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.util.Log
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-import kamilmilik.licencjat_gps_kid.Helper.LocationFirebaseHelper
+import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationFirebaseHelper
 import kamilmilik.licencjat_gps_kid.Helper.PermissionHelper
 import kamilmilik.licencjat_gps_kid.Utils.GeofenceService
 import com.google.android.gms.location.GeofencingClient

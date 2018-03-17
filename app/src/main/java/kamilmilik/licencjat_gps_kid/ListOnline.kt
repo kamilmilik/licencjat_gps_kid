@@ -1,6 +1,5 @@
 package kamilmilik.licencjat_gps_kid
 
-import android.app.PendingIntent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -9,7 +8,6 @@ import android.util.Log
 import android.view.Menu
 import kotlinx.android.synthetic.main.activity_list_online.*
 import android.content.Intent
-import android.graphics.Point
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -27,9 +25,10 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.licencjat_gps_kid.Helper.*
 import android.view.MotionEvent
-import com.google.android.gms.maps.model.*
-import com.google.maps.android.PolyUtil
-import kamilmilik.licencjat_gps_kid.Utils.PolygonService
+import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationFirebaseHelper
+import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationHelper
+import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.DrawPolygon
+import kamilmilik.licencjat_gps_kid.Helper.UserOperations.OnlineUserHelper
 
 
 class ListOnline : AppCompatActivity(),
@@ -78,17 +77,18 @@ class ListOnline : AppCompatActivity(),
     }
     private fun setupLocationHelper(locationFirebaseHelper: LocationFirebaseHelper){
         Log.i(TAG,permissionHelper.toString() + " " + mGoogleMap)
-        locationHelper = LocationHelper(this,permissionHelper, locationFirebaseHelper)
+        locationHelper = LocationHelper(this, permissionHelper, locationFirebaseHelper)
     }
 
     var buttonClickedToDrawPolyline: Boolean? = false // to detect map is movable
 
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
-        locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!,this)
+        locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!, this)
         setupFinderUserConnectionHelper(locationFirebaseHelper!!)
         finderUserConnectionHelper!!.listenerForConnectionsUserChangeInFirebaseAndUpdateRecyclerView()
         setupLocationHelper(locationFirebaseHelper!!)
+        var drawPolygon = DrawPolygon(mGoogleMap!!)
         drawButton.setOnClickListener {
             buttonClickedToDrawPolyline = !buttonClickedToDrawPolyline!!
             if(!buttonClickedToDrawPolyline!!) {
@@ -96,7 +96,8 @@ class ListOnline : AppCompatActivity(),
             }else{
                 draggable.setOnTouchListener(object : View.OnTouchListener{
                     override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
-                        locationFirebaseHelper!!.onTouchAction(motionEvent)
+                        //locationFirebaseHelper!!.onTouchAction(motionEvent)
+                        drawPolygon.onTouchAction(motionEvent)
                         return buttonClickedToDrawPolyline!!
                     }
 
