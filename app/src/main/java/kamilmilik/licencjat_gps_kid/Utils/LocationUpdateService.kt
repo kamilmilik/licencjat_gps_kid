@@ -46,7 +46,7 @@ class LocationUpdateService : IntentService{
                             currentUser!!.email!!,
                             lastLocation.latitude.toString(),
                             lastLocation.longitude.toString()))
-            getPolygonFromDatabase()
+            //getPolygonFromDatabase()
         }
     }
 
@@ -72,6 +72,7 @@ class LocationUpdateService : IntentService{
                             polygonsLatLngMap.put(polygonsFromDbMap!!.tag!!, newList)
                         }
                     }
+
                     var insideOrOutsideArea = InsideOrOutsideArea(this@LocationUpdateService, location!!)
                     var listOfIsInArea = insideOrOutsideArea.isPointInsidePolygon(polygonsLatLngMap)
                     Log.i(TAG, listOfIsInArea.toString())
@@ -93,6 +94,7 @@ class LocationUpdateService : IntentService{
         polygonsFromDbMap!!.polygonLatLngList!!.mapTo(newList) { LatLng(it.latitude!!, it.longitude!!) }
         return newList
     }
+
 
 
 

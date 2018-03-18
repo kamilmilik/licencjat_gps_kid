@@ -71,6 +71,8 @@
 
         <service android:name=".Utils.PolygonService" android:exported="true" android:enabled="true" />
 
+        <service android:name=".Utils.PolygonInsideOrOutsideService" android:exported="true" android:enabled="true" />
+
         <service android:name=".Utils.LocationUpdateService" android:exported="true" android:enabled="true" />
 
         <service

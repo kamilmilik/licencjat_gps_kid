@@ -29,6 +29,7 @@ import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationFirebaseHel
 import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationHelper
 import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.DrawPolygon
 import kamilmilik.licencjat_gps_kid.Helper.UserOperations.OnlineUserHelper
+import kamilmilik.licencjat_gps_kid.Utils.PolygonInsideOrOutsideService
 
 
 class ListOnline : AppCompatActivity(),
@@ -58,6 +59,11 @@ class ListOnline : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_online)
+
+        var intent = Intent(this, PolygonInsideOrOutsideService::class.java)
+        stopService(intent)
+        startService(intent)
+
         setupRecyclerView()
 
         generateCodeButtonAction()
