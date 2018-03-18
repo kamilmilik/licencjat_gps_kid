@@ -13,18 +13,21 @@ import java.lang.reflect.Type
 /**
  * Created by kamil on 17.03.2018.
  */
-class InsideOrOutsideArea(var context : Context ,var location: Location){
+
+class InsideOrOutsideArea(var context : Context ,var locationOfUserWhoChangeIt: Location){
 
     private val TAG = InsideOrOutsideArea::class.java.simpleName
 
-    private val STILL_OUTSIDE_OR_INSIDE = 0
-    private val ENTER = 1
-    private val EXIT = 2
-
     // private var isInAreaPreviousMap: HashMap<String, Boolean> = HashMap()
     private var isInArea: Boolean? = null
+
+    /**
+     * check if given in class location is inside or outside or not change status in given polygon
+     * @param polygonKey
+     * @param polygonPoints
+     */
     private fun isInArea(polygonKey: String, polygonPoints: ArrayList<LatLng>): Int {
-        isInArea = PolyUtil.containsLocation(LatLng(location!!.latitude,location!!.longitude), polygonPoints, false)
+        isInArea = PolyUtil.containsLocation(LatLng(locationOfUserWhoChangeIt!!.latitude, locationOfUserWhoChangeIt!!.longitude), polygonPoints, false)
         var isInAreaPreviousMap: HashMap<String, Boolean> = getValueFromSharedPreferences()
         var previousValueInMap = isInAreaPreviousMap[polygonKey]
         Log.i(TAG, "polygonKey: $polygonKey")
@@ -33,20 +36,20 @@ class InsideOrOutsideArea(var context : Context ,var location: Location){
         writeValueToSharedPreferences(isInAreaPreviousMap)
         if (previousValueInMap == null) {
             if (isInArea == true) {
-                return ENTER
+                return PolygonAreaStatus.ENTER
             } else if (isInArea == false) {//if user isn't in area not push notification
-                return STILL_OUTSIDE_OR_INSIDE
+                return PolygonAreaStatus.STILL_OUTSIDE_OR_INSIDE
             }
         }
         if (previousValueInMap == isInArea) {
-            return STILL_OUTSIDE_OR_INSIDE
+            return PolygonAreaStatus.STILL_OUTSIDE_OR_INSIDE
         } else if (previousValueInMap == false && isInArea == true) {
-            return ENTER
+            return PolygonAreaStatus.ENTER
         } else if (previousValueInMap == true && isInArea == false) {
-            return EXIT
+            return PolygonAreaStatus.EXIT
         }
 
-        return STILL_OUTSIDE_OR_INSIDE
+        return PolygonAreaStatus.STILL_OUTSIDE_OR_INSIDE
     }
     private fun getValueFromSharedPreferences() : HashMap<String,Boolean>{
         val sharedPref = context.getSharedPreferences("shared", Context.MODE_PRIVATE)

@@ -40,7 +40,7 @@ class LocationHelper(
         Log.i(TAG, "onConnected")
         createLocationRequest()
         if (permissionHelper!!.checkPermissionGranted()) {
-            Log.i(TAG, "start request location updates ")
+            Log.i(TAG, "start request locationOfUserWhoChangeIt updates ")
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
 
             val mRequestLocationUpdatesIntent = Intent(context, LocationUpdateService::class.java)
@@ -48,7 +48,7 @@ class LocationHelper(
             mRequestLocationUpdatesPendingIntent = PendingIntent.getService(context, 0,
                     mRequestLocationUpdatesIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT)
-            // request location updates
+            // request locationOfUserWhoChangeIt updates
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
                     mLocationRequest,
                     mRequestLocationUpdatesPendingIntent)
@@ -68,7 +68,7 @@ class LocationHelper(
             Log.i(TAG, "onLocationChanged")
             mLastLocation = location!!
             //TODO czy to cos robi?
-            if (mCurrLocationMarker != null) {//prevent if user click logout to not update location
+            if (mCurrLocationMarker != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
                 mCurrLocationMarker!!.remove();
             }
             locationFirebaseHelper!!.addCurrentUserLocationToFirebase(location!!)

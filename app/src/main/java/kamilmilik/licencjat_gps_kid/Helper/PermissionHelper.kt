@@ -51,7 +51,7 @@ class PermissionHelper(var context : Context){
         // sees the explanation, try again to request the permission.
         AlertDialog.Builder(context)
                 .setTitle("Location Permission Needed")
-                .setMessage("This app needs the Location permission, please accept to use location functionality")
+                .setMessage("This app needs the Location permission, please accept to use locationOfUserWhoChangeIt functionality")
                 .setPositiveButton("Location Settings", DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
                     //Prompt the user once explanation has been shown
                     ActivityCompat.requestPermissions(context as Activity,
@@ -72,7 +72,7 @@ class PermissionHelper(var context : Context){
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
     /**
-     * Displays a dialog with error message explaining that the location permission is missing.
+     * Displays a dialog with error message explaining that the locationOfUserWhoChangeIt permission is missing.
      */
      fun showMissingPermissionError() {
         Toast.makeText(context,"Your permission was not granted", Toast.LENGTH_LONG).show()
@@ -100,7 +100,7 @@ class PermissionHelper(var context : Context){
 //import android.view.Menu
 //import kotlinx.android.synthetic.main.activity_list_online.*
 //import android.content.Intent
-//import android.location.Location
+//import android.locationOfUserWhoChangeIt.Location
 //import android.view.MenuItem
 //import android.view.View
 //import android.widget.Toast
@@ -118,11 +118,11 @@ class PermissionHelper(var context : Context){
 //import kamilmilik.licencjat_gps_kid.Helper.UserOperations.LocationOperation.LocationHelper
 //import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 //import com.google.android.gms.maps.model.Marker
-//import com.google.android.gms.location.LocationRequest
+//import com.google.android.gms.locationOfUserWhoChangeIt.LocationRequest
 //import android.annotation.SuppressLint
 //import android.os.Build
 //import com.google.android.gms.common.ConnectionResult
-//import com.google.android.gms.location.LocationServices
+//import com.google.android.gms.locationOfUserWhoChangeIt.LocationServices
 //import com.google.android.gms.maps.CameraUpdateFactory
 //import com.google.android.gms.maps.model.BitmapDescriptorFactory
 //import com.google.android.gms.maps.model.LatLng
@@ -139,7 +139,7 @@ class PermissionHelper(var context : Context){
 //        OnMapReadyCallback,
 //        GoogleApiClient.ConnectionCallbacks,
 //        GoogleApiClient.OnConnectionFailedListener,
-//        com.google.android.gms.location.LocationListener {
+//        com.google.android.gms.locationOfUserWhoChangeIt.LocationListener {
 //
 //
 //
@@ -245,7 +245,7 @@ class PermissionHelper(var context : Context){
 //        mLocationRequest!!.smallestDisplacement = 10F
 //        mLocationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //it must be high accuracy if not it not run onLocationChanged in first run and when allow permission
 //        if (permissionHelper!!.checkPermissionGranted()) {
-//            Log.i(TAG, "start request location updates ")
+//            Log.i(TAG, "start request locationOfUserWhoChangeIt updates ")
 //            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
 //        }
 //    }
@@ -257,14 +257,14 @@ class PermissionHelper(var context : Context){
 //    }
 //
 //
-//    override fun onLocationChanged(location: Location?) {
+//    override fun onLocationChanged(locationOfUserWhoChangeIt: Location?) {
 //        Log.i(TAG,"onLocationChanged")
-//        mLastLocation = location
+//        mLastLocation = locationOfUserWhoChangeIt
 //        if (mCurrLocationMarker != null) {
 //            mCurrLocationMarker!!.remove();
 //        }
-//        addCurrentUserLocationToFirebase(location!!)
-//        loadLocationsFromDatabaseForGivenUserId("lurFM7tblDTaxNqIbaCnF9Dnv8k1", location!!.latitude, location!!.longitude)
+//        addCurrentUserLocationToFirebase(locationOfUserWhoChangeIt!!)
+//        loadLocationsFromDatabaseForGivenUserId("lurFM7tblDTaxNqIbaCnF9Dnv8k1", locationOfUserWhoChangeIt!!.latitude, locationOfUserWhoChangeIt!!.longitude)
 //    }
 //    private fun addCurrentUserLocationToFirebase( lastLocation : Location){
 //        var locations = FirebaseDatabase.getInstance().getReference("Locations")
@@ -348,7 +348,7 @@ class PermissionHelper(var context : Context){
 //            MY_PERMISSION_REQUEST_CODE ->{
 //                if (permissionHelper!!.checkIsPermissionGrantedInRequestPermission(grantResults)) {
 //                    // permission was granted, yay! Do the
-//                    // location-related task you need to do.
+//                    // locationOfUserWhoChangeIt-related task you need to do.
 //                    if (permissionHelper!!.checkPermissionGranted()) {
 //
 //                        if (mGoogleApiClient == null) {
@@ -378,7 +378,7 @@ class PermissionHelper(var context : Context){
 //    }
 //
 //    /**
-//     * Displays a dialog with error message explaining that the location permission is missing.
+//     * Displays a dialog with error message explaining that the locationOfUserWhoChangeIt permission is missing.
 //     */
 //    private fun showMissingPermissionError() {
 //        Toast.makeText(this,"Your permission was not granted",Toast.LENGTH_LONG).show()
@@ -386,7 +386,7 @@ class PermissionHelper(var context : Context){
 //    //    override fun onPause() {
 ////        super.onPause()
 ////
-////        //stop location updates when Activity is no longer active
+////        //stop locationOfUserWhoChangeIt updates when Activity is no longer active
 ////        if (mGoogleApiClient != null) {
 ////            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this)
 ////        }

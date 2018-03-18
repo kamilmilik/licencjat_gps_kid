@@ -40,62 +40,12 @@ class LocationUpdateService : IntentService{
         Log.i(TAG, "addCurrentUserLocationToFirebase()")
         var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {//prevent if user click logout to not update location
+        if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
             locations.child(currentUser!!.uid)
                     .setValue(TrackingModel(currentUser.uid,
                             currentUser!!.email!!,
                             lastLocation.latitude.toString(),
                             lastLocation.longitude.toString()))
-            //getPolygonFromDatabase()
         }
     }
-
-
-    //database
-    private val ENTER = 1
-    private val EXIT = 2
-    private fun getPolygonFromDatabase(){
-        var databaseReference = FirebaseDatabase.getInstance().getReference("user_polygons")
-        var currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {//prevent if user click logout
-            var polygonsLatLngMap : HashMap<String, ArrayList<LatLng>> = HashMap()
-            var query: Query = databaseReference.orderByKey().equalTo(currentUser.uid)
-            query.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot?) {
-                    for (singleSnapshot in dataSnapshot!!.children) {
-                        for(child in singleSnapshot.children){
-                            var polygonsFromDbMap   = child.getValue(PolygonModel::class.java)
-                            Log.i(TAG,polygonsFromDbMap!!.tag + " " + polygonsFromDbMap!!.polygonLatLngList)
-
-                            var newList : ArrayList<LatLng> = changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
-
-                            polygonsLatLngMap.put(polygonsFromDbMap!!.tag!!, newList)
-                        }
-                    }
-
-                    var insideOrOutsideArea = InsideOrOutsideArea(this@LocationUpdateService, location!!)
-                    var listOfIsInArea = insideOrOutsideArea.isPointInsidePolygon(polygonsLatLngMap)
-                    Log.i(TAG, listOfIsInArea.toString())
-                    listOfIsInArea
-                            .filter { it == ENTER || it == EXIT }
-                            .forEach { Notification.findFollowersConnection(it) }
-
-                    if (dataSnapshot.value == null) {//nothing found
-                        Log.i(TAG, "nothing found in onDataChange")
-                    }
-                }
-
-                override fun onCancelled(p0: DatabaseError?) {}
-            })
-        }
-    }
-    private fun changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap : PolygonModel) : ArrayList<LatLng>{
-        var newList : ArrayList<LatLng> = ArrayList(polygonsFromDbMap!!.polygonLatLngList!!.size)
-        polygonsFromDbMap!!.polygonLatLngList!!.mapTo(newList) { LatLng(it.latitude!!, it.longitude!!) }
-        return newList
-    }
-
-
-
-
 }

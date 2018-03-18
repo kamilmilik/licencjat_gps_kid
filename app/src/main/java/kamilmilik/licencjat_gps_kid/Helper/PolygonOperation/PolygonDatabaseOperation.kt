@@ -38,7 +38,7 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap){
         var polygonTagToRemove = polygonTagToRemove.substring(polygonTagToRemove.lastIndexOf('@')+1)
         var databaseReference = FirebaseDatabase.getInstance().getReference("user_polygons")
         var currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {//prevent if user click logout to not update location
+        if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
             databaseReference.child(currentUser!!.uid)
                     .child(polygonTagToRemove).removeValue()
         }
@@ -59,7 +59,6 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap){
                             var newList : ArrayList<LatLng> = changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
 
                             drawPolygonFromDatabase(polygonsFromDbMap!!.tag!!,newList)
-
                         }
                     }
                     if (dataSnapshot.value == null) {//nothing found
@@ -75,6 +74,12 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap){
         polygonsFromDbMap!!.polygonLatLngList!!.mapTo(newList) { LatLng(it.latitude!!, it.longitude!!) }
         return newList
     }
+
+    /**
+     * it draw polygon on map based on data from database
+     * @param polygonTag tag of each polygon from database
+     * @param polygonList ArrayList with LatLng of polygon
+     */
     private fun drawPolygonFromDatabase(polygonTag : String ,polygonList: ArrayList<LatLng>){
         Log.i(TAG,"Draw POLYGON FFFFFFFFFFFF========")
         polygon = googleMap!!.addPolygon(PolygonOptions().addAll(polygonList))

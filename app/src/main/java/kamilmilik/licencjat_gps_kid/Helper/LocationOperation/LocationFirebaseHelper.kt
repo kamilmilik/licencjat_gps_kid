@@ -30,14 +30,15 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
     var currentMarkerPosition: LatLng? = null
     fun addCurrentUserLocationToFirebase(lastLocation: Location) {
         Log.i(TAG, "addCurrentUserLocationToFirebase")
-        var locations = FirebaseDatabase.getInstance().getReference("Locations")
+//        var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {//prevent if user click logout to not update location
-            locations.child(currentUser!!.uid)
-                    .setValue(TrackingModel(currentUser.uid,
-                            currentUser!!.email!!,
-                            lastLocation.latitude.toString(),
-                            lastLocation.longitude.toString()))
+        if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
+//            it should be method which add location to db but It is done in LocationUpdateService
+//                 locations.child(currentUser!!.uid)
+//                    .setValue(TrackingModel(currentUser.uid,
+//                            currentUser!!.email!!,
+//                            lastLocation.latitude.toString(),
+//                            lastLocation.longitude.toString()))
 
 
             removeOldMarker(currentUser.email!!)

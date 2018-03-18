@@ -60,9 +60,7 @@ class ListOnline : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_online)
 
-        var intent = Intent(this, PolygonInsideOrOutsideService::class.java)
-        stopService(intent)
-        startService(intent)
+        setupPolygonBackgroundService()
 
         setupRecyclerView()
 
@@ -77,7 +75,11 @@ class ListOnline : AppCompatActivity(),
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
-
+    private fun setupPolygonBackgroundService(){
+        var intent = Intent(this, PolygonInsideOrOutsideService::class.java)
+        stopService(intent)
+        startService(intent)
+    }
     private fun setupFinderUserConnectionHelper(locationFirebaseHelper: LocationFirebaseHelper){
         finderUserConnectionHelper  = FinderUserConnectionHelper(this, this, valueSet, adapter, recyclerView,locationFirebaseHelper,permissionHelper)
     }
@@ -139,7 +141,7 @@ class ListOnline : AppCompatActivity(),
                 if (permissionHelper!!.checkIsPermissionGrantedInRequestPermission(grantResults)) {
                     Log.i(TAG,"permission was granted, yay!")
                     // permission was granted, yay! Do the
-                    // location-related task you need to do.
+                    // locationOfUserWhoChangeIt-related task you need to do.
                     if (permissionHelper!!.checkPermissionGranted()) {
 
                         if (locationHelper!!.mGoogleApiClient == null) {
