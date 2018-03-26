@@ -67,13 +67,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <service android:name=".Utils.GeofenceService" android:exported="true" android:enabled="true"/>
-
-        <service android:name=".Utils.PolygonService" android:exported="true" android:enabled="true" />
-
-        <service android:name=".Utils.PolygonInsideOrOutsideService" android:exported="true" android:enabled="true" />
-
-        <service android:name=".Utils.LocationUpdateService" android:exported="true" android:enabled="true" />
+        <service android:name=".Utils.PolygonAndLocationService" android:exported="true" android:enabled="true" />
 
         <service
             android:name=".Utils.FirebaseMessagingService">

@@ -14,7 +14,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Marker
 import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.licencjat_gps_kid.Helper.PermissionHelper
-import kamilmilik.licencjat_gps_kid.Utils.LocationUpdateService
 
 
 /**
@@ -43,11 +42,11 @@ class LocationHelper(
             Log.i(TAG, "start request locationOfUserWhoChangeIt updates ")
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
 
-            val mRequestLocationUpdatesIntent = Intent(context, LocationUpdateService::class.java)
-            // create a PendingIntent to start LocationUpdateService
-            mRequestLocationUpdatesPendingIntent = PendingIntent.getService(context, 0,
-                    mRequestLocationUpdatesIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT)
+//            val mRequestLocationUpdatesIntent = Intent(context, LocationUpdateService::class.java)
+//            // create a PendingIntent to start LocationUpdateService
+//            mRequestLocationUpdatesPendingIntent = PendingIntent.getService(context, 0,
+//                    mRequestLocationUpdatesIntent,
+//                    PendingIntent.FLAG_UPDATE_CURRENT)
             // request locationOfUserWhoChangeIt updates
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
                     mLocationRequest,
@@ -71,7 +70,7 @@ class LocationHelper(
             if (mCurrLocationMarker != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
                 mCurrLocationMarker!!.remove();
             }
-            locationFirebaseHelper!!.addCurrentUserLocationToFirebase(location!!)
+            locationFirebaseHelper!!.addCurrentUserMarkerAndRemoveOld(location!!)
         }
     }
 

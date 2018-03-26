@@ -12,15 +12,13 @@ import android.os.Build
 import android.content.Intent
 import kamilmilik.licencjat_gps_kid.ListOnline
 import android.app.PendingIntent
-
-
+import kamilmilik.licencjat_gps_kid.Constants
 
 
 /**
  * Created by kamil on 03.03.2018.
  */
 class FirebaseMessagingService : FirebaseMessagingService() {
-    private val CHANNEL_ID : String = "ID CHANNEL"
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
 
@@ -29,7 +27,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         var notificationMessage = remoteMessage!!.notification!!.body
 
         var fromUserId = remoteMessage.data.get("from_user_id")//get value from node from_user_id
-        val mBuilder = NotificationCompat.Builder(this,CHANNEL_ID)
+        val mBuilder = NotificationCompat.Builder(this,Constants.CHANNEL_ID)
                 .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationMessage)
@@ -48,7 +46,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             val name = "My channel name"
             val description = "Description channel"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance)
+            val channel = NotificationChannel(Constants.CHANNEL_ID, name, importance)
             channel.description = description
             // Register the channel with the system
             val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

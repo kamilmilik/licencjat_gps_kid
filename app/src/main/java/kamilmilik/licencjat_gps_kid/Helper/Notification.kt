@@ -3,13 +3,12 @@ package kamilmilik.licencjat_gps_kid.Helper
 import android.content.Context
 import android.location.Location
 import android.util.Log
-import com.google.android.gms.location.Geofence
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import kamilmilik.licencjat_gps_kid.Constants
 import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.InsideOrOutsideArea
-import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.PolygonAreaStatus
 import kamilmilik.licencjat_gps_kid.models.PolygonModel
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
 import kamilmilik.licencjat_gps_kid.models.User
@@ -153,7 +152,7 @@ class Notification(var context: Context){
                     var listOfIsInArea = insideOrOutsideArea.isPointInsidePolygon(polygonsLatLngMap)
                     Log.i(TAG, listOfIsInArea.toString())
                     listOfIsInArea
-                            .filter { it == PolygonAreaStatus.ENTER || it == PolygonAreaStatus.EXIT }
+                            .filter { it == Constants.ENTER || it == Constants.EXIT }
                             .forEach { notification(it,userIdToSendNotification,currentUserId) }
 
                     if (dataSnapshot.value == null) {//nothing found
@@ -183,9 +182,9 @@ class Notification(var context: Context){
      * @param userIdFromSend user who send this notification
      */
     private fun notification(transition : Int,userIdToSend : String, userIdFromSend : String ){
-        if(transition == PolygonAreaStatus.ENTER ){
+        if(transition == Constants.ENTER ){
             saveToDatabaseNotificationsToAnotherDevice(userIdFromSend,userIdToSend)
-        }else if(transition == PolygonAreaStatus.EXIT){
+        }else if(transition == Constants.EXIT){
             removeValueFromDatabaseNotifications( userIdFromSend,userIdToSend)
         }
     }

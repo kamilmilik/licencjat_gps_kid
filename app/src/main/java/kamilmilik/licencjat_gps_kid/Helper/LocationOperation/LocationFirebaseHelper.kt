@@ -24,12 +24,13 @@ import java.text.DecimalFormat
  */
 class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
     private val TAG: String = LocationFirebaseHelper::class.java.simpleName
-//    init {
-//        getPolygonFromDatabase()
-//    }
+
     var currentMarkerPosition: LatLng? = null
-    fun addCurrentUserLocationToFirebase(lastLocation: Location) {
-        Log.i(TAG, "addCurrentUserLocationToFirebase")
+    var markersMap = HashMap<String, Marker>()
+    var currentUserLocation = Location("")
+
+    fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location) {
+        Log.i(TAG, "addCurrentUserMarkerAndRemoveOld")
 //        var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
@@ -54,7 +55,6 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
             updateMarkerSnippetDistance(currentUser!!.email!!, currentUserLocation)
 
             currentMarkerPosition = currentMarker.position
-            //createGeofencePendingIntent()
 
         }
     }
@@ -63,8 +63,6 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
         loadLocationsFromDatabaseForGivenUserId(followingUserId)
     }
 
-    var markersMap = HashMap<String, Marker>()
-    var currentUserLocation = Location("")
     fun loadLocationsFromDatabaseForGivenUserId(userId: String) {
         Log.i(TAG, "loadLocationsFromDatabaseForGivenUserId")
         var locations = FirebaseDatabase.getInstance().getReference("Locations")

@@ -7,7 +7,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationFirebaseHelper
-import kamilmilik.licencjat_gps_kid.Utils.OnGetDataListener
 import kamilmilik.licencjat_gps_kid.Utils.OnItemClickListener
 import kamilmilik.licencjat_gps_kid.Utils.RecyclerViewAdapter
 import kamilmilik.licencjat_gps_kid.models.User
@@ -20,21 +19,7 @@ class FinderUserConnectionHelper(var context: Context,
                                  var valueSet: HashSet<String>,
                                  var adapter: RecyclerViewAdapter,
                                  var recyclerView: RecyclerView,
-                                 var locationFirebaseHelper: LocationFirebaseHelper,
-                                 var permissionHelper: PermissionHelper) : OnGetDataListener {
-    
-    override fun onStart() {
-        Log.i(TAG,"onStart")
-    }
-
-    override fun onSuccess(data: DataSnapshot) {
-        Log.i(TAG,"onSuccess " + data)
-
-    }
-
-    override fun onFailed(databaseError: DatabaseError) {
-        Log.i(TAG,"onFailed")
-    }
+                                 var locationFirebaseHelper: LocationFirebaseHelper) {
 
     private val TAG = FinderUserConnectionHelper::class.java.simpleName
 
@@ -46,8 +31,8 @@ class FinderUserConnectionHelper(var context: Context,
         Log.i(TAG, "findFollowersConnectionAndUpdateRecyclerView, current user id : " + FirebaseAuth.getInstance().currentUser!!.uid)
         var currentUser = FirebaseAuth.getInstance().currentUser
         val reference = FirebaseDatabase.getInstance().reference
-        findFollowersUser(reference, currentUser!!,this)
-        findFollowingUser(reference, currentUser!!,this)
+        findFollowersUser(reference, currentUser!!)
+        findFollowingUser(reference, currentUser!!)
     }
 
     /**
@@ -55,11 +40,10 @@ class FinderUserConnectionHelper(var context: Context,
      * @param reference
      * @param currentUser
      */
-    private fun findFollowersUser(reference: DatabaseReference, currentUser: FirebaseUser, onGetDataListener: OnGetDataListener) {
+    private fun findFollowersUser(reference: DatabaseReference, currentUser: FirebaseUser) {
         val query = reference.child("followers")
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
-        onGetDataListener.onStart()
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
@@ -77,14 +61,12 @@ class FinderUserConnectionHelper(var context: Context,
                     for (user in valueSet) {
                         Log.i(TAG, "user complete : " + user)
                     }
-                    onGetDataListener.onSuccess(dataSnapshot)
                     updateRecyclerView()
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 Log.i(TAG, "onCancelled: " + databaseError.message)
-                onGetDataListener.onFailed(databaseError)
             }
         })
 
@@ -95,11 +77,10 @@ class FinderUserConnectionHelper(var context: Context,
      * @param reference
      * @param currentUser
      */
-    private fun findFollowingUser(reference: DatabaseReference, currentUser: FirebaseUser, onGetDataListener: OnGetDataListener) {
+    private fun findFollowingUser(reference: DatabaseReference, currentUser: FirebaseUser) {
         val query = reference.child("following")
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
-        onGetDataListener.onStart()
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
@@ -116,13 +97,11 @@ class FinderUserConnectionHelper(var context: Context,
                     for (user in valueSet) {
                         Log.i(TAG, "user complete : " + user)
                     }
-                    onGetDataListener.onSuccess(dataSnapshot)
                     updateRecyclerView()
                 }
             }
             override fun onCancelled(databaseError: DatabaseError) {
                 Log.i(TAG, "onCancelled: " + databaseError.message)
-                onGetDataListener.onFailed(databaseError)
             }
         })
     }

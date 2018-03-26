@@ -29,7 +29,7 @@ import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationFirebaseHel
 import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationHelper
 import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.DrawPolygon
 import kamilmilik.licencjat_gps_kid.Helper.UserOperations.OnlineUserHelper
-import kamilmilik.licencjat_gps_kid.Utils.PolygonInsideOrOutsideService
+import kamilmilik.licencjat_gps_kid.Utils.PolygonAndLocationService
 
 
 class ListOnline : AppCompatActivity(),
@@ -44,7 +44,6 @@ class ListOnline : AppCompatActivity(),
     lateinit var recyclerView : RecyclerView
     lateinit var valueSet:HashSet<String>
     //permission
-    private val MY_PERMISSION_REQUEST_CODE : Int = 99
     private var permissionHelper : PermissionHelper = PermissionHelper(this)
     private var mPermissionDenied = false
     //Location
@@ -53,8 +52,6 @@ class ListOnline : AppCompatActivity(),
     private var locationFirebaseHelper : LocationFirebaseHelper? = null
     //maps
     private var mGoogleMap: GoogleMap? = null
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,12 +73,11 @@ class ListOnline : AppCompatActivity(),
         mapFragment.getMapAsync(this)
     }
     private fun setupPolygonBackgroundService(){
-        var intent = Intent(this, PolygonInsideOrOutsideService::class.java)
-        stopService(intent)
+        var intent = Intent(this, PolygonAndLocationService::class.java)
         startService(intent)
     }
     private fun setupFinderUserConnectionHelper(locationFirebaseHelper: LocationFirebaseHelper){
-        finderUserConnectionHelper  = FinderUserConnectionHelper(this, this, valueSet, adapter, recyclerView,locationFirebaseHelper,permissionHelper)
+        finderUserConnectionHelper  = FinderUserConnectionHelper(this, this, valueSet, adapter, recyclerView,locationFirebaseHelper)
     }
     private fun setupLocationHelper(locationFirebaseHelper: LocationFirebaseHelper){
         Log.i(TAG,permissionHelper.toString() + " " + mGoogleMap)
@@ -89,6 +85,7 @@ class ListOnline : AppCompatActivity(),
     }
 
     var buttonClickedToDrawPolyline: Boolean? = false // to detect map is movable
+    var buttonClickedToEditPolyline: Boolean? = false // to detect map is movable
 
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
@@ -96,23 +93,9 @@ class ListOnline : AppCompatActivity(),
         setupFinderUserConnectionHelper(locationFirebaseHelper!!)
         finderUserConnectionHelper!!.listenerForConnectionsUserChangeInFirebaseAndUpdateRecyclerView()
         setupLocationHelper(locationFirebaseHelper!!)
-        var drawPolygon = DrawPolygon(mGoogleMap!!)
-        drawButton.setOnClickListener {
-            buttonClickedToDrawPolyline = !buttonClickedToDrawPolyline!!
-            if(!buttonClickedToDrawPolyline!!) {
-                draggable.setOnTouchListener(null)
-            }else{
-                draggable.setOnTouchListener(object : View.OnTouchListener{
-                    override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
-                        //locationFirebaseHelper!!.onTouchAction(motionEvent)
-                        drawPolygon.onTouchAction(motionEvent)
-                        return buttonClickedToDrawPolyline!!
-                    }
 
-                })
-            }
-        }
-
+        drawPolygonButtonAction()
+        editPolygonButtonAction()
         //Initialize Google Play Services
         if (permissionHelper!!.checkApkVersion()) {
             Log.i(TAG, "vers(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ion " + android.os.Build.VERSION.SDK_INT + " >= " + Build.VERSION_CODES.M)
@@ -133,10 +116,45 @@ class ListOnline : AppCompatActivity(),
         }
     }
 
+    private fun editPolygonButtonAction(){
+        editPolygonButton.setOnClickListener {
+            buttonClickedToEditPolyline = !buttonClickedToEditPolyline!!
+            if(!buttonClickedToEditPolyline!!) {
+                draggable.setOnTouchListener(null)
+            }else{
+                Toast.makeText(this@ListOnline,"clicked",Toast.LENGTH_SHORT).show()
+                draggable.setOnTouchListener(object : View.OnTouchListener{
+                    override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
+                        //drawPolygon.onTouchAction(motionEvent)
+                        return buttonClickedToEditPolyline!!
+                    }
+
+                })
+            }
+        }
+    }
+    private fun drawPolygonButtonAction(){
+        var drawPolygon = DrawPolygon(mGoogleMap!!,this)
+        drawButton.setOnClickListener {
+            buttonClickedToDrawPolyline = !buttonClickedToDrawPolyline!!
+            if(!buttonClickedToDrawPolyline!!) {
+                draggable.setOnTouchListener(null)
+            }else{
+                draggable.setOnTouchListener(object : View.OnTouchListener{
+                    override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
+                        //locationFirebaseHelper!!.onTouchAction(motionEvent)
+                        drawPolygon.onTouchAction(motionEvent)
+                        return buttonClickedToDrawPolyline!!
+                    }
+
+                })
+            }
+        }
+    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){
-            MY_PERMISSION_REQUEST_CODE ->{
+            Constants.MY_PERMISSION_REQUEST_CODE ->{
                 Log.i(TAG,"checkIsPermissionGrantedInRP " + permissionHelper!!.checkIsPermissionGrantedInRequestPermission(grantResults))
                 if (permissionHelper!!.checkIsPermissionGrantedInRequestPermission(grantResults)) {
                     Log.i(TAG,"permission was granted, yay!")

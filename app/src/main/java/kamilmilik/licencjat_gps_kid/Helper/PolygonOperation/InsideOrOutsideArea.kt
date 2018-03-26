@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.google.maps.android.PolyUtil
+import kamilmilik.licencjat_gps_kid.Constants
 import java.lang.reflect.Type
 
 /**
@@ -36,20 +37,20 @@ class InsideOrOutsideArea(var context : Context ,var locationOfUserWhoChangeIt: 
         writeValueToSharedPreferences(isInAreaPreviousMap)
         if (previousValueInMap == null) {
             if (isInArea == true) {
-                return PolygonAreaStatus.ENTER
+                return Constants.ENTER
             } else if (isInArea == false) {//if user isn't in area not push notification
-                return PolygonAreaStatus.STILL_OUTSIDE_OR_INSIDE
+                return Constants.STILL_OUTSIDE_OR_INSIDE
             }
         }
         if (previousValueInMap == isInArea) {
-            return PolygonAreaStatus.STILL_OUTSIDE_OR_INSIDE
+            return Constants.STILL_OUTSIDE_OR_INSIDE
         } else if (previousValueInMap == false && isInArea == true) {
-            return PolygonAreaStatus.ENTER
+            return Constants.ENTER
         } else if (previousValueInMap == true && isInArea == false) {
-            return PolygonAreaStatus.EXIT
+            return Constants.EXIT
         }
 
-        return PolygonAreaStatus.STILL_OUTSIDE_OR_INSIDE
+        return Constants.STILL_OUTSIDE_OR_INSIDE
     }
     private fun getValueFromSharedPreferences() : HashMap<String,Boolean>{
         val sharedPref = context.getSharedPreferences("shared", Context.MODE_PRIVATE)

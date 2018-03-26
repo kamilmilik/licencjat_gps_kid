@@ -59,6 +59,13 @@
             android:layout_height="wrap_content"
             android:text="Free Draw"
             android:layout_below="@id/listOnline"/>
+        <Button
+            android:id="@+id/editPolygonButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:layout_below="@id/listOnline"
+            android:layout_toRightOf="@id/drawButton"/>
 
 </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

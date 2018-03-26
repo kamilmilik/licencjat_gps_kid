@@ -1,27 +1,35 @@
 package kamilmilik.licencjat_gps_kid.Helper.PolygonOperation
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.util.Log
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Polygon
-import com.google.android.gms.maps.model.PolygonOptions
+import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.models.MyOwnLatLng
 import kamilmilik.licencjat_gps_kid.models.PolygonModel
 
 /**
  * Created by kamil on 17.03.2018.
  */
-class PolygonDatabaseOperation(var googleMap: GoogleMap){
+class PolygonDatabaseOperation(var googleMap: GoogleMap, var context : Context, var onGetDataListener: OnGetDataListener) {
+
     private var TAG = PolygonDatabaseOperation::class.java.simpleName
 
     init{
-        getPolygonFromDatabase()
+       // googleMap.setOnMarkerDragListener(this)
+        getPolygonFromDatabase(onGetDataListener)
     }
     private var polygonsMap: HashMap<String, ArrayList<MyOwnLatLng>> = HashMap()
 
     private var polygon: Polygon? = null
+
+    private var markersMap: HashMap<ArrayList<Marker>,Polygon>? = HashMap()
+    private var markerList : ArrayList<Marker> = ArrayList()
 
     fun savePolygonToDatabase(polygonMap : PolygonModel){
         var tag = polygonMap.tag!!.substring(polygonMap.tag!!.lastIndexOf('@')+1)
@@ -43,7 +51,7 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap){
                     .child(polygonTagToRemove).removeValue()
         }
     }
-    private fun getPolygonFromDatabase(){
+    private fun getPolygonFromDatabase(onGetDataListener: OnGetDataListener){
         var databaseReference = FirebaseDatabase.getInstance().getReference("user_polygons")
         var currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {//prevent if user click logout
@@ -61,6 +69,7 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap){
                             drawPolygonFromDatabase(polygonsFromDbMap!!.tag!!,newList)
                         }
                     }
+                    onGetDataListener.onSuccess(markersMap!!)
                     if (dataSnapshot.value == null) {//nothing found
                         Log.i(TAG, "nothing found in onDataChange")
                     }
@@ -86,12 +95,47 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap){
         polygon!!.isClickable = true
         polygon!!.tag = polygonTag
 
+        polygonList.forEach { position ->
+            var marker = createMarker(position, polygonTag)
+            markerList!!.add(marker)
+        }
+        var copyMarkerList : ArrayList<Marker> = ArrayList()
+        copyMarkerList.addAll(markerList)
+        markersMap!!.put(copyMarkerList, polygon!!)
+        Log.i(TAG,"markersMap size: " + markersMap!!.size + " markerList size: " + copyMarkerList.size)
+        markerList.clear()
+        //googleMap.setOnMarkerDragListener(MarkerListener(markersMap!!,this))
+
         googleMap!!.setOnPolygonClickListener { polygon ->//this is run before user draw some polygon
             Log.i(TAG, "clicked in drawPolygon" + polygon!!.tag.toString())
             polygonsMap.remove(polygon!!.tag.toString())
             removePolygonFromDatabase(polygon!!.tag.toString())
+
+            markersMap!!.forEach { (markerList,polygonFromMap) ->
+                if(polygonFromMap.tag!! == polygon.tag){
+                    markerList.forEach({marker ->
+                        marker.remove()
+                    })
+                    markersMap!!.remove(markerList)
+                }
+            }
             polygon!!.remove()
         }
     }
-
+    private fun createMarker(position : LatLng, polygonTag : String) : Marker{
+        val circleDrawable = context.resources.getDrawable(R.drawable.round_icon)
+        val markerIcon = getMarkerIconFromDrawable(circleDrawable)
+        var marker : Marker = googleMap!!.addMarker(MarkerOptions()
+                .position(position).draggable(true).icon(markerIcon).anchor(0.5f,0.5f))
+        marker.tag = polygonTag
+        return marker
+    }
+    private fun getMarkerIconFromDrawable(drawable: Drawable): BitmapDescriptor {
+        val canvas = Canvas()
+        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        canvas.setBitmap(bitmap)
+        drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        drawable.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
 }
