@@ -72,6 +72,7 @@ class ListOnline : AppCompatActivity(),
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
+
     private fun setupPolygonBackgroundService(){
         var intent = Intent(this, PolygonAndLocationService::class.java)
         startService(intent)

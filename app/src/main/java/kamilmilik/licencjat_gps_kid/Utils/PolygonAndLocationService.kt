@@ -1,15 +1,14 @@
 package kamilmilik.licencjat_gps_kid.Utils
 
 import android.Manifest
-import android.app.Service
+import android.app.*
 import android.content.Intent
 import android.os.IBinder
 import android.os.SystemClock
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.util.Log
@@ -20,7 +19,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Marker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import kamilmilik.licencjat_gps_kid.Constants
 import kamilmilik.licencjat_gps_kid.Helper.Notification
+import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
 
@@ -39,9 +40,9 @@ com.google.android.gms.location.LocationListener {
     constructor() : super(){}
 
     override fun onCreate() {
-        Log.i(TAG,"onCreate() - > PolygonAndLocationService")
         notification = Notification(this@PolygonAndLocationService)
         super.onCreate()
+        Log.i(TAG,"onCreate() - > PolygonAndLocationService")
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -49,21 +50,24 @@ com.google.android.gms.location.LocationListener {
         val thread = object : Thread() {
             override fun run() {
                 buildGoogleApiClient()
+                Log.i(TAG,"testtt")
                 notification!!.notificationAction()
-//                val pendingIntent = PendingIntent.getActivity(this@PolygonAndLocationService, 0, intent, 0)
-//                val notification = android.app.Notification.Builder(this@PolygonAndLocationService)
-//                        .setContentTitle("title")
-//                        .setContentText("message")
-//                        .setSmallIcon(R.drawable.abc_cab_background_internal_bg)
-//                        .setContentIntent(pendingIntent)
-//                        .setTicker("ticker")
-//                        .build()
-//                startForeground(2, notification)
+                createNotificationChannelForApi26()
+                intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                val pendingIntent = PendingIntent.getActivity(this@PolygonAndLocationService, 0, intent, 0)
+                Log.i(TAG, "intent in service before notif: " + intent + " " + intent.action)
+                val notification = android.app.Notification.Builder(this@PolygonAndLocationService)
+                        .setContentTitle("title")
+                        .setContentText("message")
+                        .setSmallIcon(R.drawable.abc_cab_background_internal_bg)
+                        .setContentIntent(pendingIntent)
+                        .setTicker("ticker")
+                        .build()
+                startForeground(2, notification)
             }
         }
-        if(intent != null || intent.action != null){
-            thread.start()
-        }
+        thread.start()
+
         return START_STICKY
     }
     var mLocationRequest: LocationRequest? = null
@@ -138,20 +142,36 @@ com.google.android.gms.location.LocationListener {
                             lastLocation.longitude.toString()))
         }
     }
+
+
     //prevent kill background service in kitkat android
     override fun onTaskRemoved(rootIntent: Intent) {
         val restartService = Intent(applicationContext,
                 this.javaClass)
+        restartService.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
         restartService.`package` = packageName
         val restartServicePI = PendingIntent.getService(
-                applicationContext, 1, restartService,
+                applicationContext, 0, restartService,
                 PendingIntent.FLAG_ONE_SHOT)
         //Restart the service once it has been killed android
         val alarmService = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 100, restartServicePI)
     }
 
-
+    private fun createNotificationChannelForApi26(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            val name = "My channel name"
+            val description = "Description channel"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(Constants.CHANNEL_ID, name, importance)
+            channel.description = description
+            // Register the channel with the system
+            val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
     override fun onDestroy() {
         Log.i(TAG,"Problem: service destroy it couldn't happen")
         super.onDestroy()
