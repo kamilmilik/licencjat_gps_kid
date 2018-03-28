@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.*
 import android.content.Intent
 import android.os.IBinder
-import android.os.SystemClock
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -23,9 +22,6 @@ import kamilmilik.licencjat_gps_kid.Constants
 import kamilmilik.licencjat_gps_kid.Helper.Notification
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
-import kamilmilik.licencjat_gps_kid.DummyActivity
-
-
 
 
 /**
@@ -149,10 +145,11 @@ com.google.android.gms.location.LocationListener {
     //prevent kill background service in kitkat android
     override fun onTaskRemoved(rootIntent: Intent) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1 && Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            val intent = Intent(this, DummyActivity::class.java)
+            val intent = Intent(this, ForegroundOnTaskRemovedActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         }
+
     }
 
     private fun createNotificationChannelForApi26(){

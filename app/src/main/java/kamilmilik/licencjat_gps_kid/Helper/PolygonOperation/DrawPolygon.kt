@@ -98,10 +98,12 @@ class DrawPolygon(var googleMap: GoogleMap,var context : Context) : OnGetDataLis
 
                     markersMap!!.forEach { (markerList,polygonValue) ->
                         Log.i(TAG,polygonValue.tag.toString() + " " + polygon.tag.toString())
-                        if(polygonValue.tag!! == polygon!!.tag){
-                            markerList.forEach({marker ->
-                                marker.remove()
-                            })
+                        if(polygonValue.tag != null){//prevent nullpointer it could happen when i do polygon.remove and if i not remove from map this polygon, then in map i have null as previous polygon
+                            if(polygonValue.tag!! == polygon!!.tag){
+                                markerList.forEach({marker ->
+                                    marker.remove()
+                                })
+                            }
                         }
                     }
                     polygon!!.remove()

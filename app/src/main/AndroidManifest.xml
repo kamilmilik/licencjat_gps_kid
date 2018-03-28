@@ -76,7 +76,7 @@
             </intent-filter>
         </service>
         <activity
-            android:name=".DummyActivity"
+            android:name=".Utils.ForegroundOnTaskRemovedActivity"
             android:allowTaskReparenting="true"
             android:alwaysRetainTaskState="false"
             android:clearTaskOnLaunch="true"

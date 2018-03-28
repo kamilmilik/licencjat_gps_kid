@@ -24,13 +24,15 @@ class MarkerListener(private var markersMap: HashMap<ArrayList<Marker>, Polygon>
     }
 
     override fun onMarkerDrag(marker: Marker?) {
-        Log.i(TAG,"onMarkerDrag()")
+        Log.i(TAG,"onMarkerDrag() -> clicked marker : " + marker.toString() )
         for((markerList, polygon) in markersMap!!){
-            Log.i(TAG, polygon.tag.toString() + " " + marker!!.tag.toString())
-            if(polygon.tag!! == marker!!.tag){
-                polygon.points = markersToLatLng(markerList)
-                var myOwnLatLngList = changeLatLngListToMyLatLngList(polygon.points)
-                polygonDatabaseOperation!!.savePolygonToDatabase(PolygonModel(polygon.tag!!.toString(),myOwnLatLngList))
+            Log.i(TAG, "tag " + polygon.tag.toString() + " only polygon " + polygon.toString()+" " + marker!!.tag.toString())
+            if (polygon.tag != null) {
+                if (polygon.tag!! == marker!!.tag) {
+                    polygon.points = markersToLatLng(markerList)
+                    var myOwnLatLngList = changeLatLngListToMyLatLngList(polygon.points)
+                    polygonDatabaseOperation!!.savePolygonToDatabase(PolygonModel(polygon.tag!!.toString(), myOwnLatLngList))
+                }
             }
         }
     }
