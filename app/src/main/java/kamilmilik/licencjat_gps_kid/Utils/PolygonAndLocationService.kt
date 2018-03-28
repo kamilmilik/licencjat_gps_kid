@@ -21,9 +21,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kamilmilik.licencjat_gps_kid.Constants
 import kamilmilik.licencjat_gps_kid.Helper.Notification
-import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
+import kamilmilik.licencjat_gps_kid.DummyActivity
+
+
 
 
 /**
@@ -36,11 +38,11 @@ com.google.android.gms.location.LocationListener {
 
     private val TAG = PolygonAndLocationService::class.java.simpleName
 
-    private var notification : Notification? = null
+    private var notificationMethods: Notification? = null
     constructor() : super(){}
 
     override fun onCreate() {
-        notification = Notification(this@PolygonAndLocationService)
+        notificationMethods = Notification(this@PolygonAndLocationService)
         super.onCreate()
         Log.i(TAG,"onCreate() - > PolygonAndLocationService")
     }
@@ -49,12 +51,9 @@ com.google.android.gms.location.LocationListener {
         Log.i(TAG, "PolygonAndLocationService started")
         val thread = object : Thread() {
             override fun run() {
-                buildGoogleApiClient()
-                Log.i(TAG,"testtt")
-                notification!!.notificationAction()
                 createNotificationChannelForApi26()
                 intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                val pendingIntent = PendingIntent.getActivity(this@PolygonAndLocationService, 0, intent, 0)
+                val pendingIntent = PendingIntent.getActivity(this@PolygonAndLocationService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 Log.i(TAG, "intent in service before notif: " + intent + " " + intent.action)
                 val notification = android.app.Notification.Builder(this@PolygonAndLocationService)
                         .setContentTitle("title")
@@ -64,6 +63,9 @@ com.google.android.gms.location.LocationListener {
                         .setTicker("ticker")
                         .build()
                 startForeground(2, notification)
+                buildGoogleApiClient()
+                notificationMethods!!.notificationAction()
+
             }
         }
         thread.start()
@@ -146,16 +148,11 @@ com.google.android.gms.location.LocationListener {
 
     //prevent kill background service in kitkat android
     override fun onTaskRemoved(rootIntent: Intent) {
-        val restartService = Intent(applicationContext,
-                this.javaClass)
-        restartService.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-        restartService.`package` = packageName
-        val restartServicePI = PendingIntent.getService(
-                applicationContext, 0, restartService,
-                PendingIntent.FLAG_ONE_SHOT)
-        //Restart the service once it has been killed android
-        val alarmService = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 100, restartServicePI)
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1 && Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            val intent = Intent(this, DummyActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
     }
 
     private fun createNotificationChannelForApi26(){
