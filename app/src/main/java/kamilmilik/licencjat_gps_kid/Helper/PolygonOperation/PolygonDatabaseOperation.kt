@@ -97,6 +97,7 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap, var context : Context, 
 
         polygonList.forEach { position ->
             var marker = createMarker(position, polygonTag)
+            marker.isVisible = false
             markerList!!.add(marker)
         }
         var copyMarkerList : ArrayList<Marker> = ArrayList()
@@ -112,11 +113,13 @@ class PolygonDatabaseOperation(var googleMap: GoogleMap, var context : Context, 
             removePolygonFromDatabase(polygon!!.tag.toString())
 
             markersMap!!.forEach { (markerList,polygonFromMap) ->
-                if(polygonFromMap.tag!! == polygon.tag){
-                    markerList.forEach({marker ->
-                        marker.remove()
-                    })
-                    markersMap!!.remove(markerList)
+                if(polygonFromMap!!.tag != null){
+                    if(polygonFromMap.tag!! == polygon.tag){
+                        markerList.forEach({marker ->
+                            marker.remove()
+                        })
+                        //markersMap!!.remove(markerList)
+                    }
                 }
             }
             polygon!!.remove()

@@ -87,14 +87,14 @@ class ListOnline : AppCompatActivity(),
 
     var buttonClickedToDrawPolyline: Boolean? = false // to detect map is movable
     var buttonClickedToEditPolyline: Boolean? = false // to detect map is movable
-
+    var drawPolygon : DrawPolygon? = null
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
         locationFirebaseHelper = LocationFirebaseHelper(mGoogleMap!!, this)
         setupFinderUserConnectionHelper(locationFirebaseHelper!!)
         finderUserConnectionHelper!!.listenerForConnectionsUserChangeInFirebaseAndUpdateRecyclerView()
         setupLocationHelper(locationFirebaseHelper!!)
-
+        drawPolygon = DrawPolygon(mGoogleMap!!,this)
         drawPolygonButtonAction()
         editPolygonButtonAction()
         //Initialize Google Play Services
@@ -120,36 +120,30 @@ class ListOnline : AppCompatActivity(),
     private fun editPolygonButtonAction(){
         editPolygonButton.setOnClickListener {
             buttonClickedToEditPolyline = !buttonClickedToEditPolyline!!
+            drawButton.isEnabled = !buttonClickedToEditPolyline!!
             if(!buttonClickedToEditPolyline!!) {
-                draggable.setOnTouchListener(null)
+                drawPolygon!!.hideAllMarkers()
             }else{
-                Toast.makeText(this@ListOnline,"clicked",Toast.LENGTH_SHORT).show()
-                draggable.setOnTouchListener(object : View.OnTouchListener{
-                    override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
-                        //drawPolygon.onTouchAction(motionEvent)
-                        return buttonClickedToEditPolyline!!
-                    }
-
-                })
+                drawPolygon!!.showMarkers()
             }
         }
     }
     private fun drawPolygonButtonAction(){
-        var drawPolygon = DrawPolygon(mGoogleMap!!,this)
         drawButton.setOnClickListener {
-            buttonClickedToDrawPolyline = !buttonClickedToDrawPolyline!!
-            if(!buttonClickedToDrawPolyline!!) {
-                draggable.setOnTouchListener(null)
-            }else{
-                draggable.setOnTouchListener(object : View.OnTouchListener{
+            drawButton.isEnabled = false
+//            buttonClickedToDrawPolyline = !buttonClickedToDrawPolyline!!
+//            if(!buttonClickedToDrawPolyline!!) {
+//                draggable.setOnTouchListener(null)
+//            }else{
+             draggable.setOnTouchListener(object : View.OnTouchListener{
                     override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
-                        //locationFirebaseHelper!!.onTouchAction(motionEvent)
-                        drawPolygon.onTouchAction(motionEvent)
-                        return buttonClickedToDrawPolyline!!
+                        drawPolygon!!.onTouchAction(motionEvent,draggable)
+                        drawButton.isEnabled = true
+                        //return buttonClickedToDrawPolyline!!
+                        return true
                     }
-
                 })
-            }
+//            }
         }
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

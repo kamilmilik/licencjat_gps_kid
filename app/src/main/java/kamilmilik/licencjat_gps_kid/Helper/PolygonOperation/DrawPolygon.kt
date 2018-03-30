@@ -15,9 +15,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.widget.FrameLayout
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import kamilmilik.licencjat_gps_kid.R.id.draggable
 
 
 /**
@@ -51,7 +53,7 @@ class DrawPolygon(var googleMap: GoogleMap,var context : Context) : OnGetDataLis
     private var polygon: Polygon? = null
     private var markersMap: HashMap<ArrayList<Marker>,Polygon>? = HashMap()
     private var markerList : ArrayList<Marker> = ArrayList()
-    fun onTouchAction(motionEvent: MotionEvent?) {
+    fun onTouchAction(motionEvent: MotionEvent?, draggable : FrameLayout) {
         Log.i(TAG,"onTouchAction()")
         var position = googleMap!!.projection.fromScreenLocation(
                 Point(motionEvent!!.x.toInt(), motionEvent!!.y.toInt()));
@@ -74,6 +76,7 @@ class DrawPolygon(var googleMap: GoogleMap,var context : Context) : OnGetDataLis
 
                 if(!isAddedOnePointPolygon()) {
                     var marker = createMarker(position)
+                    marker.isVisible = false
                     markerList!!.add(marker)
                 }
             }
@@ -85,6 +88,7 @@ class DrawPolygon(var googleMap: GoogleMap,var context : Context) : OnGetDataLis
                 polygon!!.points = polygonPoints2
                 if(!isAddedOnePointPolygon()) {
                     var marker = createMarker(position)
+                    marker.isVisible = false
                     markerList!!.add(marker)
                 }
             }
@@ -134,6 +138,8 @@ class DrawPolygon(var googleMap: GoogleMap,var context : Context) : OnGetDataLis
                         polygonDatabaseOperation!!.savePolygonToDatabase(PolygonModel(polygon.key,polygon.value))
                     }
                 }
+                draggable.setOnTouchListener(null)
+
             }
         }
     }
@@ -157,5 +163,25 @@ class DrawPolygon(var googleMap: GoogleMap,var context : Context) : OnGetDataLis
 
     private fun isAddedOnePointPolygon() : Boolean {
         return if(polygonPoints.size > 1 && polygonPoints2.size > 1) false else true
+    }
+    fun showMarkers(){
+        for ((markerList,polygon) in markersMap!!){
+            for(marker in markerList){
+                marker.isVisible = true
+                Log.i(TAG,"marker " + marker + " " + marker.isVisible)
+            }
+        }
+//        for(marker in markerList){
+//            marker.isVisible = true
+//            Log.i(TAG,"marker " + marker + " " + marker.isVisible)
+//        }
+    }
+    fun hideAllMarkers(){
+        for ((markerList,polygon) in markersMap!!){
+            for(marker in markerList){
+                marker.isVisible = false
+                Log.i(TAG,"marker " + marker + " " + marker.isVisible)
+            }
+        }
     }
 }
