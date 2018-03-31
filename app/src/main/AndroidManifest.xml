@@ -11,6 +11,8 @@
         android:name="com.google.android.gms.version"
         android:value="@integer/google_play_services_version" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" tools:remove="android:maxSdkVersion" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"  tools:remove="android:maxSdkVersion"/>
@@ -68,7 +70,19 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <service android:name=".Utils.PolygonAndLocationService" android:exported="true" android:enabled="true" />
+        <service android:name=".Utils.PolygonAndLocationService"
+            android:exported="true"
+            android:enabled="true"
+            android:allowTaskReparenting="true"
+            android:alwaysRetainTaskState="false"
+            android:clearTaskOnLaunch="true"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true"
+            android:noHistory="true"
+            android:stateNotNeeded="true"
+            android:process=":separate"
+            android:permission="android.permission.WRITE_SECURE_SETTINGS"
+            />
 
         <service
             android:name=".Utils.FirebaseMessagingService">
@@ -86,8 +100,15 @@
             android:finishOnTaskLaunch="true"
             android:noHistory="true"
             android:stateNotNeeded="true"
+            android:permission="android.permission.WRITE_SECURE_SETTINGS"
+            android:process=":separate"
             android:theme="@android:style/Theme.NoDisplay" />
 
+        <receiver android:name=".Utils.AutoStart">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
     </application>
 
 

@@ -30,7 +30,7 @@ import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationHelper
 import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.DrawPolygon
 import kamilmilik.licencjat_gps_kid.Helper.UserOperations.OnlineUserHelper
 import kamilmilik.licencjat_gps_kid.Utils.PolygonAndLocationService
-import com.evernote.android.job.JobManager
+import android.support.v4.app.NotificationManagerCompat
 
 
 
@@ -222,7 +222,6 @@ class ListOnline : AppCompatActivity(),
             startActivity(intent)
         })
     }
-
 
     private fun setupAddOnlineUserToDatabaseHelper(){
         onlineUserHelper = OnlineUserHelper()

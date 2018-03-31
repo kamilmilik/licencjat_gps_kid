@@ -31,6 +31,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationMessage)
+                .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         createNotificationChannelForApi26()
 

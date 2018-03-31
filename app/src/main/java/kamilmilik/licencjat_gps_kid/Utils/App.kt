@@ -16,6 +16,7 @@ class App : Application(){
     override fun onCreate() {
         Log.i("App", "App onCreate")
         super.onCreate()
+
         //this is needed to some device to work correctly notifications
         var mAuthListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser

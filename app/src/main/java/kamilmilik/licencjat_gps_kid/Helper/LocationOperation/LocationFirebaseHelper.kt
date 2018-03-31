@@ -11,11 +11,13 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.maps.android.PolyUtil
 import kamilmilik.licencjat_gps_kid.models.MyOwnLatLng
 import kamilmilik.licencjat_gps_kid.models.PolygonModel
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
+import kamilmilik.licencjat_gps_kid.models.User
 import java.text.DecimalFormat
 
 
@@ -143,6 +145,7 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
         mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedMarker.position, 12.0f))
         searchedMarker.showInfoWindow()
     }
+
 
     private fun findMarker(searchedMarkerKey: String): Marker {
         return markersMap.getValue(searchedMarkerKey)

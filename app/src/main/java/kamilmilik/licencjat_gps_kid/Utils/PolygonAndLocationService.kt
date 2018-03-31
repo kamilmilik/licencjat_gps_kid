@@ -34,11 +34,13 @@ class PolygonAndLocationService : Service,
         com.google.android.gms.location.LocationListener {
 
     private val TAG = PolygonAndLocationService::class.java.simpleName
+    var alarm = Alarm()
 
     private var notificationMethods: Notification? = null
     constructor() : super(){}
 
     override fun onCreate() {
+        alarm.setAlarm(applicationContext)
         notificationMethods = Notification(this@PolygonAndLocationService)
         var thread = object : Thread(){
             override fun run() {
@@ -51,6 +53,7 @@ class PolygonAndLocationService : Service,
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        alarm.setAlarm(this)
         Log.i(TAG, "PolygonAndLocationService started")
         val thread = object : Thread() {
             override fun run() {
