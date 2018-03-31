@@ -31,8 +31,7 @@ import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.DrawPolygon
 import kamilmilik.licencjat_gps_kid.Helper.UserOperations.OnlineUserHelper
 import kamilmilik.licencjat_gps_kid.Utils.PolygonAndLocationService
 import android.support.v4.app.NotificationManagerCompat
-
-
+import com.firebase.jobdispatcher.*
 
 
 class ListOnline : AppCompatActivity(),
@@ -59,7 +58,20 @@ class ListOnline : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_online)
+        val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(this))
+        val myJob = dispatcher.newJobBuilder()
+                .setService(MyJobService::class.java) // the JobService that will be called
+                .setTag("my-unique-tag")        // uniquely identifies the job
+                .setLifetime(Lifetime.FOREVER)
+                // start between 0 and 60 seconds from now
+                .setTrigger(Trigger.executionWindow(0, 60))
+                // don't overwrite an existing job with the same tag
+                .setRecurring(true)
+                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                .setReplaceCurrent(false)
+                .build()
 
+        dispatcher.mustSchedule(myJob)
 //        JobManager.create(this).addJobCreator(DemoJobCreator())
 //        //DemoSyncJob.ScheduleJob.runJobImmediately()
 //        DemoSyncJob.ScheduleJob.scheduleAdvancedJob()

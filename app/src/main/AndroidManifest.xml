@@ -11,6 +11,7 @@
         android:name="com.google.android.gms.version"
         android:value="@integer/google_play_services_version" />
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -109,6 +110,13 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"></action>
             </intent-filter>
         </receiver>
+        <service
+            android:exported="false"
+            android:name=".MyJobService">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
     </application>
 
 
