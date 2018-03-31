@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
                             userDatabase!!.child(currentUserId).child("device_token").setValue(deviceTokenId).addOnSuccessListener {
                                 val intent = Intent(this, ListOnline::class.java)
                                 intent.putExtra("Email", firebaseAuth!!.currentUser!!.email)
-                                intent.setFlags((Intent.FLAG_ACTIVITY_NEW_TASK ) or Intent.FLAG_ACTIVITY_CLEAR_TASK )
+                                intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK ) or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 startActivity(intent)
                                 finish()
                             }

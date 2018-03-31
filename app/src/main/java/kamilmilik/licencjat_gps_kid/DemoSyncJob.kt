@@ -1,17 +1,23 @@
-package kamilmilik.licencjat_gps_kid.Utils
+package kamilmilik.licencjat_gps_kid
 
 import android.Manifest
-import android.app.*
-import android.content.Intent
-import android.os.IBinder
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.util.Log
+import com.evernote.android.job.Job
+import com.evernote.android.job.JobManager
+import com.evernote.android.job.JobRequest
+import javax.xml.datatype.DatatypeConstants.MINUTES
+import com.evernote.android.job.util.support.PersistableBundleCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
@@ -19,74 +25,57 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Marker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import kamilmilik.licencjat_gps_kid.Constants
 import kamilmilik.licencjat_gps_kid.Helper.Notification
-import kamilmilik.licencjat_gps_kid.R
+import kamilmilik.licencjat_gps_kid.Utils.ForegroundOnTaskRemovedActivity
+import kamilmilik.licencjat_gps_kid.Utils.PolygonAndLocationService
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
+import java.util.concurrent.TimeUnit
 
 
 /**
- * Created by kamil on 18.03.2018.
+ * Created by kamil on 30.03.2018.
  */
-class PolygonAndLocationService : Service,
-        GoogleApiClient.ConnectionCallbacks,
+class DemoSyncJob : Job(), GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener {
+        com.google.android.gms.location.LocationListener{
+    private val TAG = DemoSyncJob::class.java.simpleName
+    object GET_TAG{
+        var TAG = "job_demo_tag"
+     }
 
-    private val TAG = PolygonAndLocationService::class.java.simpleName
+    override fun onRunJob(params: Params): Result {
+        var intent = Intent(context, PolygonAndLocationService::class.java)
+        context.startService(intent)
+        return Result.SUCCESS
+    }
+    object ScheduleJob{
+
+         fun scheduleAdvancedJob() {
+
+
+            val jobId = JobRequest.Builder(GET_TAG.TAG)
+//                    .setRequiresCharging(true)
+//                    .setRequiresDeviceIdle(false)
+//                    .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
+//                    .setRequirementsEnforced(true)
+//                    .setUpdateCurrent(true)
+                    .setPeriodic(TimeUnit.MINUTES.toMillis(15))
+//                    .startNow()
+                    .build()
+                    .schedule()
+        }
+
+        fun runJobImmediately() {
+            val jobId = JobRequest.Builder(DemoSyncJob.GET_TAG.TAG)
+                    .startNow()
+                    .build()
+                    .schedule()
+        }
+    }
+
 
     private var notificationMethods: Notification? = null
-    constructor() : super(){}
 
-    override fun onCreate() {
-        notificationMethods = Notification(this@PolygonAndLocationService)
-        var thread = object : Thread(){
-            override fun run() {
-                buildGoogleApiClient()
-            }
-        }
-        thread.run()
-        super.onCreate()
-        Log.i(TAG,"onCreate() - > PolygonAndLocationService")
-    }
-
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i(TAG, "PolygonAndLocationService started")
-        val thread = object : Thread() {
-            override fun run() {
-                createNotificationChannelForApi26()
-                intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                intent.setClassName("com.miui.powerkeeper",
-                        "com.miui.powerkeeper.ui.HiddenAppsContainerManagementActivity")
-                intent.setClassName("com.coloros.oppoguardelf",
-                        "com.coloros.powermanager.fuelgaue.PowerConsumptionActivity")
-                intent.setClassName("com.coloros.safecenter",
-                        "com.coloros.safecenter.permission.startup.StartupAppListActivity");
-                val pendingIntent = PendingIntent.getActivity(this@PolygonAndLocationService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-                Log.i(TAG, "intent in service before notif: " + intent + " " + intent.action)
-                val notification = android.app.Notification.Builder(this@PolygonAndLocationService)
-                        .setContentTitle("title")
-                        .setContentText("message")
-                        .setSmallIcon(R.drawable.abc_cab_background_internal_bg)
-                        .setContentIntent(pendingIntent)
-                        .setTicker("ticker")
-                        .build()
-                startForeground(2, notification)
-                //buildGoogleApiClient()
-                notificationMethods!!.notificationAction()
-
-            }
-        }
-        thread.start()
-        val handler = Handler()
-        handler.postDelayed(Runnable {
-            Log.i(TAG,"okey stop service")
-            stopForeground(true)
-            stopSelf()
-        }, 100000)
-
-        return START_STICKY
-    }
     var mLocationRequest: LocationRequest? = null
     var mGoogleApiClient: GoogleApiClient? = null
     var mLastLocation: Location? = null
@@ -95,8 +84,7 @@ class PolygonAndLocationService : Service,
     var mRequestLocationUpdatesPendingIntent : PendingIntent? = null
     fun buildGoogleApiClient() {
         synchronized(this) {
-            Log.i(TAG, "buildGoogleApiClient")
-            mGoogleApiClient = GoogleApiClient.Builder(this)
+            mGoogleApiClient = GoogleApiClient.Builder(context)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
@@ -106,7 +94,6 @@ class PolygonAndLocationService : Service,
     }
 
     private fun createLocationRequest() {
-        Log.i(TAG, "createLocationRequest")
         mLocationRequest = LocationRequest()
         mLocationRequest!!.interval = 100
         mLocationRequest!!.fastestInterval = 100
@@ -116,7 +103,7 @@ class PolygonAndLocationService : Service,
     override fun onConnected(p0: Bundle?) {
         Log.i(TAG, "onConnected")
         createLocationRequest()
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
         Log.i(TAG, "start request locationOfUserWhoChangeIt updates ")
@@ -161,16 +148,6 @@ class PolygonAndLocationService : Service,
     }
 
 
-    //prevent kill background service in kitkat android
-    override fun onTaskRemoved(rootIntent: Intent) {
-        Log.i(TAG,"onTaskRemoved()")
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1 && Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            val intent = Intent(this, ForegroundOnTaskRemovedActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
-
-    }
 
     private fun createNotificationChannelForApi26(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -182,18 +159,11 @@ class PolygonAndLocationService : Service,
             val channel = NotificationChannel(Constants.CHANNEL_ID, name, importance)
             channel.description = description
             // Register the channel with the system
-            val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
-    override fun onDestroy() {
-        Log.i(TAG,"Problem: service destroy it couldn't happen")
-        super.onDestroy()
-    }
 
-    override fun onBind(arg0: Intent): IBinder? {
-        return null
-    }
 
 
 }

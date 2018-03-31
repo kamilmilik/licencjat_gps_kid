@@ -13,6 +13,6 @@ object Constants{
     val EXIT = 2
 
     //firebase messanging
-    val CHANNEL_ID : String = "ID CHANNEL"
+    val CHANNEL_ID : String = "IMPORTANCE_DEFAULT"
 
 }

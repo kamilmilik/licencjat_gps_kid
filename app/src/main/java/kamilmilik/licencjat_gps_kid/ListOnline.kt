@@ -30,6 +30,9 @@ import kamilmilik.licencjat_gps_kid.Helper.LocationOperation.LocationHelper
 import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.DrawPolygon
 import kamilmilik.licencjat_gps_kid.Helper.UserOperations.OnlineUserHelper
 import kamilmilik.licencjat_gps_kid.Utils.PolygonAndLocationService
+import com.evernote.android.job.JobManager
+
+
 
 
 class ListOnline : AppCompatActivity(),
@@ -57,7 +60,11 @@ class ListOnline : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_online)
 
-        setupPolygonBackgroundService()
+//        JobManager.create(this).addJobCreator(DemoJobCreator())
+//        //DemoSyncJob.ScheduleJob.runJobImmediately()
+//        DemoSyncJob.ScheduleJob.scheduleAdvancedJob()
+
+        //setupPolygonBackgroundService()
 
         setupRecyclerView()
 
