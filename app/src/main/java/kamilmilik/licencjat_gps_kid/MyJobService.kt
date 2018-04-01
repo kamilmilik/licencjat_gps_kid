@@ -25,6 +25,7 @@ class MyJobService : JobService() {
             }
 
             override fun onPostExecute(result: Object?) {
+                Log.i(TAG,"onPostExecute()")
                 jobFinished(job, false) //it must be called here, since I return true
                 super.onPostExecute(result)
             }

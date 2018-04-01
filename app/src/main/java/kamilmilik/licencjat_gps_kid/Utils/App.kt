@@ -34,10 +34,9 @@ class App : Application(){
                         .setService(MyJobService::class.java) // the JobService that will be called
                         .setTag("my-unique-tag")        // uniquely identifies the job
                         .setLifetime(Lifetime.FOREVER)
-                        // start between 0 and 60 seconds from now
+                        // start between windowStart in sec and windowEnd in seconds from now
                         .setTrigger(Trigger.executionWindow(0, 60))
-                        // don't overwrite an existing job with the same tag
-                        .setRecurring(true)
+                        .setRecurring(true)//to reschedule job
                         .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
                         .setReplaceCurrent(true)
                         .build()
@@ -48,7 +47,7 @@ class App : Application(){
                 Log.i(TAG,"user not log in")
             }
         }
-        FirebaseApp.initializeApp(applicationContext)
+        FirebaseApp.initializeApp(applicationContext)//I must called this first otherwise foreground/background service is not running since without it get nullPointerException
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener)
 
     }

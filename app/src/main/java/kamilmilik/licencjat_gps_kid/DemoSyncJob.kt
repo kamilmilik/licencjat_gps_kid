@@ -135,9 +135,9 @@ class DemoSyncJob : Job(), GoogleApiClient.ConnectionCallbacks,
         }
     }
     private fun addCurrentUserLocationToFirebase(lastLocation: Location) {
-        Log.i(TAG, "addCurrentUserMarkerAndRemoveOld()")
         var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
+        Log.i(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser!!.uid + " location " + lastLocation.toString() )
         if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
             locations.child(currentUser!!.uid)
                     .setValue(TrackingModel(currentUser.uid,

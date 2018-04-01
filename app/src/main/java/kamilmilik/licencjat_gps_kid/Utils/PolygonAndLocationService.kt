@@ -18,11 +18,14 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Marker
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import kamilmilik.licencjat_gps_kid.Constants
 import kamilmilik.licencjat_gps_kid.Helper.Notification
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
+import java.util.concurrent.atomic.AtomicBoolean
+
+
 
 
 /**
@@ -34,26 +37,23 @@ class PolygonAndLocationService : Service,
         com.google.android.gms.location.LocationListener {
 
     private val TAG = PolygonAndLocationService::class.java.simpleName
-    var alarm = Alarm()
 
     private var notificationMethods: Notification? = null
     constructor() : super(){}
 
     override fun onCreate() {
-        alarm.setAlarm(applicationContext)
         notificationMethods = Notification(this@PolygonAndLocationService)
         var thread = object : Thread(){
             override fun run() {
                 buildGoogleApiClient()
             }
         }
-        thread.run()
+        thread.start()
         super.onCreate()
         Log.i(TAG,"onCreate() - > PolygonAndLocationService")
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        alarm.setAlarm(this)
         Log.i(TAG, "PolygonAndLocationService started")
         val thread = object : Thread() {
             override fun run() {
@@ -81,12 +81,13 @@ class PolygonAndLocationService : Service,
             }
         }
         thread.start()
-        val handler = Handler()
-        handler.postDelayed(Runnable {
-            Log.i(TAG,"okey stop service")
-            stopForeground(true)
-            stopSelf()
-        }, 100000)
+//        val handler = Handler()
+//        handler.postDelayed(Runnable {
+//            Log.i(TAG,"okey stop service")
+//            //mGoogleApiClient!!.disconnect()
+//            stopForeground(true)
+//            stopSelf()
+//        }, 100000)
 
         return START_STICKY
     }
@@ -150,16 +151,24 @@ class PolygonAndLocationService : Service,
             }
         }
     }
+
     private fun addCurrentUserLocationToFirebase(lastLocation: Location) {
-        Log.i(TAG, "addCurrentUserMarkerAndRemoveOld()")
         var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
+        Log.i(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser!!.uid + " location " + lastLocation.toString() )
             locations.child(currentUser!!.uid)
                     .setValue(TrackingModel(currentUser.uid,
                             currentUser!!.email!!,
                             lastLocation.latitude.toString(),
-                            lastLocation.longitude.toString()))
+                            lastLocation.longitude.toString()), object : DatabaseReference.CompletionListener {
+                        override fun onComplete(p0: DatabaseError?, p1: DatabaseReference?) {
+                            Log.i(TAG,"onComplete() position saved to firebase database")
+                            Log.i(TAG,"okey stop service")
+                            mGoogleApiClient!!.disconnect()
+                            stopForeground(true)
+                            stopSelf()                        }
+                    })
         }
     }
 
