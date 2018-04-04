@@ -17,6 +17,7 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Marker
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kamilmilik.licencjat_gps_kid.Constants
@@ -42,13 +43,13 @@ class PolygonAndLocationService : Service,
     constructor() : super(){}
 
     override fun onCreate() {
-        notificationMethods = Notification(this@PolygonAndLocationService)
-        var thread = object : Thread(){
-            override fun run() {
-                buildGoogleApiClient()
-            }
-        }
-        thread.start()
+//        notificationMethods = Notification(this@PolygonAndLocationService)
+//        var thread = object : Thread(){
+//            override fun run() {
+//                buildGoogleApiClient()
+//            }
+//        }
+//        thread.start()
         super.onCreate()
         Log.i(TAG,"onCreate() - > PolygonAndLocationService")
     }
@@ -57,26 +58,26 @@ class PolygonAndLocationService : Service,
         Log.i(TAG, "PolygonAndLocationService started")
         val thread = object : Thread() {
             override fun run() {
-                createNotificationChannelForApi26()
-                intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                intent.setClassName("com.miui.powerkeeper",
-                        "com.miui.powerkeeper.ui.HiddenAppsContainerManagementActivity")
-                intent.setClassName("com.coloros.oppoguardelf",
-                        "com.coloros.powermanager.fuelgaue.PowerConsumptionActivity")
-                intent.setClassName("com.coloros.safecenter",
-                        "com.coloros.safecenter.permission.startup.StartupAppListActivity");
-                val pendingIntent = PendingIntent.getActivity(this@PolygonAndLocationService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-                Log.i(TAG, "intent in service before notif: " + intent + " " + intent.action)
-                val notification = android.app.Notification.Builder(this@PolygonAndLocationService)
-                        .setContentTitle("Kid Tracker")
-                        .setContentText("Kid tracker check your location")
-                        .setSmallIcon(R.drawable.abc_cab_background_internal_bg)
-                        .setContentIntent(pendingIntent)
-                        .setTicker("ticker")
-                        .build()
-                startForeground(2, notification)
-                //buildGoogleApiClient()
-                notificationMethods!!.notificationAction()
+//                createNotificationChannelForApi26()
+//                intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+//                intent.setClassName("com.miui.powerkeeper",
+//                        "com.miui.powerkeeper.ui.HiddenAppsContainerManagementActivity")
+//                intent.setClassName("com.coloros.oppoguardelf",
+//                        "com.coloros.powermanager.fuelgaue.PowerConsumptionActivity")
+//                intent.setClassName("com.coloros.safecenter",
+//                        "com.coloros.safecenter.permission.startup.StartupAppListActivity");
+//                val pendingIntent = PendingIntent.getActivity(this@PolygonAndLocationService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+//                Log.i(TAG, "intent in service before notif: " + intent + " " + intent.action)
+//                val notification = android.app.Notification.Builder(this@PolygonAndLocationService)
+//                        .setContentTitle("Kid Tracker")
+//                        .setContentText("Kid tracker check your location")
+//                        .setSmallIcon(R.drawable.abc_cab_background_internal_bg)
+//                        .setContentIntent(pendingIntent)
+//                        .setTicker("ticker")
+//                        .build()
+//                startForeground(2, notification)
+                buildGoogleApiClient()
+//                notificationMethods!!.notificationAction()
 
             }
         }
@@ -94,7 +95,6 @@ class PolygonAndLocationService : Service,
     var mLocationRequest: LocationRequest? = null
     var mGoogleApiClient: GoogleApiClient? = null
     var mLastLocation: Location? = null
-    var mCurrLocationMarker: Marker? = null
 
     var mRequestLocationUpdatesPendingIntent : PendingIntent? = null
     fun buildGoogleApiClient() {
@@ -145,30 +145,51 @@ class PolygonAndLocationService : Service,
             Log.i(TAG, "onLocationChanged")
             mLastLocation = location!!
             addCurrentUserLocationToFirebase(mLastLocation!!)
-            //TODO czy to cos robi?
-            if (mCurrLocationMarker != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
-                mCurrLocationMarker!!.remove();
-            }
         }
     }
 
     private fun addCurrentUserLocationToFirebase(lastLocation: Location) {
+        val intent = Intent(this, ForegroundOnTaskRemovedActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
         var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
         Log.i(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser!!.uid + " location " + lastLocation.toString() )
-            locations.child(currentUser!!.uid)
-                    .setValue(TrackingModel(currentUser.uid,
-                            currentUser!!.email!!,
-                            lastLocation.latitude.toString(),
-                            lastLocation.longitude.toString()), object : DatabaseReference.CompletionListener {
-                        override fun onComplete(p0: DatabaseError?, p1: DatabaseReference?) {
-                            Log.i(TAG,"onComplete() position saved to firebase database")
-                            Log.i(TAG,"okey stop service")
-                            mGoogleApiClient!!.disconnect()
-                            stopForeground(true)
-                            stopSelf()                        }
-                    })
+
+//            val scoresRef = locations.child(currentUser!!.uid)
+//            scoresRef.keepSynced(true)
+//            val connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected")
+//            connectedRef.addValueEventListener(object : ValueEventListener {
+//                override fun onDataChange(snapshot: DataSnapshot) {
+//                    val connected = snapshot.getValue(Boolean::class.java)!!
+//                    //FirebaseApp.initializeApp(applicationContext)
+//                    if (connected) {
+//                        Log.i(TAG,"connected")
+                        locations.child(currentUser!!.uid).onDisconnect()
+                                .setValue(TrackingModel(currentUser.uid,
+                                        currentUser!!.email!!,
+                                        lastLocation.latitude.toString(),
+                                        lastLocation.longitude.toString()), object : DatabaseReference.CompletionListener {
+                                    override fun onComplete(error: DatabaseError?, reference: DatabaseReference?) {
+                                        Log.i(TAG,"onComplete()")
+                                        if(error == null){
+                                            Log.i(TAG,"onComplete() position saved to firebase database")
+                                            Log.i(TAG,"okey stop service")
+                                            mGoogleApiClient!!.disconnect()
+                                        }else{
+                                            Log.i(TAG,"there is problem to add data to database")
+                                        }
+                                    }
+                                })
+//                    } else {
+//                        Log.i(TAG,"not connected")
+//                    }
+//                }
+//                override fun onCancelled(error: DatabaseError) {
+//                    System.err.println("Listener was cancelled")
+//                }
+//            })
         }
     }
 

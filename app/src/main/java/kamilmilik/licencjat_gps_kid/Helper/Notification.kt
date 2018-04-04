@@ -3,6 +3,8 @@ package kamilmilik.licencjat_gps_kid.Helper
 import android.content.Context
 import android.location.Location
 import android.util.Log
+import com.firebase.jobdispatcher.JobParameters
+import com.firebase.jobdispatcher.JobService
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -16,10 +18,11 @@ import kamilmilik.licencjat_gps_kid.models.User
 /**
  * Created by kamil on 17.03.2018.
  */
-class Notification(var context: Context){
+class Notification(var context: Context, var jobService : JobService, var job : JobParameters){
     private var TAG = Notification::class.java.simpleName
 
     fun notificationAction() {
+        Log.i(TAG,"notificationAction() job: " + job.toString() + " job servcie " + jobService )
         Log.i(TAG, "notificationAction, current user id : " + FirebaseAuth.getInstance().currentUser!!.uid)
         var currentUser = FirebaseAuth.getInstance().currentUser
         val reference = FirebaseDatabase.getInstance().reference
@@ -148,14 +151,30 @@ class Notification(var context: Context){
                         }
                     }
                     Log.i(TAG,"Check if given locationOfUserWhoChangeIt: $locationOfUserWhoChangeIt is in polygon")
-                    var insideOrOutsideArea = InsideOrOutsideArea(context, locationOfUserWhoChangeIt!!)
-                    var listOfIsInArea = insideOrOutsideArea.isPointInsidePolygon(polygonsLatLngMap)
-                    Log.i(TAG, listOfIsInArea.toString())
-                    listOfIsInArea
-                            .filter { it == Constants.ENTER || it == Constants.EXIT }
-                            .forEach { notification(it,userIdToSendNotification,currentUserId) }
+                    if(!polygonsLatLngMap.isEmpty()){
+                        Log.i(TAG,"isInArea in polygon?")
+                        var insideOrOutsideArea = InsideOrOutsideArea(context, locationOfUserWhoChangeIt!!)
+                        var listOfIsInArea = insideOrOutsideArea.isPointInsidePolygon(polygonsLatLngMap)
+                        Log.i(TAG, listOfIsInArea.toString())
+//                        listOfIsInArea
+//                                .filter { it == Constants.ENTER || it == Constants.EXIT }
+//                                .forEach { notification(it,userIdToSendNotification,currentUserId) }
+                        for(it in listOfIsInArea){
+                            if(it == Constants.ENTER || it == Constants.EXIT  ){
+                                notification(it,userIdToSendNotification,currentUserId)
+                            }else{
+                                Log.i(TAG,"finish job in else block user not change polygon action")
+                                jobService.jobFinished(job,false)
+                            }
+                        }
+                    }else{
+                        Log.i(TAG,"finish job in else block")
+                        jobService.jobFinished(job,false)
+                    }
 
                     if (dataSnapshot.value == null) {//nothing found
+                        Log.i(TAG,"finish job if nothing found jobService " + jobService.toString() + " job " + job.toString())
+                        jobService.jobFinished(job,false)
                         Log.i(TAG, "nothing found in onDataChange")
                     }
                 }
@@ -211,7 +230,9 @@ class Notification(var context: Context){
         notificationsDatabase.child(currentUserId).orderByChild("from").equalTo(userIdToSendNotification).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 if(!dataSnapshot!!.exists()){
-                    notificationsDatabase.child(currentUserId).push().setValue(notificationData)
+                    notificationsDatabase.child(currentUserId).push().setValue(notificationData){
+                        databaseError, databaseReference -> jobService.jobFinished(job,false)
+                    }
                 }
             }
             override fun onCancelled(databaseError: DatabaseError?) {}
@@ -228,7 +249,9 @@ class Notification(var context: Context){
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 Log.i(TAG, dataSnapshot.toString() + "  " + dataSnapshot!!.children.toString())
                 for(snapshot in dataSnapshot!!.children){
-                    notificationsDatabase.child(userIdToDelete).child(snapshot.key).setValue(map)
+                    notificationsDatabase.child(userIdToDelete).child(snapshot.key).setValue(map) {
+                        databaseError, databaseReference -> jobService.jobFinished(job,false)
+                    }
                 }
             }
             override fun onCancelled(databaseError: DatabaseError?) {}
