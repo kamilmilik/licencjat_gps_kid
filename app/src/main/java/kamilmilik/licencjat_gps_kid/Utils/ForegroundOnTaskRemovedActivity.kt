@@ -2,7 +2,7 @@ package kamilmilik.licencjat_gps_kid.Utils
 
 import android.app.Activity
 import android.os.Bundle
-
+import android.util.Log
 
 
 /**
@@ -13,8 +13,11 @@ import android.os.Bundle
  * without this class if notification comes app crash since intent was null
  */
 class ForegroundOnTaskRemovedActivity : Activity() {
+    private val TAG = ForegroundOnTaskRemovedActivity::class.java.simpleName
     public override fun onCreate(bundle: Bundle?) {
+        Log.i(TAG,"onCreate()")
         super.onCreate(bundle)
-        finish()
+            Log.i(TAG, "finish affinity")
+            finishAffinity()
     }
 }

@@ -16,27 +16,28 @@ import kotlinx.android.synthetic.main.activity_enter_invite.*
 import android.text.InputFilter
 import android.widget.Toast
 import com.google.firebase.iid.FirebaseInstanceId
+import kamilmilik.licencjat_gps_kid.ApplicationActivity
 import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.models.User
 
 
-class EnterInviteActivity : AppCompatActivity() {
+class EnterInviteActivity : ApplicationActivity() {
     private val TAG : String = "EnterInviteActivity"
     private var userUniqueKeyModel : UserUniqueKey? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_enter_invite)
 
-        setupToolbar()
+//        setupToolbar()
 
         submitEnteredInviteCodeButtonAction()
     }
-    private fun setupToolbar(){
-        toolbarEnterInvite.setTitle("Generate Invite Code")
-        setSupportActionBar(toolbarEnterInvite)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true);
-        supportActionBar!!.setDisplayShowHomeEnabled(true);
-    }
+//    private fun setupToolbar(){
+//        toolbarEnterInvite.setTitle("Generate Invite Code")
+//        setSupportActionBar(toolbarEnterInvite)
+//        supportActionBar!!.setDisplayHomeAsUpEnabled(true);
+//        supportActionBar!!.setDisplayShowHomeEnabled(true);
+//    }
     private fun submitEnteredInviteCodeButtonAction(){
         editTextEnterInviteCode.filters = arrayOf<InputFilter>(InputFilter.AllCaps())
         buttonSubmitInvite.setOnClickListener({
@@ -95,11 +96,14 @@ class EnterInviteActivity : AppCompatActivity() {
      */
     private fun addConnectedUserToDatabase(userUniqueKeyModel : UserUniqueKey){
         Log.i(TAG, "addConnectedUserToDatabase: add user data following and followers to database")
-        var currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-        var currentUserEmail = FirebaseAuth.getInstance().currentUser!!.email
+        var currentFirebaseUser = FirebaseAuth.getInstance().currentUser!!
+        var currentUserId = currentFirebaseUser.uid
+        var currentUserEmail = currentFirebaseUser.email
         var deviceTokenId = FirebaseInstanceId.getInstance().token
-        var currentUser = User(currentUserId, currentUserEmail!!,deviceTokenId!!)
-        var followedUser = User(userUniqueKeyModel.user_id!!, userUniqueKeyModel!!.user_email!!,userUniqueKeyModel.device_token!!)
+        var name = currentFirebaseUser.displayName
+
+        var currentUser = User(currentUserId, currentUserEmail!!,deviceTokenId!!, name!!)
+        var followedUser = User(userUniqueKeyModel.user_id!!, userUniqueKeyModel!!.user_email!!,userUniqueKeyModel.device_token!!, userUniqueKeyModel.user_name!!)
         FirebaseDatabase.getInstance().getReference()
                 .child("following")
                 .child(currentUser.user_id)

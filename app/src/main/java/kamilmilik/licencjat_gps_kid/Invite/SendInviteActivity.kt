@@ -14,28 +14,29 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.iid.FirebaseInstanceId
+import kamilmilik.licencjat_gps_kid.ApplicationActivity
 import kamilmilik.licencjat_gps_kid.ListOnline
 import kamilmilik.licencjat_gps_kid.models.UserUniqueKey
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class SendInviteActivity : AppCompatActivity() {
+class SendInviteActivity : ApplicationActivity() {
     val TAG : String = "SendInviteActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_send_invite)
 
-        setupToolbar()
+//        setupToolbar()
 
         generatedUniqueCodeAction()
     }
-    private fun setupToolbar(){
-        toolbarSendInvite.setTitle("Generate Invite Code")
-        setSupportActionBar(toolbarSendInvite)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true);
-        supportActionBar!!.setDisplayShowHomeEnabled(true);
-    }
+//    private fun setupToolbar(){
+//        toolbarSendInvite.setTitle("Generate Invite Code")
+//        setSupportActionBar(toolbarSendInvite)
+//        supportActionBar!!.setDisplayHomeAsUpEnabled(true);
+//        supportActionBar!!.setDisplayShowHomeEnabled(true);
+//    }
 
     private fun setGenerateCode() : String{
         var generatedUniqueKey = RandomIdGenerator.getBase36(8)
@@ -48,12 +49,15 @@ class SendInviteActivity : AppCompatActivity() {
      */
     private fun addCurrentUserGeneratedKeyToDatabase(generatedUniqueKey : String){
         Log.i(TAG, "addGeneratedKeyToCurrentUserToDatabase: add user data following and followers to database")
-        var userId = FirebaseAuth.getInstance().getCurrentUser()!!.uid
-        var userEmail = FirebaseAuth.getInstance().getCurrentUser()!!.email
+        var currentFirebaseUser = FirebaseAuth.getInstance().currentUser!!
+        var userId = currentFirebaseUser.uid
+        var userEmail = currentFirebaseUser.email
         var uniqueKeyId = FirebaseDatabase.getInstance().reference.push().key
         var deviceTokenId = FirebaseInstanceId.getInstance().token
+        var name = currentFirebaseUser.displayName
 
-        var userUniqueKey  = UserUniqueKey(userId, userEmail!!,generatedUniqueKey,deviceTokenId!!)
+
+        var userUniqueKey  = UserUniqueKey(userId, userEmail!!,generatedUniqueKey,deviceTokenId!!, name!!)
         FirebaseDatabase.getInstance().reference
                 .child("user_keys")
                 .child(uniqueKeyId)
@@ -69,8 +73,6 @@ class SendInviteActivity : AppCompatActivity() {
         ref.child("user_keys")
                 .child(uniqueKeyId)
                 .updateChildren(map)
-
-
     }
     private fun generatedUniqueCodeAction(){
         var uniqueKey = setGenerateCode()

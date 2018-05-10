@@ -5,54 +5,80 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="kamilmilik.licencjat_gps_kid.Login.RegistrationActivity">
-   <RelativeLayout
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    <RelativeLayout
+        android:id="@+id/toolbarRegistrationActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <include layout="@layout/toolbar" />
+    </RelativeLayout>
+
+    <RelativeLayout
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       app:layout_constraintBottom_toBottomOf="parent"
-       app:layout_constraintEnd_toEndOf="parent"
-       app:layout_constraintStart_toStartOf="parent">
+        android:layout_below="@id/toolbarRegistrationActivity">
+       <TextView
+           android:id="@+id/nameTextView"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:textAppearance="?android:attr/textAppearanceMedium"
+           android:text="Name:"
+           android:layout_alignParentTop="true"
+           android:layout_alignParentStart="true"
+           android:layout_alignParentLeft="true" />
 
+       <EditText
+           android:id="@+id/nameEditText"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/nameTextView"
+           android:layout_alignParentStart="true"
+           android:layout_alignParentEnd="true"
+           android:layout_alignParentLeft="true"
+           android:layout_alignParentRight="true" />
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Email Address:"
+        android:layout_below="@id/nameEditText"
         android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true" />
+        />
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/emailRegistrationEditText"
+        android:id="@+id/emailLoginEditText"
         android:layout_below="@+id/textView"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true" />
+  />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Password"
         android:id="@+id/textView2"
-        android:layout_below="@+id/emailRegistrationEditText"
+        android:layout_below="@+id/emailLoginEditText"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true" />
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:ems="10"
-        android:id="@+id/passwordRegistrationEditText"
+        android:id="@+id/passwordLoginEditText"
         android:layout_below="@+id/textView2"
         android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/emailRegistrationEditText"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/emailRegistrationEditText" />
+        android:layout_alignRight="@+id/emailLoginEditText" />
 
     <Button
         android:layout_width="wrap_content"
@@ -60,8 +86,9 @@
         android:text="Registration"
         android:id="@+id/registrationButton"
         android:onClick="btnRegistrationUser_Click"
-        android:layout_below="@+id/passwordRegistrationEditText"
+        android:layout_below="@+id/passwordLoginEditText"
         android:layout_centerHorizontal="true" />
    </RelativeLayout>
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

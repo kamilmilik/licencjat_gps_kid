@@ -4,12 +4,15 @@ import android.content.Context
 import android.location.Location
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.google.maps.android.PolyUtil
 import kamilmilik.licencjat_gps_kid.Constants
+import kamilmilik.licencjat_gps_kid.models.UserAndPolygonKeyModel
 import java.lang.reflect.Type
+import kamilmilik.licencjat_gps_kid.models.MyCustomJsonSerializer
+
+
 
 /**
  * Created by kamil on 17.03.2018.
@@ -27,15 +30,16 @@ class InsideOrOutsideArea(var context : Context ,var locationOfUserWhoChangeIt: 
      * @param polygonKey
      * @param polygonPoints
      */
-    private fun isInArea(polygonKey: String, polygonPoints: ArrayList<LatLng>): Int {
+    private fun isInArea(polygonKey: UserAndPolygonKeyModel, polygonPoints: ArrayList<LatLng>): Int {
+        //TODO przy paru userach to nie ma sensu, zmienic zeby zapisywac usera i jego stan, bo obecnie sprawdza tylko dany polygon a chyba user tez jest wazny?
         isInArea = PolyUtil.containsLocation(LatLng(locationOfUserWhoChangeIt!!.latitude, locationOfUserWhoChangeIt!!.longitude), polygonPoints, false)
-        var isInAreaPreviousMap: HashMap<String, Boolean> = getValueFromSharedPreferences()
+        var isInAreaPreviousMap: HashMap<UserAndPolygonKeyModel, Boolean> = getValueFromSharedPreferences()
         var previousValueInMap = isInAreaPreviousMap[polygonKey]
         Log.i(TAG, "polygonKey: $polygonKey")
         Log.i(TAG, " previous $previousValueInMap isInArea $isInArea")
         isInAreaPreviousMap.put(polygonKey, isInArea!!)
         writeValueToSharedPreferences(isInAreaPreviousMap)
-        if (previousValueInMap == null) {
+        if (previousValueInMap == null) {//wasn't any polygon previous
             if (isInArea == true) {
                 return Constants.ENTER
             } else if (isInArea == false) {//if user isn't in area not push notification
@@ -52,32 +56,35 @@ class InsideOrOutsideArea(var context : Context ,var locationOfUserWhoChangeIt: 
 
         return Constants.STILL_OUTSIDE_OR_INSIDE
     }
-    private fun getValueFromSharedPreferences() : HashMap<String,Boolean>{
+    private fun getValueFromSharedPreferences() : HashMap<UserAndPolygonKeyModel,Boolean>{
         val sharedPref = context.getSharedPreferences("shared", Context.MODE_PRIVATE)
-        val jsonString = sharedPref.getString("map","")
-        if(!jsonString.equals("")){
-            var type : Type =  object : TypeToken<HashMap<String, Boolean>>() {}.type
-            var map : HashMap<String,Boolean> =  Gson().fromJson<HashMap<String,Boolean>>(jsonString, type)
+        val jsonString : String= sharedPref.getString("map-polygon","")
+        if(jsonString != ""){
+            var type : Type =  object : TypeToken<HashMap<UserAndPolygonKeyModel, Boolean>>() {}.type
+            Log.i(TAG,"getValueFromSharedPreferences() json " + jsonString)
+            val gson = GsonBuilder().create()
+            var map : HashMap<UserAndPolygonKeyModel,Boolean> =  gson.fromJson<HashMap<UserAndPolygonKeyModel,Boolean>>(jsonString, type)
             return map
         }
         return HashMap()
     }
-    private fun writeValueToSharedPreferences(isInAreaPreviousMap: HashMap<String, Boolean>){
+    private fun writeValueToSharedPreferences(isInAreaPreviousMap: HashMap<UserAndPolygonKeyModel, Boolean>){
         val sharedPref = context.getSharedPreferences("shared", Context.MODE_PRIVATE) ?: return
         var builder =  GsonBuilder()
-        var gson = builder.enableComplexMapKeySerialization().setPrettyPrinting().create()
-        var type : Type =  object : TypeToken<HashMap<String, Boolean>>() {}.type
+        var gson = builder.enableComplexMapKeySerialization().setPrettyPrinting().registerTypeAdapter(UserAndPolygonKeyModel::class.java, MyCustomJsonSerializer()).create()
+        var type : Type =  object : TypeToken<HashMap<UserAndPolygonKeyModel, Boolean>>() {}.type
         var json = gson.toJson(isInAreaPreviousMap, type);
+        Log.i(TAG,"writeValueToSharedPreferences() save json " + json)
         with (sharedPref.edit()) {
-            putString("map",json)
+            putString("map-polygon",json)
             commit()
         }
     }
 
-    fun isPointInsidePolygon(polygonsMap : HashMap<String, ArrayList<LatLng>>) : ArrayList<Int>{
+    fun isPointInsidePolygon(polygonsMap : HashMap<UserAndPolygonKeyModel, ArrayList<LatLng>>) : ArrayList<Int>{
         var listOfIsInArea: ArrayList<Int> = ArrayList()
-        for(polygon in polygonsMap){
-            listOfIsInArea.add(isInArea(polygon.key, polygon.value))
+        for(mapData in polygonsMap){
+            listOfIsInArea.add(isInArea(mapData.key, mapData.value))
         }
         return listOfIsInArea
     }

@@ -16,6 +16,22 @@ class CheckValidDataInEditText(context : Context?){
      * @param email
      * @param password
      */
+    fun checkIfUserEnterValidData(email : String, password: String, name : String): Boolean {
+        Log.i(TAG,"checkIfUserEnterValidData: check if is valid data in user login/register")
+        if(TextUtils.isEmpty(email)){
+            Toast.makeText(context,"Please enter currentUserId", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if(TextUtils.isEmpty(password)){
+            Toast.makeText(context,"Please enter password", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if(TextUtils.isEmpty(name)){
+            Toast.makeText(context,"Please enter name", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
     fun checkIfUserEnterValidData(email : String, password: String): Boolean {
         Log.i(TAG,"checkIfUserEnterValidData: check if is valid data in user login/register")
         if(TextUtils.isEmpty(email)){

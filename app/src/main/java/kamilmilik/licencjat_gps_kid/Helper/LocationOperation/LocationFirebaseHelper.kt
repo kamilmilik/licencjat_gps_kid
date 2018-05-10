@@ -1,24 +1,20 @@
 package kamilmilik.licencjat_gps_kid.Helper.LocationOperation
 
-import android.app.PendingIntent
+import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
-import android.content.Intent
-import android.graphics.Point
 import android.location.Location
 import android.util.Log
-import android.view.MotionEvent
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import com.google.maps.android.PolyUtil
-import kamilmilik.licencjat_gps_kid.models.MyOwnLatLng
-import kamilmilik.licencjat_gps_kid.models.PolygonModel
-import kamilmilik.licencjat_gps_kid.models.TrackingModel
-import kamilmilik.licencjat_gps_kid.models.User
+import kamilmilik.licencjat_gps_kid.Helper.OnMarkerAddedCallback
+import kamilmilik.licencjat_gps_kid.models.*
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -28,68 +24,137 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
     private val TAG: String = LocationFirebaseHelper::class.java.simpleName
 
     var currentMarkerPosition: LatLng? = null
-    var markersMap = HashMap<String, Marker>()
+    var markersMap = HashMap<UserMarkerInformationModel, Marker>()
     var currentUserLocation = Location("")
 
-    fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location) {
+    var userWhoChangeLocation : TrackingModel? = null
+    fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location, onMarkerAddedCallback: OnMarkerAddedCallback) {
         Log.i(TAG, "addCurrentUserMarkerAndRemoveOld")
 //        var locations = FirebaseDatabase.getInstance().getReference("Locations")
         var currentUser = FirebaseAuth.getInstance().currentUser
+        var locations = FirebaseDatabase.getInstance().getReference("Locations")
+
         if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
 //            it should be method which add location to db but It is done in LocationUpdateService
-//                 locations.child(currentUser!!.uid)
-//                    .setValue(TrackingModel(currentUser.uid,
-//                            currentUser!!.email!!,
-//                            lastLocation.latitude.toString(),
-//                            lastLocation.longitude.toString()))
+                            var userMarkerInformation = UserMarkerInformationModel(currentUser.email!!, currentUser!!.displayName!!)
+                            locations.child(currentUser!!.uid)
+                                    .setValue(TrackingModel(currentUser.uid,
+                                            currentUser!!.email!!,
+                                            lastLocation.latitude.toString(),
+                                            lastLocation.longitude.toString(),
+                                            currentUser!!.displayName!!,
+                                            System.currentTimeMillis()))
 
 
-            removeOldMarker(currentUser.email!!)
+                            removeOldMarker(userMarkerInformation)
+                            var currentMarker = mGoogleMap!!.addMarker(MarkerOptions()
+                                    .position(LatLng(lastLocation.latitude!!, lastLocation.longitude!!))
+                                    .title(currentUser!!.displayName))
+                            markersMap.put(userMarkerInformation, currentMarker)
+                            //mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lastLocation.latitude, lastLocation.longitude), 12.0f))
+                            currentUserLocation = createLocationVariable(currentMarker.position)
 
-            var currentMarker = mGoogleMap!!.addMarker(MarkerOptions()
-                    .position(LatLng(lastLocation.latitude!!, lastLocation.longitude!!))
-                    .title(currentUser!!.email))
-            markersMap.put(currentUser.email!!, currentMarker)
+                            updateMarkerSnippetDistance(userMarkerInformation, currentUserLocation)
 
-            //mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lastLocation.latitude, lastLocation.longitude), 12.0f))
-            currentUserLocation = createLocationVariable(currentMarker.position)
+                            currentMarkerPosition = currentMarker.position
 
-            updateMarkerSnippetDistance(currentUser!!.email!!, currentUserLocation)
 
-            currentMarkerPosition = currentMarker.position
+                            onMarkerAddedCallback.myLocationMarkerAddedListener(true)
+                            onMarkerAddedCallback.onMarkerAddedListener()
 
         }
     }
 
-    fun listenerForLocationsChangeInFirebase(followingUserId: String) {
-        loadLocationsFromDatabaseForGivenUserId(followingUserId)
+    fun listenerForLocationsChangeInFirebase(followingUserId: String, onMarkerAddedCallback: OnMarkerAddedCallback, progressBar: ProgressDialog) {
+        loadLocationsFromDatabaseForGivenUserId(followingUserId, onMarkerAddedCallback, progressBar)
     }
 
-    fun loadLocationsFromDatabaseForGivenUserId(userId: String) {
+    var previousUserMarkerInformation : UserMarkerInformationModel? = null
+    // /TODO tu chyba dac listener kiedy dodajemy usera bo teraz jest java.util.NoSuchElementException: Key ewacwieka@interia.pl is missing in the map. kiedy dodaje nowego usera bo on dodaje lokalizacje a jej nie zmienia chyba
+    fun loadLocationsFromDatabaseForGivenUserId(followingUserId: String, onMarkerAddedCallback: OnMarkerAddedCallback, progressBar: ProgressDialog) {
         Log.i(TAG, "loadLocationsFromDatabaseForGivenUserId")
+        //progressBar.visibility = View.VISIBLE
+
         var locations = FirebaseDatabase.getInstance().getReference("Locations")
-        var query: Query = locations.orderByChild("user_id").equalTo(userId)
+        var query: Query = locations.orderByChild("user_id").equalTo(followingUserId)
 
         //addValueEventListeners The listener is triggered once for the initial state of the data and again anytime the data changes
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 Log.i(TAG, "onDataChange in Locations listener " + dataSnapshot.toString())
                 for (singleSnapshot in dataSnapshot!!.children) {
-                    var userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
-                    var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())
+                    userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
+                    if(userWhoChangeLocation != null && FirebaseAuth.getInstance().currentUser != null){
+                        onMarkerAddedCallback.updateChangeUserNameInRecycler(UserMarkerInformationModel(userWhoChangeLocation!!.email, userWhoChangeLocation!!.user_name!!))
+                        //TODO dac jakas metode czy cos ze to aktualizuje user name jak go zmieni
+                        //update following or followers user name if change
+                        FirebaseDatabase.getInstance().getReference("followers").orderByKey()
+                                .equalTo(userWhoChangeLocation!!.user_id )
+                                .addListenerForSingleValueEvent(object : ValueEventListener {
+                                    override fun onCancelled(p0: DatabaseError?) {}
+                                    override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                                        Log.i(TAG,"onDataChange() sprawdze w followers usera " + userWhoChangeLocation!!.user_id)
+                                        for (singleSnapshot in dataSnapshot!!.children) {
+                                            for (childSingleSnapshot in singleSnapshot.children) {
+                                                var user = childSingleSnapshot.child("user").getValue(User::class.java)
+                                                if(user!!.user_id == FirebaseAuth.getInstance().currentUser!!.uid) {
+                                                    Log.i(TAG, "onDataChange() update name" + childSingleSnapshot)
+                                                    var map = HashMap<String, Any>() as MutableMap<String, Any>
+                                                    map.put("user_name", FirebaseAuth.getInstance().currentUser!!.displayName!!)
+                                                    childSingleSnapshot!!.ref.child("user").updateChildren(map)
+                                                }
+                                            }
+                                        }
+                                    }
+                                })
+                        FirebaseDatabase.getInstance().getReference("following").orderByKey()
+                                .equalTo(FirebaseAuth.getInstance().currentUser!!.uid )
+                                .addListenerForSingleValueEvent(object : ValueEventListener {
+                                    override fun onCancelled(p0: DatabaseError?) {}
+                                    override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                                        Log.i(TAG,"onDataChange() sprawdze w following usera " + FirebaseAuth.getInstance().currentUser!!.uid)
+                                        for (singleSnapshot in dataSnapshot!!.children) {
+                                            for (childSingleSnapshot in singleSnapshot.children) {
+                                                var user = childSingleSnapshot.child("user").getValue(User::class.java)
+                                                if(user!!.user_id == userWhoChangeLocation!!.user_id) {
+                                                    Log.i(TAG, "onDataChange() update name" + childSingleSnapshot)
+                                                    var map = HashMap<String, Any>() as MutableMap<String, Any>
+                                                    map.put("user_name", userWhoChangeLocation!!.user_name!!)
+                                                    childSingleSnapshot!!.ref.child("user").updateChildren(map)
+                                                }
+                                            }
+                                        }
+                                    }
+                                })
 
-                    removeOldMarker(userWhoChangeLocation!!.email)
-                    var location = createLocationVariable(locationOfTheUserWhoChangeLocation)
-                    var firstDistanceSecondMeasure = calculateDistanceBetweenTwoPoints(currentUserLocation, location)
-                    Log.i(TAG, "ustawiam marker obserwowanego na pozycje : " + locationOfTheUserWhoChangeLocation + " dla " + userWhoChangeLocation!!.email)
-                    var markerFollowingUser = mGoogleMap!!.addMarker(MarkerOptions()
-                            .position(locationOfTheUserWhoChangeLocation)
-                            .title(userWhoChangeLocation!!.email)
-                            .snippet("Distance " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
-                    //mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(locationOfTheUserWhoChangeLocation.latitude, locationOfTheUserWhoChangeLocation.longitude), 12.0f))
-                    markersMap.put(userWhoChangeLocation!!.email, markerFollowingUser)
+                        var userMarkerInformation = UserMarkerInformationModel(userWhoChangeLocation!!.email, userWhoChangeLocation!!.user_name!!)
+                        var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())
 
+                        //TODO tutaj jakos usuwac po mailu? jeśli jest już w mapie to go usun
+                        for((key, value) in markersMap){
+                            if(key.email == userMarkerInformation.email){
+                                markersMap[key]!!.remove()
+                            }
+                        }
+                        //TODO czy to potrzebne ?
+    //                        removeOldMarker(userMarkerInformation!!)
+                        var location = createLocationVariable(locationOfTheUserWhoChangeLocation)
+                        var firstDistanceSecondMeasure = calculateDistanceBetweenTwoPoints(currentUserLocation, location)
+                        Log.i(TAG, "ustawiam marker obserwowanego na pozycje : " + locationOfTheUserWhoChangeLocation + " dla " + userWhoChangeLocation!!.email)
+                        var markerFollowingUser = mGoogleMap!!.addMarker(MarkerOptions()
+                                .position(locationOfTheUserWhoChangeLocation)
+                                .title(userWhoChangeLocation!!.user_name)
+                                .snippet("Distance " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second
+                                + " Location report " +  SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!)))
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+                        //mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(locationOfTheUserWhoChangeLocation.latitude, locationOfTheUserWhoChangeLocation.longitude), 12.0f))
+                        Log.i(TAG, "put to markersMap " + userWhoChangeLocation!!.email)
+                        markersMap.put(userMarkerInformation, markerFollowingUser)
+                        previousUserMarkerInformation = userMarkerInformation
+                        onMarkerAddedCallback.userConnectionMarkerAddedListener(true)
+                        onMarkerAddedCallback.onMarkerAddedListener()
+
+                    }
                 }
 
                 if (dataSnapshot.value == null) {//nothing found
@@ -102,9 +167,9 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
         })
     }
 
-    private fun removeOldMarker(userEmail: String) {
-        if (markersMap.containsKey(userEmail)) {
-            markersMap.getValue(userEmail).remove()
+    private fun removeOldMarker(userMarkerInformation: UserMarkerInformationModel) {
+        if (markersMap.containsKey(userMarkerInformation)) {
+            markersMap.getValue(userMarkerInformation).remove()
         }
     }
 
@@ -127,27 +192,33 @@ class LocationFirebaseHelper(var mGoogleMap: GoogleMap, var context: Context) {
         return Pair(distance, measure)
     }
 
-    private fun updateMarkerSnippetDistance(userEmailToAvoidUpdate: String, currentUserLocation: Location) {
+    private fun updateMarkerSnippetDistance(userToAvoidUpdate: UserMarkerInformationModel, currentUserLocation: Location) {
         for ((key, value) in markersMap) {
-            if (key != userEmailToAvoidUpdate) {
+            if (key != userToAvoidUpdate) {
                 var location = Location("")
                 location.latitude = value.position.latitude
                 location.longitude = value.position.longitude
                 var firstDistanceSecondMeasure = calculateDistanceBetweenTwoPoints(currentUserLocation, location)
                 value.hideInfoWindow()
-                value.snippet = "Distance " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second
+                value.snippet = "Distance " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second + " Location report " + SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!))
             }
         }
     }
 
-    fun goToThisMarker(clickedUserEmail: String) {
-        var searchedMarker = findMarker(clickedUserEmail)
-        mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedMarker.position, 12.0f))
+    fun goToThisMarker(clickedUserMarkerInformation: UserMarkerInformationModel) {
+        Log.i(TAG,"goToThisMarker() clicked user email " + clickedUserMarkerInformation)
+        var searchedMarker = findMarker(clickedUserMarkerInformation)
+        mGoogleMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedMarker!!.position, 12.0f))
         searchedMarker.showInfoWindow()
     }
 
 
-    private fun findMarker(searchedMarkerKey: String): Marker {
-        return markersMap.getValue(searchedMarkerKey)
+    private fun findMarker(searchedUserMarkerInformationKey: UserMarkerInformationModel): Marker? {
+        for ((key, value) in markersMap) {
+            Log.i(TAG,"findMarker() " + key.userName + " " + key.email + " input " + searchedUserMarkerInformationKey.email + " " + searchedUserMarkerInformationKey.userName)
+            Log.i(TAG,"findMarker() hash " + key.hashCode() + " " + searchedUserMarkerInformationKey.hashCode())
+            Log.i(TAG,"findMarker() equals " + (key == searchedUserMarkerInformationKey))
+        }
+        return markersMap.getValue(searchedUserMarkerInformationKey)
     }
 }

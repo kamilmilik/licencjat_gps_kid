@@ -1,34 +1,294 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="kamilmilik.licencjat_gps_kid.Profile.ProfileActivity">
-    <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Welcome:"
-        android:id="@+id/textView3"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true" />
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Email"
-        android:id="@+id/tvEmailProfile"
-        android:layout_below="@+id/textView3"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true" />
-</RelativeLayout>
-</android.support.constraint.ConstraintLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--<android.support.v7.widget.Toolbar-->
+            <!--android:id="@+id/toolbarProfile"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@color/colorPrimary"-->
+            <!--android:minHeight="?attr/actionBarSize"-->
+            <!--app:titleTextColor="@android:color/white"></android.support.v7.widget.Toolbar>-->
+        <RelativeLayout
+            android:id="@+id/toolbarProfileActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <include layout="@layout/toolbar" />
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbarProfileActivity"
+            android:paddingTop="5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/userNameRelative"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:id="@+id/userNameIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
+                        android:src="@drawable/ic_name" />
+
+                    <TextView
+                        android:id="@+id/userNameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@id/userNameIcon"
+                        android:layout_toRightOf="@id/userNameIcon"
+                        android:text="kamil"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="#212121" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/userNameTextView"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_toEndOf="@id/userNameIcon"
+                        android:layout_toRightOf="@id/userNameIcon"
+                        android:text="User name"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textColor="#727272" />
+                    <Button
+                        android:id="@+id/editUserNameButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/ic_edit"
+                        android:padding="6dp"
+                        android:textOff=""
+                        android:textOn="" />
+                </RelativeLayout>
+
+                <include layout="@layout/divider" />
+
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/userEmailRelative"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="?attr/selectableItemBackground"-->
+                    <!--android:clickable="true"-->
+                    <!--android:padding="10dp">-->
+
+                    <!--<ImageView-->
+                        <!--android:id="@+id/userEmailIcon"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:layout_marginEnd="10dp"-->
+                        <!--android:layout_marginRight="10dp"-->
+                        <!--android:src="@drawable/ic_email" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/userEmailTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_marginLeft="10dp"-->
+                        <!--android:layout_marginStart="10dp"-->
+                        <!--android:layout_toEndOf="@id/userEmailIcon"-->
+                        <!--android:layout_toRightOf="@id/userEmailIcon"-->
+                        <!--android:text="kamil@kamil.com"-->
+                        <!--android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+                        <!--android:textColor="#212121" />-->
+
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_below="@id/userEmailTextView"-->
+                        <!--android:layout_marginLeft="10dp"-->
+                        <!--android:layout_marginStart="10dp"-->
+                        <!--android:layout_marginTop="8dp"-->
+                        <!--android:layout_toEndOf="@id/userEmailIcon"-->
+                        <!--android:layout_toRightOf="@id/userEmailIcon"-->
+                        <!--android:text="User email"-->
+                        <!--android:textAppearance="@style/TextAppearance.AppCompat.Small"-->
+                        <!--android:textColor="#727272" />-->
+                    <!--<Button-->
+                        <!--android:id="@+id/editEmailButton"-->
+                        <!--android:layout_width="24dp"-->
+                        <!--android:layout_height="24dp"-->
+                        <!--android:layout_alignParentEnd="true"-->
+                        <!--android:layout_alignParentRight="true"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:layout_marginLeft="10dp"-->
+                        <!--android:layout_marginStart="10dp"-->
+                        <!--android:background="@drawable/ic_edit"-->
+                        <!--android:padding="6dp"-->
+                        <!--android:textOff=""-->
+                        <!--android:textOn="" />-->
+                <!--</RelativeLayout>-->
+
+                <!--<include layout="@layout/divider" />-->
+
+                <RelativeLayout
+                    android:id="@+id/userPasswordRelative"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:id="@+id/userPasswordIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
+                        android:src="@drawable/ic_lock" />
+
+                    <TextView
+                        android:id="@+id/userPasswordTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:inputType="textPassword"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@id/userPasswordIcon"
+                        android:layout_toRightOf="@id/userPasswordIcon"
+                        android:text="password"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="#212121" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/userPasswordTextView"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_toEndOf="@id/userPasswordIcon"
+                        android:layout_toRightOf="@id/userPasswordIcon"
+                        android:text="User password"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textColor="#727272" />
+                    <Button
+                        android:id="@+id/editPasswordButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/ic_edit"
+                        android:padding="6dp"
+                        android:textOff=""
+                        android:textOn="" />
+                </RelativeLayout>
+
+                <include layout="@layout/divider" />
+
+                <RelativeLayout
+                    android:id="@+id/deleteAccountRelative"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:id="@+id/deleteAccountIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
+                        android:src="@drawable/ic_delete_forever" />
+
+                    <TextView
+                        android:id="@+id/deleteAccountTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@id/deleteAccountIcon"
+                        android:layout_toRightOf="@id/deleteAccountIcon"
+                        android:text="Delete my account"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="#212121" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/deleteAccountTextView"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_toEndOf="@id/deleteAccountIcon"
+                        android:layout_toRightOf="@id/deleteAccountIcon"
+                        android:text="Delete account"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textColor="#727272" />
+                    <!--<Button-->
+                        <!--android:id="@+id/deleteAccountButton"-->
+                        <!--android:layout_width="24dp"-->
+                        <!--android:layout_height="24dp"-->
+                        <!--android:layout_alignParentEnd="true"-->
+                        <!--android:layout_alignParentRight="true"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:layout_marginLeft="10dp"-->
+                        <!--android:layout_marginStart="10dp"-->
+                        <!--android:background="@drawable/ic_edit"-->
+                        <!--android:padding="6dp"-->
+                        <!--android:textOff=""-->
+                        <!--android:textOn="" />-->
+                </RelativeLayout>
+
+                <include layout="@layout/divider" />
+                <!--<RelativeLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content">-->
+                    <!--<Button-->
+                        <!--android:id="@+id/deleteAccountButton"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerHorizontal="true"-->
+                        <!--android:layout_centerInParent="true"-->
+                        <!--android:text="Delete account" />-->
+                <!--</RelativeLayout>-->
+
+            </LinearLayout>
+        </ScrollView>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbarProfileActivity">
+
+            <include layout="@layout/progress_bar" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

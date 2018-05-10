@@ -11,9 +11,15 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import kamilmilik.licencjat_gps_kid.Constants
 import kamilmilik.licencjat_gps_kid.Helper.PolygonOperation.InsideOrOutsideArea
-import kamilmilik.licencjat_gps_kid.models.PolygonModel
-import kamilmilik.licencjat_gps_kid.models.TrackingModel
-import kamilmilik.licencjat_gps_kid.models.User
+import kamilmilik.licencjat_gps_kid.models.*
+import android.app.PendingIntent
+import android.content.Intent
+import android.support.v4.app.NotificationCompat
+import kamilmilik.licencjat_gps_kid.ListOnline
+import android.support.v4.app.NotificationManagerCompat
+import android.R
+
+
 
 /**
  * Created by kamil on 17.03.2018.
@@ -22,12 +28,16 @@ class Notification(var context: Context, var jobService : JobService, var job : 
     private var TAG = Notification::class.java.simpleName
 
     fun notificationAction() {
-        Log.i(TAG,"notificationAction() job: " + job.toString() + " job servcie " + jobService )
-        Log.i(TAG, "notificationAction, current user id : " + FirebaseAuth.getInstance().currentUser!!.uid)
-        var currentUser = FirebaseAuth.getInstance().currentUser
-        val reference = FirebaseDatabase.getInstance().reference
-        findFollowersUser(reference, currentUser!!)
-        findFollowingUser(reference, currentUser!!)
+        try{
+            Log.i(TAG,"notificationAction() job: " + job.toString() + " job servcie " + jobService )
+            Log.i(TAG, "notificationAction, current user id : " + FirebaseAuth.getInstance().currentUser!!.uid)
+            var currentUser = FirebaseAuth.getInstance().currentUser
+            val reference = FirebaseDatabase.getInstance().reference
+            findFollowersUser(reference, currentUser!!)
+            findFollowingUser(reference, currentUser!!)
+        }catch (exception : Exception){
+            exception.printStackTrace()
+        }
     }
 
     /**
@@ -136,7 +146,7 @@ class Notification(var context: Context, var jobService : JobService, var job : 
         var databaseReference = FirebaseDatabase.getInstance().getReference("user_polygons")
         var currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {//prevent if user click logout
-            var polygonsLatLngMap : HashMap<String, ArrayList<LatLng>> = HashMap()
+            var polygonsLatLngMap : HashMap<UserAndPolygonKeyModel, ArrayList<LatLng>> = HashMap()
             var query: Query = databaseReference.orderByKey().equalTo(currentUser.uid)
             query.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot?) {
@@ -146,8 +156,8 @@ class Notification(var context: Context, var jobService : JobService, var job : 
                             Log.i(TAG,polygonsFromDbMap!!.tag + " " + polygonsFromDbMap!!.polygonLatLngList)
 
                             var newList : ArrayList<LatLng> = changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
-
-                            polygonsLatLngMap.put(polygonsFromDbMap!!.tag!!, newList)
+                            var userAndPolygonsLatLng = UserAndPolygonKeyModel(userIdToSendNotification,polygonsFromDbMap!!.tag!!)
+                            polygonsLatLngMap.put(userAndPolygonsLatLng, newList)
                         }
                     }
                     Log.i(TAG,"Check if given locationOfUserWhoChangeIt: $locationOfUserWhoChangeIt is in polygon")
@@ -215,22 +225,54 @@ class Notification(var context: Context, var jobService : JobService, var job : 
      */
     private fun saveToDatabaseNotificationsToAnotherDevice(userIdToSendNotification: String, currentUserId: String){
         Log.i(TAG, "saveToDatabaseNotificationsToAnotherDevice")
-        var notificationData : HashMap<String, String> = HashMap()
+        var notificationData = HashMap<String, Any>() as MutableMap<String, Any>
         notificationData.put("from", currentUserId)
         notificationData.put("type","request")
+        var notificationModel = NotificationModel(currentUserId, "request")
+        // Create an explicit intent for an Activity in your app
+        FirebaseDatabase.getInstance().getReference("user_account_settings").orderByKey().equalTo(currentUserId)
+                .addListenerForSingleValueEvent(object : ValueEventListener{
+                    override fun onCancelled(p0: DatabaseError?) {}
 
-        addNotificationIfUserNotExistInDatabase(currentUserId,userIdToSendNotification,notificationData)
+                    override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                        for (singleSnapshot in dataSnapshot!!.children) {
+                            var user = singleSnapshot!!.getValue(User::class.java)
+
+                            val intent = Intent(context, ListOnline::class.java)
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+                            val mBuilder = NotificationCompat.Builder(context, "2")
+                                    .setContentTitle("Kid Tracker")
+                                    .setContentText("${user!!.user_name} is in danger area")
+                                    .setSmallIcon(R.drawable.ic_dialog_dialer)
+                                    .setContentIntent(pendingIntent)
+
+                            val notificationManager = NotificationManagerCompat.from(context)
+                            notificationManager.notify(2, mBuilder.build())
+                        }
+                    }
+                })
+
+        //firebase cloud messaging it is uneeded now since i simply show notification icon
+        //addNotificationIfUserNotExistInDatabase(currentUserId,userIdToSendNotification, notificationModel)
     }
 
     /**
      * add to database notification data if it wasn't added before
      */
-    private fun addNotificationIfUserNotExistInDatabase(userIdToSendNotification: String, currentUserId: String, notificationData : HashMap<String,String>){
+    private fun addNotificationIfUserNotExistInDatabase(userIdToSendNotification: String, currentUserId: String, notificationData : NotificationModel){
         var notificationsDatabase = FirebaseDatabase.getInstance().reference.child("notifications")
         notificationsDatabase.child(currentUserId).orderByChild("from").equalTo(userIdToSendNotification).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 if(!dataSnapshot!!.exists()){
-                    notificationsDatabase.child(currentUserId).push().setValue(notificationData){
+                    notificationsDatabase.child(currentUserId).push().setValue(notificationData, object : DatabaseReference.CompletionListener{
+                        override fun onComplete(error: DatabaseError?, reference: DatabaseReference?) {
+                            Log.i(TAG,"onComplete()")
+                            jobService.jobFinished(job,false)
+                        }
+
+                    }){
                         databaseError, databaseReference -> jobService.jobFinished(job,false)
                     }
                 }
@@ -245,16 +287,50 @@ class Notification(var context: Context, var jobService : JobService, var job : 
         var map   = java.util.HashMap<String, Any>() as MutableMap<String,Any>
         map.put("from", currentUserId)
         map.put("type", "delete")
-        notificationsDatabase.child(userIdToDelete).addListenerForSingleValueEvent(object : ValueEventListener {
+        var notificationModel = NotificationModel(currentUserId, "delete")
+
+        FirebaseDatabase.getInstance().getReference("user_account_settings").orderByKey().equalTo(currentUserId)
+                .addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onCancelled(p0: DatabaseError?) {}
+
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
-                Log.i(TAG, dataSnapshot.toString() + "  " + dataSnapshot!!.children.toString())
-                for(snapshot in dataSnapshot!!.children){
-                    notificationsDatabase.child(userIdToDelete).child(snapshot.key).setValue(map) {
-                        databaseError, databaseReference -> jobService.jobFinished(job,false)
-                    }
+                for (singleSnapshot in dataSnapshot!!.children) {
+
+                    var user = singleSnapshot!!.getValue(User::class.java)
+
+                    val intent = Intent(context, ListOnline::class.java)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+                    val mBuilder = NotificationCompat.Builder(context, "3")
+                            .setContentTitle("Kid Tracker")
+                            .setContentText("${user!!.user_name} exit danger area")
+                            .setSmallIcon(R.drawable.ic_dialog_dialer)
+                            .setContentIntent(pendingIntent)
+
+                    val notificationManager = NotificationManagerCompat.from(context)
+                    notificationManager.notify(3, mBuilder.build())
                 }
             }
-            override fun onCancelled(databaseError: DatabaseError?) {}
         })
+        // Create an explicit intent for an Activity in your app
+
+//        notificationsDatabase.child(userIdToDelete).addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(dataSnapshot: DataSnapshot?) {
+//                Log.i(TAG, dataSnapshot.toString() + "  " + dataSnapshot!!.children.toString())
+//                for(snapshot in dataSnapshot!!.children){
+//                    notificationsDatabase.child(userIdToDelete).child(snapshot.key).setValue(notificationModel,  object : DatabaseReference.CompletionListener{
+//                        override fun onComplete(error: DatabaseError?, reference: DatabaseReference?) {
+//                            Log.i(TAG,"onComplete()")
+//                            jobService.jobFinished(job,false)
+//                        }
+//
+//                    }) {
+//                        databaseError, databaseReference -> jobService.jobFinished(job,false)
+//                    }
+//                }
+//            }
+//            override fun onCancelled(databaseError: DatabaseError?) {}
+//        })
     }
 }

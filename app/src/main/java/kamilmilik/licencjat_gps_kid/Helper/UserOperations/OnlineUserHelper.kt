@@ -14,11 +14,15 @@ class OnlineUserHelper {
     lateinit var onlineRef : DatabaseReference
     lateinit var currentUserRef : DatabaseReference
     lateinit var counterRef : DatabaseReference
-    fun addOnlineUserToDatabase() {
-        Log.i(TAG, "addOnlineUserToDatabase: set up online account to polygonLatLngList")
+
+    init {
         onlineRef = FirebaseDatabase.getInstance().reference.child(".info/connected")
         counterRef = FirebaseDatabase.getInstance().getReference("last_online")
         currentUserRef = FirebaseDatabase.getInstance().getReference("last_online").child(FirebaseAuth.getInstance().currentUser!!.uid)
+
+    }
+    fun addOnlineUserToDatabase() {
+        Log.i(TAG, "addOnlineUserToDatabase: set up online account to polygonLatLngList")
         onlineRef.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
                 System.err.println("Listener was cancelled")
@@ -30,7 +34,7 @@ class OnlineUserHelper {
                     //add to last_online current user
                     var deviceTokenId = FirebaseInstanceId.getInstance().token
 
-                    counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid, FirebaseAuth.getInstance().currentUser!!.email!!,deviceTokenId!!))
+                    counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid, FirebaseAuth.getInstance().currentUser!!.email!!,deviceTokenId!!, FirebaseAuth.getInstance().currentUser!!.displayName!!))
                     // adapter!!.notifyDataSetChanged()
                 }
             }
@@ -38,13 +42,15 @@ class OnlineUserHelper {
     }
     fun joinUserAction(){
         var deviceTokenId = FirebaseInstanceId.getInstance().token
-        counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid,FirebaseAuth.getInstance().currentUser!!.email!!,deviceTokenId!!))
+        counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid,FirebaseAuth.getInstance().currentUser!!.email!!,deviceTokenId!!, FirebaseAuth.getInstance().currentUser!!.displayName!!))
     }
     fun logoutUser(){
         //maybye disconect googleapi
-        currentUserRef.onDisconnect().removeValue()
-        counterRef.onDisconnect().removeValue()
-        currentUserRef.removeValue()
-        FirebaseAuth.getInstance().signOut()
+        if(currentUserRef != null && counterRef != null && currentUserRef != null && FirebaseAuth.getInstance() != null){
+            currentUserRef.onDisconnect().removeValue()
+            counterRef.onDisconnect().removeValue()
+            currentUserRef.removeValue()
+            FirebaseAuth.getInstance().signOut()
+        }
     }
 }

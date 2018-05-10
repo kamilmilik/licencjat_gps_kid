@@ -15,4 +15,5 @@ object Constants{
     //firebase messanging
     val CHANNEL_ID : String = "IMPORTANCE_DEFAULT"
 
+    val GOOGLE_PLAY_SERVICES_VERSION = 1200000 //means version 12.0
 }

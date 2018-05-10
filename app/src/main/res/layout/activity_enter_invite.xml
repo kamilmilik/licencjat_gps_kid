@@ -18,17 +18,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbarEnterInvite"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:theme="@style/AppTheme"
-        app:titleTextColor="@android:color/white">
-    </android.support.v7.widget.Toolbar>
+    <!--<android.support.v7.widget.Toolbar-->
+        <!--android:id="@+id/toolbarEnterInvite"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:minHeight="?attr/actionBarSize"-->
+        <!--android:background="@color/colorPrimary"-->
+        <!--android:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
+        <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
+        <!--app:theme="@style/AppTheme"-->
+        <!--app:titleTextColor="@android:color/white">-->
+    <!--</android.support.v7.widget.Toolbar>-->
+
+
+    <include layout="@layout/toolbar" />
+
     <EditText
         android:id="@+id/editTextEnterInviteCode"
         android:layout_width="wrap_content"

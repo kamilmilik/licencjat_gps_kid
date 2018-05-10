@@ -8,12 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.models.User
+import kamilmilik.licencjat_gps_kid.models.UserMarkerInformationModel
 
 
 /**
  * Created by kamil on 22.02.2018.
  */
-class RecyclerViewAdapter(internal var context: Context, internal var dataList: ArrayList<String>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+class RecyclerViewAdapter(internal var context: Context, internal var dataList: ArrayList<UserMarkerInformationModel>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
     private var onItemClickListener: OnItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,7 +28,7 @@ class RecyclerViewAdapter(internal var context: Context, internal var dataList: 
 
         val data = dataList[position]
 
-        holder.textEmail.text = data
+        holder.textEmail.text = data.userName
 
 //        holder.itemView.setOnClickListener(View.OnClickListener {
 //            var intent = Intent(context,MapTrackingActivity::class.java)

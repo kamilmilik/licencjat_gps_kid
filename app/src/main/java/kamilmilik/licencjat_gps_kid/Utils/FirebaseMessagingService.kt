@@ -28,10 +28,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
         var fromUserId = remoteMessage.data.get("from_user_id")//get value from node from_user_id
         val mBuilder = NotificationCompat.Builder(this,Constants.CHANNEL_ID)
-                .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
+                .setSmallIcon(R.drawable.notification_icon_background)
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationMessage)
-                .setOngoing(true)
+                //.setOngoing(true)//then you cannot clear notification
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         createNotificationChannelForApi26()
 
