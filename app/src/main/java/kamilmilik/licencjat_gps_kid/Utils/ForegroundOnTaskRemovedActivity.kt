@@ -17,7 +17,10 @@ class ForegroundOnTaskRemovedActivity : Activity() {
     public override fun onCreate(bundle: Bundle?) {
         Log.i(TAG,"onCreate()")
         super.onCreate(bundle)
-            Log.i(TAG, "finish affinity")
-            finishAffinity()
+            Log.i(TAG, "finish ")
+//            finishAffinity()
+        finish()
     }
+    //com.instagram.android
+    //package com.google.android.youtube
 }

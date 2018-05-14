@@ -73,7 +73,13 @@ class MainActivity : ApplicationActivity() {
 
 
         var firebaseAuth = FirebaseAuth.getInstance()
-        if (firebaseAuth.currentUser != null && firebaseAuth.currentUser!!.isEmailVerified) {
+//        if (firebaseAuth.currentUser != null && firebaseAuth.currentUser!!.isEmailVerified) {
+//            finish()
+//            val intent = Intent(this, ListOnline::class.java)
+//            startActivity(intent)
+//        }
+        //TODO to wyzej odkomentowac a to nizej zakomentowac, to nizej tylko do testow
+        if (firebaseAuth.currentUser != null) {
             finish()
             val intent = Intent(this, ListOnline::class.java)
             startActivity(intent)

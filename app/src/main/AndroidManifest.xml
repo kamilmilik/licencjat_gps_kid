@@ -109,7 +109,7 @@
             android:permission="android.permission.WRITE_SECURE_SETTINGS"
             android:process=":separate"
             android:stateNotNeeded="true"
-            android:theme="@android:style/Theme.NoDisplay" />
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" /> <!--this is needed this, then i had no ui activity-->
 
         <service
             android:name=".PolygonJobService"

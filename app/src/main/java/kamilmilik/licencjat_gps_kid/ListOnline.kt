@@ -122,7 +122,7 @@ class ListOnline : ApplicationActivity(),
                 Log.i(TAG, "onCreate() pack " + pack)
                 am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid.Utils");
             }
-}
+        }
 
         //setupPolygonBackgroundService()
 
@@ -404,13 +404,13 @@ class ListOnline : ApplicationActivity(),
         stopService(Intent(this@ListOnline, LocationJobService::class.java))
         stopService(Intent(this@ListOnline, ForegroundOnTaskRemovedActivity::class.java))
 
-        var  listprocInfos  : List<ActivityManager.RunningAppProcessInfo> = (this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningAppProcesses();
-
-        for(  procInfos in listprocInfos ) {
-            Log.i(TAG,"running process " + procInfos.processName)
-            (this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).killBackgroundProcesses(procInfos.processName);
-            // or activityManager.restartPackage(procInfos.processName);
-        }
+//        var  listprocInfos  : List<ActivityManager.RunningAppProcessInfo> = (this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningAppProcesses();
+//
+//        for(  procInfos in listprocInfos ) {
+//            Log.i(TAG,"running process " + procInfos.processName)
+//            (this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).killBackgroundProcesses(procInfos.processName);
+//            // or activityManager.restartPackage(procInfos.processName);
+//        }
 //        val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 //        //TODO permission
 //        activityManager.killBackgroundProcesses("kamilmilik.licencjat_gps_kid")
@@ -423,28 +423,6 @@ class ListOnline : ApplicationActivity(),
     }
     private lateinit var dispatcher2 : FirebaseJobDispatcher
     private lateinit var dispatcher1 : FirebaseJobDispatcher
-
-
-    //TODO onPause musze dac odnosnie calej aplikacji bo teraz jak daje przycisk wstecz z jakiejs innej aktywnosci np to sie uruchamia
-    override fun onPause() {
-        Log.i(TAG,"onPause()")
-        super.onPause()
-        //firebase support test
-//        var dispatcher = FirebaseJobDispatcher(GooglePlayDriver(this))
-//
-//        val myJob = dispatcher.newJobBuilder()
-//                .setService(PresenceService::class.java)
-//                .setTag("presence-tag")
-//                .setRecurring(true)
-//                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
-//                .setTrigger(Trigger.executionWindow(0, 60))
-//                .setReplaceCurrent(false)
-//                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
-//                .build()
-//
-//        //Service will execute within at most 60 seconds
-//        dispatcher.mustSchedule(myJob)
-    }
 
     override fun onDestroy() {
         Log.i(TAG,"onDestroy() run job")
@@ -463,33 +441,33 @@ class ListOnline : ApplicationActivity(),
             }catch (exception : UninitializedPropertyAccessException ){
                 exception.printStackTrace()
             }
-            dispatcher2 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
-            val myLocationJob = dispatcher2.newJobBuilder()
-                    .setService(LocationJobService::class.java) // the JobService that will be called
-                    .setTag("my-location-job")        // uniquely identifies the job
-                    .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
-                    // start between windowStart in sec and windowEnd in seconds from now
-                    .setTrigger(Trigger.executionWindow(0,  60))
-                    .setRecurring(true)//to reschedule job
-                    .setRetryStrategy(dispatcher2.newRetryStrategy(RetryStrategy.RETRY_POLICY_EXPONENTIAL,30,3000))
-                    .setReplaceCurrent(true)
-                    .build()
-
-            dispatcher2.mustSchedule(myLocationJob)
-
-            dispatcher1 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
-            val myLocationJob2 = dispatcher1.newJobBuilder()
-                    .setService(PolygonJobService::class.java) // the JobService that will be called
-                    .setTag("my-polygon-job")        // uniquely identifies the job
-                    .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
-                    // start between windowStart in sec and windowEnd in seconds from now
-                    .setTrigger(Trigger.executionWindow(0,  60))
-                    .setRecurring(true)//to reschedule job
-                    .setRetryStrategy(dispatcher1.newRetryStrategy(RetryStrategy.RETRY_POLICY_EXPONENTIAL,30,3000))
-                    .setReplaceCurrent(true)
-                    .build()
-
-            dispatcher1.mustSchedule(myLocationJob2)
+//            dispatcher2 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
+//            val myLocationJob = dispatcher2.newJobBuilder()
+//                    .setService(LocationJobService::class.java) // the JobService that will be called
+//                    .setTag("my-location-job")        // uniquely identifies the job
+//                    .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+//                    // start between windowStart in sec and windowEnd in seconds from now
+//                    .setTrigger(Trigger.executionWindow(0,  60))
+//                    .setRecurring(true)//to reschedule job
+//                    .setRetryStrategy(dispatcher2.newRetryStrategy(RetryStrategy.RETRY_POLICY_EXPONENTIAL,30,3000))
+//                    .setReplaceCurrent(true)
+//                    .build()
+//
+//            dispatcher2.mustSchedule(myLocationJob)
+//
+//            dispatcher1 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
+//            val myLocationJob2 = dispatcher1.newJobBuilder()
+//                    .setService(PolygonJobService::class.java) // the JobService that will be called
+//                    .setTag("my-polygon-job")        // uniquely identifies the job
+//                    .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+//                    // start between windowStart in sec and windowEnd in seconds from now
+//                    .setTrigger(Trigger.executionWindow(0,  60))
+//                    .setRecurring(true)//to reschedule job
+//                    .setRetryStrategy(dispatcher1.newRetryStrategy(RetryStrategy.RETRY_POLICY_EXPONENTIAL,30,3000))
+//                    .setReplaceCurrent(true)
+//                    .build()
+//
+//            dispatcher1.mustSchedule(myLocationJob2)
         }
             super.onTrimMemory(level)
     }
