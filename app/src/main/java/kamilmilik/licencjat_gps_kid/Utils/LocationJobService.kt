@@ -26,6 +26,7 @@ import com.google.firebase.FirebaseApp
 import kamilmilik.licencjat_gps_kid.ILocationJobDispatcher
 import kamilmilik.licencjat_gps_kid.LocationUpdateCallback
 import kamilmilik.licencjat_gps_kid.TestLocationForeground
+import kamilmilik.licencjat_gps_kid.WakeLocker
 import kamilmilik.licencjat_gps_kid.models.User
 
 
@@ -113,7 +114,9 @@ class LocationJobService : JobService(),
 
     private fun addCurrentUserLocationToFirebase(lastLocation: Location, locationCallback: LocationCallback) {
         val intent = Intent(this, ForegroundOnTaskRemovedActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         FirebaseApp.initializeApp(applicationContext)//I must called this first otherwise foreground/background service is not running since without it get nullPointerException
         var locations = FirebaseDatabase.getInstance().getReference("Locations")

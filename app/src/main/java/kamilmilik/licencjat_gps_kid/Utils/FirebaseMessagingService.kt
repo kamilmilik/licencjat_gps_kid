@@ -44,6 +44,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 //
 //            createLocationRequest()
 //        }
+        WakeLocker.acquire(this)
     }
     private lateinit var dispatcher1 : FirebaseJobDispatcher
     private lateinit var dispatcher2 : FirebaseJobDispatcher
@@ -52,6 +53,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     @SuppressLint("MissingPermission")
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
+        WakeLocker.release()
         Log.i(TAG,"onMessageReceived()")
         mAuthListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser

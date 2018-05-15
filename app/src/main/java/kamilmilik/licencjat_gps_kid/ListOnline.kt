@@ -82,9 +82,9 @@ class ListOnline : ApplicationActivity(),
         setContentView(R.layout.activity_list_online)
 //        FirebaseAuth.getInstance().signOut()
 
-        dispatcher2 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
-        //dispatcher2.cancelAll()
-        dispatcher2.cancel("my-location-job")
+//        dispatcher2 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
+//        //dispatcher2.cancelAll()
+//        dispatcher2.cancel("my-location-job")
 
 //        val am = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 //        Log.i(TAG,"package name " + packageName)
@@ -391,18 +391,18 @@ class ListOnline : ApplicationActivity(),
         Log.i(TAG,"onResume")
         super.onResume()
 
-        dispatcher2 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
-        //dispatcher2.cancelAll()
-        dispatcher2.cancel("my-location-job")
+//        dispatcher2 = FirebaseJobDispatcher(GooglePlayDriver(applicationContext))
+//        //dispatcher2.cancelAll()
+//        dispatcher2.cancel("my-location-job")
 
 
-        var am: ActivityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager;
-        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid.Utils");
-        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid:separate");
-        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid.Utils.LocationJobService")
-        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid")
-        stopService(Intent(this@ListOnline, LocationJobService::class.java))
-        stopService(Intent(this@ListOnline, ForegroundOnTaskRemovedActivity::class.java))
+//        var am: ActivityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager;
+//        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid.Utils");
+//        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid:separate");
+//        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid.Utils.LocationJobService")
+//        am.killBackgroundProcesses("kamilmilik.licencjat_gps_kid")
+//        stopService(Intent(this@ListOnline, LocationJobService::class.java))
+//        stopService(Intent(this@ListOnline, ForegroundOnTaskRemovedActivity::class.java))
 
 //        var  listprocInfos  : List<ActivityManager.RunningAppProcessInfo> = (this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningAppProcesses();
 //

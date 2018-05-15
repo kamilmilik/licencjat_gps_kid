@@ -25,6 +25,7 @@ class MainActivity : ApplicationActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.setContentView(R.layout.activity_main)
+        Log.i(TAG,"onCreate()")
 //        if (ContextCompat.checkSelfPermission(this,
 //                android.Manifest.permission.ACCESS_FINE_LOCATION)
 //                != PackageManager.PERMISSION_GRANTED) {
