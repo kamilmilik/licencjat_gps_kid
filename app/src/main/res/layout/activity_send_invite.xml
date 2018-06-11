@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="kamilmilik.licencjat_gps_kid.Invite.SendInviteActivity">
+    tools:context="kamilmilik.licencjat_gps_kid.invite.SendInviteActivity">
     <!--<android.support.v7.widget.Toolbar-->
         <!--android:id="@+id/toolbarSendInvite"-->
         <!--android:layout_width="match_parent"-->
@@ -19,6 +19,7 @@
 
 
         <include layout="@layout/toolbar" />
+        <include layout="@layout/progress_bar" />
 
     <TextView
         android:layout_width="wrap_content"

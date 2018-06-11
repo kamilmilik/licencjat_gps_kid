@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="kamilmilik.licencjat_gps_kid.Invite.EnterInviteActivity">
+    tools:context="kamilmilik.licencjat_gps_kid.invite.EnterInviteActivity">
 
     <TextView
         android:layout_width="wrap_content"

@@ -3,29 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="kamilmilik.licencjat_gps_kid">
 
-    <uses-permission
-        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
-        android:protectionLevel="signature" />
 
     <meta-data
         android:name="com.google.android.gms.version"
         android:value="@integer/google_play_services_version" />
 
+    <uses-permission
+        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
+        android:protectionLevel="signature" />
     <uses-permission android:name="android.permission.BIND_JOB_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission
-        android:name="android.permission.INTERNET"
-        tools:remove="android:maxSdkVersion" />
-    <uses-permission
-        android:name="android.permission.ACCESS_COARSE_LOCATION"
-        tools:remove="android:maxSdkVersion" />
-    <uses-permission
-        android:name="android.permission.ACCESS_FINE_LOCATION"
-        tools:remove="android:maxSdkVersion" />
-    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.REAL" />
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
     <application
@@ -35,119 +29,74 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Login.MainActivity">
+
+        <activity
+            android:name=".login.LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".ListOnline"
+            android:name=".ApplicationActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".map.MapActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="kamilmilik.licencjat_kps_kid_TARGET_NOTIFICATION" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity
-        android:name=".ApplicationActivity"
-        android:theme="@style/AppTheme">
-
-        </activity>
 
         <activity
-            android:name=".Login.RegistrationActivity"
-            android:parentActivityName=".Login.MainActivity"
-            android:theme="@style/AppTheme"></activity>
-        <activity
-            android:name=".Profile.ProfileActivity"
-            android:parentActivityName=".ListOnline" />
-        <activity
-            android:name=".Invite.SendInviteActivity"
-            android:parentActivityName=".ListOnline"
-            android:theme="@style/AppTheme" />
-        <activity
-            android:name=".Invite.EnterInviteActivity"
-            android:parentActivityName=".ListOnline"
+            android:name=".login.RegistrationActivity"
+            android:parentActivityName=".login.LoginActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name=".profile.ProfileActivity"
+            android:parentActivityName=".map.MapActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".invite.SendInviteActivity"
+            android:parentActivityName=".map.MapActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".invite.EnterInviteActivity"
+            android:parentActivityName=".map.MapActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".login.ResetPasswordActivity"
+            android:parentActivityName=".map.MapActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
 
         <service
-            android:name=".Utils.PolygonAndLocationService"
-            android:allowTaskReparenting="true"
-            android:alwaysRetainTaskState="false"
-            android:clearTaskOnLaunch="true"
-            android:enabled="true"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:finishOnTaskLaunch="true"
-            android:noHistory="true"
-            android:permission="android.permission.WRITE_SECURE_SETTINGS"
-            android:process=":separate"
-            android:stateNotNeeded="true" />
-        <service android:name=".Utils.FirebaseMessagingService">
+            android:name=".background.FirebaseMessagingService"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".Utils.ForegroundOnTaskRemovedActivity"
-            android:allowTaskReparenting="true"
-            android:alwaysRetainTaskState="false"
-            android:clearTaskOnLaunch="true"
-            android:enabled="true"
-            android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"
-            android:noHistory="true"
-            android:permission="android.permission.WRITE_SECURE_SETTINGS"
-            android:process=":separate"
-            android:stateNotNeeded="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" /> <!--this is needed this, then i had no ui activity-->
-
         <service
-            android:name=".PolygonJobService"
-            android:allowTaskReparenting="true"
-            android:alwaysRetainTaskState="false"
-            android:clearTaskOnLaunch="true"
-            android:enabled="true"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:finishOnTaskLaunch="true"
-            android:noHistory="true"
-            android:permission="android.permission.WRITE_SECURE_SETTINGS"
-            android:process=":separate"
-            android:stateNotNeeded="true">
-            >
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
-            </intent-filter>
-        </service>
-        <service
-            android:name=".Utils.LocationJobService"
-            android:allowTaskReparenting="true"
-            android:alwaysRetainTaskState="false"
-            android:clearTaskOnLaunch="true"
-            android:enabled="true"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:finishOnTaskLaunch="true"
-            android:noHistory="true"
-            android:permission="android.permission.WRITE_SECURE_SETTINGS"
-            android:process=":separate"
-            android:stateNotNeeded="true">
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
-            </intent-filter>
-        </service>
-        <service
-            android:name=".TestLocationForeground"
+            android:name=".background.ForegroundService"
             android:allowTaskReparenting="true"
             android:alwaysRetainTaskState="false"
             android:clearTaskOnLaunch="true"
@@ -157,22 +106,16 @@
             android:finishOnTaskLaunch="true"
             android:noHistory="true"
             android:process=":separate"
+            android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             android:stopWithTask="false" />
-        <service
-            android:name=".PresenceService"
-            android:exported="false"
-            android:stopWithTask="false">
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
-            </intent-filter>
-        </service>
 
-        <receiver android:name=".AlarmReceiver" />
+        <receiver android:name=".background.AlarmReceiver" />
 
-        <activity android:name=".Login.ChangePasswordActivity"
-            android:parentActivityName=".ListOnline"
-            android:theme="@style/AppTheme" ></activity>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
     </application>
 
 </manifest>

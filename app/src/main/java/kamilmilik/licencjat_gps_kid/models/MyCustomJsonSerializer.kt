@@ -16,7 +16,8 @@ class MyCustomJsonSerializer :  JsonSerializer<UserAndPolygonKeyModel> {
         val result = JsonObject()
         result.add("userId", JsonPrimitive(src!!.userId))
         result.add("polygonKey", JsonPrimitive(src!!.polygonKey))
-        return result    }
+        return result
+    }
 
 
 }
