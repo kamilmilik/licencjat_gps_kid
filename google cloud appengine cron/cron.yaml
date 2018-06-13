@@ -1,0 +1,5 @@
+cron:
+- description: Push a "tick" onto pubsub every 3 minutes
+  url: /publish/three-minutest-tick
+  schedule: every 3 minutes
+
