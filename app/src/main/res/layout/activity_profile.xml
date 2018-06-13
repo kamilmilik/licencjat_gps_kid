@@ -52,7 +52,7 @@
                         android:layout_marginStart="10dp"
                         android:layout_toEndOf="@id/userIcon"
                         android:layout_toRightOf="@id/userIcon"
-                        android:text="kamil"
+                        android:text="User"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="#212121" />
 
@@ -65,7 +65,7 @@
                         android:layout_marginTop="8dp"
                         android:layout_toEndOf="@id/userIcon"
                         android:layout_toRightOf="@id/userIcon"
-                        android:text="User name"
+                        android:text="@string/userName"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textColor="#727272" />
                     <Button
@@ -124,7 +124,7 @@
                         android:layout_marginTop="8dp"
                         android:layout_toEndOf="@id/userPasswordIcon"
                         android:layout_toRightOf="@id/userPasswordIcon"
-                        android:text="User password"
+                        android:text="@string/userPassword"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textColor="#727272" />
                     <Button
@@ -169,7 +169,7 @@
                         android:layout_marginStart="10dp"
                         android:layout_toEndOf="@id/deleteAccountIcon"
                         android:layout_toRightOf="@id/deleteAccountIcon"
-                        android:text="Delete my account"
+                        android:text="@string/deleteMyAccount"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="#212121" />
 
@@ -182,7 +182,7 @@
                         android:layout_marginTop="8dp"
                         android:layout_toEndOf="@id/deleteAccountIcon"
                         android:layout_toRightOf="@id/deleteAccountIcon"
-                        android:text="Delete account"
+                        android:text="@string/deleteAccount"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textColor="#727272" />
                 </RelativeLayout>

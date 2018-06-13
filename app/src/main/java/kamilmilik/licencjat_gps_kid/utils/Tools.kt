@@ -268,23 +268,23 @@ object Tools {
     }
 
     fun goToAddIgnoreBatteryOptimizationSettings(activity: Activity){
-        xiaomiOptimizationAction(activity)
-            var intent = Intent()
-            var packageName = activity.packageName
-            var pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                    intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                    intent.data = Uri.parse("package:" + packageName)
-                    activity.startActivity(intent);
-                }
+//        xiaomiOptimizationAction(activity)
+        var intent = Intent()
+        var packageName = activity.packageName
+        var pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                intent.data = Uri.parse("package:" + packageName)
+                activity.startActivity(intent);
             }
+        }
     }
 
     private fun xiaomiOptimizationAction(activity: Activity){
         if (Build.BRAND.equals("xiaomi", true)) {
             var intent = Intent()
-            intent.setComponent(ComponentName ("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"))
+            intent.component = ComponentName ("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")
             activity.startActivity(intent)
         }
     }

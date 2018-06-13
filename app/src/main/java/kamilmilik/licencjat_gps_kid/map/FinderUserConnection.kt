@@ -18,6 +18,7 @@ class FinderUserConnection(private var context: Context,
                            private var progressDialog: ProgressDialog,
                            private var recyclerViewAction: RecyclerViewAction,
                            private var locationFirebaseMarkerAction: LocationFirebaseMarkerAction) {
+
     private val TAG = FinderUserConnection::class.java.simpleName
 
     fun findFollowersConnectionAndUpdateRecyclerView() {

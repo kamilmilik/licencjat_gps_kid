@@ -5,7 +5,6 @@ import android.location.Location
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.models.*
@@ -15,6 +14,7 @@ import android.support.v4.app.NotificationCompat
 import kamilmilik.licencjat_gps_kid.map.MapActivity
 import android.support.v4.app.NotificationManagerCompat
 import android.R
+import kamilmilik.licencjat_gps_kid.background.ForegroundService
 import kamilmilik.licencjat_gps_kid.utils.Tools
 
 
@@ -22,58 +22,33 @@ import kamilmilik.licencjat_gps_kid.utils.Tools
  * Created by kamil on 17.03.2018.
  */
 
-class Notification(var context: Context/*, var jobService : JobService, var job : JobParameters*/){
+class Notification(var context: Context) : ForegroundService(){
     private var TAG = Notification::class.java.simpleName
 
     fun notificationAction(isRunOnlyOnce: Boolean) {
         Log.i(TAG, "notificationAction, current user id : " + FirebaseAuth.getInstance().currentUser!!.uid)
+        findConnectionUsers(Constants.DATABASE_FOLLOWERS, isRunOnlyOnce)
+        findConnectionUsers(Constants.DATABASE_FOLLOWING, isRunOnlyOnce)
+    }
+
+    private fun findConnectionUsers(databaseTable : String, isRunOnlyOnce: Boolean) {
         var currentUser = FirebaseAuth.getInstance().currentUser
         val reference = FirebaseDatabase.getInstance().reference
-        findFollowersUser(reference, currentUser!!, isRunOnlyOnce)
-        findFollowingUser(reference, currentUser!!, isRunOnlyOnce)
-    }
-
-    private fun findFollowersUser(reference: DatabaseReference, currentUser: FirebaseUser, isRunOnlyOnce: Boolean) {
-        val query = reference.child(Constants.DATABASE_FOLLOWERS)
+        val query = reference.child(databaseTable)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
-                        Log.i(TAG, "value followers: " + userFollowers!!.user_id + " " + userFollowers.email)
-                        loadLocationsFromDatabaseForGivenUserId(userFollowers.user_id!!, isRunOnlyOnce)
-                        if(isRunOnlyOnce){
-                            query.removeEventListener(this)
-                        }
+                        var user = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
+                        Log.i(TAG, "value : " + user!!.user_id + " " + user!!.email)
+                        loadLocationsFromDatabaseForGivenUserId(user.user_id!!, isRunOnlyOnce)
                     }
                 }
-                if (dataSnapshot.value == null) {//nothing found
-                    Log.i(TAG, "nothing found in onDataChange in followers")
-                }
-            }
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
-
-    }
-
-    private fun findFollowingUser(reference: DatabaseReference, currentUser: FirebaseUser, isRunOnlyOnce: Boolean) {
-        val query = reference.child(Constants.DATABASE_FOLLOWING)
-                .orderByKey()
-                .equalTo(currentUser!!.uid)
-        query.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (singleSnapshot in dataSnapshot.children) {
-                    for (childSingleSnapshot in singleSnapshot.children) {
-                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
-                        Log.i(TAG, "value following: " + userFollowing!!.user_id + " " + userFollowing!!.email)
-                        loadLocationsFromDatabaseForGivenUserId(userFollowing.user_id!!, isRunOnlyOnce)
-                        if(isRunOnlyOnce){
-                            Log.i(TAG,"onDataChange() remove listener")
-                            query.removeEventListener(this)
-                        }
-                    }
+                if(isRunOnlyOnce){
+                    Log.i(TAG,"onDataChange() remove listener")
+                    query.removeEventListener(this)
                 }
                 if (dataSnapshot.value == null) {//nothing found
                     Log.i(TAG, "nothing found in onDataChange in following")
@@ -97,10 +72,10 @@ class Notification(var context: Context/*, var jobService : JobService, var job 
                     var userIdToSendNotification = userWhoChangeLocation.user_id
                     var currentUser = FirebaseAuth.getInstance().currentUser
                     getPolygonFromDatabase(locationOfUserWhoChangeIt, userIdToSendNotification!!, currentUser!!.uid)
-                    if(isRunOnlyOnce){
-                        Log.i(TAG,"onDataChange() remove listener")
-                        query.removeEventListener(this)
-                    }
+                }
+                if(isRunOnlyOnce){
+                    Log.i(TAG,"onDataChange() remove listener")
+                    query.removeEventListener(this)
                 }
                 if (dataSnapshot.value == null) {//nothing found
                     Log.i(TAG, "nothing found in onDataChange")

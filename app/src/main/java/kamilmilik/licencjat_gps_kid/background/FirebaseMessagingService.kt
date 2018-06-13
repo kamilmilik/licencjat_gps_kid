@@ -34,7 +34,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     override fun onCreate() {
         super.onCreate()
         Log.i(TAG, "onCreate() internet " + Tools.isInternetConnection(this))
-        WakeLocker.acquire(this)
+//        WakeLocker.acquire(this)
     }
 
 
@@ -42,7 +42,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     @SuppressLint("MissingPermission")
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
-        WakeLocker.release()
+//        WakeLocker.release()
         Log.i(TAG, "onMessageReceived()")
         authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser

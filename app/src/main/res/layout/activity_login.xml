@@ -41,7 +41,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:text="Email Address:"
+                    android:text="@string/emailAddress"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText
@@ -61,7 +61,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_below="@+id/emailLoginEditText"
-                    android:text="Password"
+                    android:text="@string/password"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText
@@ -88,20 +88,19 @@
                         android:id="@+id/loginButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
-                        android:text="Login" />
+                        android:text="@string/login" />
 
                     <Button
                         android:id="@+id/registrationButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Registration" />
+                        android:text="@string/registration" />
 
                     <Button
                         android:id="@+id/resetPasswordButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Reset password" />
+                        android:text="@string/resetPassword" />
 
                 </LinearLayout>
             </RelativeLayout>

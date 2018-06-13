@@ -34,11 +34,13 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
 
     private var userWhoChangeLocation: TrackingModel? = null
 
-    private var workCounter: AtomicInteger? = AtomicInteger(0)
-
     private var workCounterForNoFriendsUser: AtomicInteger? = AtomicInteger(0)
 
     private var previousUserMarkerInformation: UserMarkerInformationModel? = null
+
+    private var isMyLocationAdded = false
+
+    private var isUsersLocationsAdded = false
 
     fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location, recyclerViewAction: RecyclerViewAction, progressDialog: ProgressDialog) {
         Log.i(TAG, "addCurrentUserMarkerAndRemoveOld")
@@ -70,6 +72,9 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
 
             recyclerViewAction.updateRecyclerView()
 
+            onGetMyLocationSuccess()
+            onSuccessGetLocations(progressDialog)
+
             progressDialogDismissAction(reference, currentUser, progressDialog)
         }
     }
@@ -81,6 +86,7 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 if(!dataSnapshot!!.exists()){
                     Log.i(TAG,"onDataChange() no friends")
+                    Log.i(TAG,"onDataChange() increment workCounterForNoFirendsUser")
                     workCounterForNoFriendsUser!!.incrementAndGet()
                 }
             }
@@ -126,7 +132,12 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
 
                                 recyclerViewAction.updateRecyclerView()
 
-                                workCounter!!.incrementAndGet()
+                                Log.i(TAG,"onDataChange() increment workCounter")
+
+                                // I use functions instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter
+                                onGetUsersLocationSuccess()
+                                onSuccessGetLocations(progressDialog)
+
                                 dismissProgressDialog(progressDialog)
                             }
                         }
@@ -145,8 +156,8 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
     }
 
     private fun progressDialogDismissAction(reference: DatabaseReference, currentUser : FirebaseUser, progressDialog: ProgressDialog){
-        workCounter!!.incrementAndGet()
         workCounterForNoFriendsUser!!.incrementAndGet()
+        Log.i(TAG,"progressDialogDismissAction() increment workCounter and WorkCounterForNoFriendsUSer")
         var query = reference.child(Constants.DATABASE_FOLLOWERS)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
@@ -160,9 +171,6 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
     }
 
     private fun dismissProgressDialog(progressDialog: ProgressDialog) {
-        if (workCounter!!.compareAndSet(2, 0)) {
-            progressDialog.dismiss()
-        }
         if (workCounterForNoFriendsUser!!.compareAndSet(3, 0)) {
             progressDialog.dismiss()
         }
@@ -218,4 +226,20 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
 
     //hash code and equals in UserMarkerInformationModel is important here
     private fun findMarker(searchedUserMarkerInformationKey: UserMarkerInformationModel): Marker? = markersMap.getValue(searchedUserMarkerInformationKey)
+
+    fun onGetMyLocationSuccess() {
+        isMyLocationAdded = true
+    }
+
+    fun onGetUsersLocationSuccess() {
+        isUsersLocationsAdded = true
+    }
+
+    fun onSuccessGetLocations(progressDialog: ProgressDialog) {
+        if(isMyLocationAdded && isUsersLocationsAdded){
+            progressDialog.dismiss()
+            isMyLocationAdded = false
+            isUsersLocationsAdded = false
+        }
+    }
 }

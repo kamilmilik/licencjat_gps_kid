@@ -72,7 +72,7 @@ class InsideOrOutsideArea(var context : Context ,var locationOfUserWhoChangeIt: 
         var gson = builder.enableComplexMapKeySerialization().setPrettyPrinting().registerTypeAdapter(UserAndPolygonKeyModel::class.java, MyCustomJsonSerializer()).create()
         var type : Type =  object : TypeToken<HashMap<UserAndPolygonKeyModel, Boolean>>() {}.type
         var json = gson.toJson(isInAreaPreviousMap, type);
-        Log.i(TAG,"writeValueToSharedPreferences() save json " + json)
+//        Log.i(TAG,"writeValueToSharedPreferences() save json " + json)
         with (sharedPref.edit()) {
             putString(Constants.SHARED_POLYGON_KEY,json)
             commit()

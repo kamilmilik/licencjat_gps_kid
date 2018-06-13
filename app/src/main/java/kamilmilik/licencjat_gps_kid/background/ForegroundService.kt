@@ -20,13 +20,15 @@ import kamilmilik.licencjat_gps_kid.utils.OnDataAddedListener
 import kamilmilik.licencjat_gps_kid.utils.RestFirebaseAsync
 import kamilmilik.licencjat_gps_kid.utils.Tools
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Created by kamil on 23.04.2018.
  */
-class ForegroundService : Service() {
+open class ForegroundService : Service() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     private var locationRequest: LocationRequest? = null
 
     private val TAG = ForegroundService::class.java.simpleName
@@ -47,8 +49,8 @@ class ForegroundService : Service() {
                 val pendingIntent = PendingIntent.getActivity(this@ForegroundService, 0, notificationIntent, 0)
 
                 val notification = Notification.Builder(this@ForegroundService)
-                        .setContentTitle("location")
-                        .setContentText("Pobieram lokalizacje")
+                        .setContentTitle(getString(R.string.app_name))
+                        .setContentText(getString(R.string.getlocationInformation))
                         .setSmallIcon(R.drawable.ic_launcher_background)
                         .setContentIntent(pendingIntent)
                         .build()
@@ -72,15 +74,13 @@ class ForegroundService : Service() {
                                 override fun onLocationAvailability(locationAvailability : LocationAvailability?) {
                                     super.onLocationAvailability(locationAvailability)
                                     Log.i(TAG,"onLocationAvailability() " + locationAvailability!!.isLocationAvailable + " stop service" )
-//                                    if(!locationAvailability!!.isLocationAvailable){
-//                                        fusedLocationClient.lastLocation.addOnSuccessListener { location : Location? ->
-//                                            addCurrentUserLocationToFirebase(location!!)
-//                                        }
-//                                    }
-                                    //TODO zrobic tu jakim timeout albo musze pobrac ostatnia lokalizacje jakos jak tu zwraca false
-//                                    fusedLocationClient.removeLocationUpdates(this)
-//                                    stopForeground(true)
-//                                    stopSelf()
+                                    if(!locationAvailability!!.isLocationAvailable){
+                                        fusedLocationClient.lastLocation.addOnSuccessListener { location : Location? ->
+                                            if(location != null){
+                                                addCurrentUserLocationToFirebase(location!!)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                     fusedLocationClient.requestLocationUpdates(locationRequest,
@@ -138,6 +138,5 @@ class ForegroundService : Service() {
             }).execute()
         }
     }
-
 
 }
