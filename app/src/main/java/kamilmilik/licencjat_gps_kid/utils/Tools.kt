@@ -13,13 +13,11 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.View
-import android.widget.EditText
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.android.synthetic.main.progress_bar.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.util.*
@@ -34,8 +32,8 @@ import android.text.TextUtils
 import android.widget.Toast
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
 import kamilmilik.licencjat_gps_kid.models.PolygonModel
 import org.json.JSONObject
@@ -128,6 +126,25 @@ object Tools {
         val intent = Intent(activity, classType)
         intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK) or Intent.FLAG_ACTIVITY_CLEAR_TASK
         activity.startActivity(intent)
+    }
+
+    fun  addDeviceTokenToDatabase() {
+        var currentUser = FirebaseAuth.getInstance()!!.currentUser
+            if(currentUser != null){
+            var userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
+            var currentUserId = currentUser.uid
+            var deviceTokenId = FirebaseInstanceId.getInstance().token
+            userDatabase!!.child(currentUserId).child(Constants.DATABASE_DEVICE_TOKEN_FIELD).setValue(deviceTokenId)
+        }
+    }
+
+    fun <T> addDeviceTokenToDatabaseAndStartNewActivity(activity: Activity, classType: Class<T>) {
+        var userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
+        var currentUserId = FirebaseAuth.getInstance()!!.currentUser!!.uid
+        var deviceTokenId = FirebaseInstanceId.getInstance().token
+        userDatabase!!.child(currentUserId).child(Constants.DATABASE_DEVICE_TOKEN_FIELD).setValue(deviceTokenId).addOnSuccessListener {
+            startNewActivityWithoutPrevious(activity, classType)
+        }
     }
 
     fun generateRandomKey(length: Int): String {
@@ -225,13 +242,12 @@ object Tools {
         }
     }
 
-    fun addLocationToFirebaseDatabaseByRest(email: String, latitude: String, longitude: String, currentTime: Long, userId: String, userName: String) {
+    fun addLocationToFirebaseDatabaseByRest(email: String, latitude: String, longitude: String, currentTime: Long, userGeneratedAuthId: String, userName: String) {
         try {
-            Log.i(TAG, "make request")
-            var url = URL("https://licencjat-kid-track.firebaseio.com/Locations/$userId.json");
+            var currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+            var url = URL("https://licencjat-kid-track.firebaseio.com/Locations/$currentUserId.json?auth=" + userGeneratedAuthId);
             var conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "PUT";
-            conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             conn.setRequestProperty("Accept", "application/json");
             conn.doOutput = true;
             conn.doInput = true;
@@ -241,7 +257,7 @@ object Tools {
             jsonParam.put("lat", latitude)
             jsonParam.put("lng", longitude)
             jsonParam.put("time", currentTime)
-            jsonParam.put("user_id", userId)
+            jsonParam.put("user_id", currentUserId)
             jsonParam.put("user_name", userName)
 
             Log.i("JSON", jsonParam.toString());

@@ -2,7 +2,6 @@ package kamilmilik.licencjat_gps_kid.map
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import kotlinx.android.synthetic.main.activity_map.*
 import android.content.Intent
@@ -26,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase
 import kamilmilik.licencjat_gps_kid.ApplicationActivity
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
+import kamilmilik.licencjat_gps_kid.map.PolygonOperation.notification.Notification
 import kamilmilik.licencjat_gps_kid.profile.ProfileActivity
 import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.utils.Tools
@@ -61,6 +61,8 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
     var buttonClickedPolygonAction: Boolean? = false // to detect map is movable
 
     var drawPolygon: DrawPolygon? = null
+
+    private var notificationMethods : Notification? = null
 
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
@@ -113,7 +115,7 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
         object : Thread() {
             override fun run() {
                 FirebaseApp.initializeApp(applicationContext)//I must called this first otherwise foreground/background service is not running since without it get nullPointerException
-                var notificationMethods = kamilmilik.licencjat_gps_kid.map.PolygonOperation.notification.Notification(this@MapActivity)
+                notificationMethods = Notification(this@MapActivity)
                 notificationMethods!!.notificationAction(false)
             }
         }.start()
@@ -254,6 +256,11 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
         when (item!!.itemId) {
             R.id.action_logout -> {
                 databaseOnlineUserAction!!.logoutUser()
+                // Remove old listener when user sign out.
+                finderUserConnection?.removeChildEventListeners()
+                locationFirebaseMarkerAction?.removeValueEventListeners()
+                notificationMethods?.removeValueEventListeners()
+                locationOperations?.fusedLocationClient?.removeLocationUpdates(locationOperations?.locationCallback)
                 Tools.startNewActivityWithoutPrevious(this, LoginActivity::class.java)
             }
         }

@@ -59,4 +59,8 @@
     <string name="name">Imię</string>
     <string name="shareInviteCodeInformation">"Udostępnij kod zaproszenie "</string>
     <string name="loading">Ładowanie...</string>
+    <string name="yourPassword">Twoje hasło</string>
+    <string name="yourValidEmail">Twój email</string>
+    <string name="yourName">Twoję imię</string>
+    <string name="loginInOtherDevice">"Jesteś obecnie zalogowany na innym urządzeniu. Wyloguj się w innym urządzeniu, a następnie zaloguj się na tym urządzeniu. "</string>
 </resources>

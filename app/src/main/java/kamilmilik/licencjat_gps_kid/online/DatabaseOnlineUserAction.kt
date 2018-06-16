@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.models.User
+import kamilmilik.licencjat_gps_kid.utils.Constants
 
 /**
  * Created by kamil on 24.02.2018.
@@ -32,11 +33,18 @@ class DatabaseOnlineUserAction {
     }
 
     fun logoutUser() {
-        if (currentUserRef != null && counterRef != null && currentUserRef != null && FirebaseAuth.getInstance() != null) {
+        if (FirebaseAuth.getInstance() != null) {
+            removeLoggedUser()
             currentUserRef.onDisconnect().removeValue()
             counterRef.onDisconnect().removeValue()
             currentUserRef.removeValue()
             FirebaseAuth.getInstance().signOut()
         }
+    }
+
+    fun removeLoggedUser() {
+        FirebaseDatabase.getInstance().reference!!.child(Constants.DATABASE_USER_LOGGED)
+                .child(Constants.DATABASE_USER_FIELD).
+                child(FirebaseAuth.getInstance()!!.currentUser!!.uid).removeValue()
     }
 }

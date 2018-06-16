@@ -12,6 +12,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DatabaseError
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
+import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.utils.Tools
 
 
@@ -38,7 +39,7 @@ open class ApplicationActivity : AppCompatActivity() {
     fun logoutDeletedUser(){
         var currentUser = FirebaseAuth.getInstance().currentUser
         if(currentUser != null){
-            FirebaseDatabase.getInstance().getReference("user_account_settings").orderByKey().equalTo(currentUser!!.uid).
+            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(currentUser!!.uid).
                     addChildEventListener(object : ChildEventListener {
                         override fun onCancelled(databaseError: DatabaseError?) {}
                         override fun onChildAdded(dataSnapshot: DataSnapshot?, previousKey: String?) {}

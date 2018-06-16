@@ -52,7 +52,9 @@ object Constants{
 
     val DATABASE_FOLLOWING = "following"
 
-    val DATABASE_USER = "user"
+    val DATABASE_USER_FIELD = "user"
+
+    val DATABASE_USER_LOGGED = "user_logged"
 
     val DATABASE_USER_ID_FIELD = "user_id"
 

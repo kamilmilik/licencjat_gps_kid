@@ -83,7 +83,7 @@ class SendInviteActivity : ApplicationActivity() {
         val ref = FirebaseDatabase.getInstance().reference
         var map = HashMap<String, Any>() as MutableMap<String, Any>
         map.put(Constants.DATABASE_TIME_FIELD, ServerValue.TIMESTAMP)
-        ref.child(Constants.DATABASE_UNIQUE_KEY_FIELD)
+        ref.child(Constants.DATABASE_USER_KEYS)
                 .child(uniqueKeyId)
                 .updateChildren(map)
     }

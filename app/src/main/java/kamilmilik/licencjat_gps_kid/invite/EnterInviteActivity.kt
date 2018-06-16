@@ -2,7 +2,6 @@ package kamilmilik.licencjat_gps_kid.invite
 
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -102,14 +101,14 @@ class EnterInviteActivity : ApplicationActivity() {
                 .child(Constants.DATABASE_FOLLOWING)
                 .child(currentUser.user_id)
                 .child(followedUser!!.user_id)
-                .child(Constants.DATABASE_USER)
+                .child(Constants.DATABASE_USER_FIELD)
                 .setValue(followedUser);
 
         FirebaseDatabase.getInstance().reference
                 .child(Constants.DATABASE_FOLLOWERS)
                 .child(userUniqueKeyModel!!.user_id)
                 .child(currentUser.user_id)
-                .child(Constants.DATABASE_USER)
+                .child(Constants.DATABASE_USER_FIELD)
                 .setValue(currentUser)
     }
 }

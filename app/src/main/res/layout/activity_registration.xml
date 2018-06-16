@@ -52,6 +52,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentStart="true"
+                    android:hint="@string/yourName"
                     android:layout_below="@+id/nameTextView" />
 
                 <TextView
@@ -66,6 +67,7 @@
                     android:id="@+id/emailLoginEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:hint="@string/validEmail"
                     android:layout_below="@+id/textView" />
 
                 <TextView
@@ -87,6 +89,7 @@
                     android:layout_alignRight="@+id/emailLoginEditText"
                     android:layout_below="@+id/textView2"
                     android:ems="10"
+                    android:hint="@string/yourPassword"
                     android:inputType="textPassword" />
 
                 <Button

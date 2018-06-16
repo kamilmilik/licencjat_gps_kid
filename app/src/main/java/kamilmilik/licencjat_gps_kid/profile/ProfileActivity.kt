@@ -13,17 +13,13 @@ import kamilmilik.licencjat_gps_kid.online.DatabaseOnlineUserAction
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
 import kamilmilik.licencjat_gps_kid.utils.Tools
 import android.text.method.PasswordTransformationMethod
-import kotlinx.android.synthetic.main.activity_profile.*
 
-import android.widget.RelativeLayout
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.database.*
 import kamilmilik.licencjat_gps_kid.ApplicationActivity
 import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.models.User
-import kotlinx.android.synthetic.main.progress_bar.*
-import java.util.concurrent.atomic.AtomicInteger
 
 
 class ProfileActivity : ApplicationActivity() {
@@ -245,7 +241,7 @@ class ProfileActivity : ApplicationActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
+                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                         val query = reference.child(Constants.DATABASE_FOLLOWING)
                                 .orderByKey()
                                 .equalTo(userFollowers!!.user_id)
@@ -253,7 +249,7 @@ class ProfileActivity : ApplicationActivity() {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
                                 for (singleSnapshot in dataSnapshot.children) {
                                     for (childSingleSnapshot in singleSnapshot.children) {
-                                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
+                                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                                         // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow
                                         if (userFollowing!!.user_id.equals(currentUser.uid)) {
                                             childSingleSnapshot.ref.removeValue()
@@ -279,7 +275,7 @@ class ProfileActivity : ApplicationActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
+                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                         val query = reference.child(Constants.DATABASE_FOLLOWERS)
                                 .orderByKey()
                                 .equalTo(userFollowing!!.user_id)
@@ -287,7 +283,7 @@ class ProfileActivity : ApplicationActivity() {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
                                 for (singleSnapshot in dataSnapshot.children) {
                                     for (childSingleSnapshot in singleSnapshot.children) {
-                                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
+                                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                                         // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow
                                         if (userFollowers!!.user_id.equals(currentUser.uid)) {
                                             childSingleSnapshot.ref.removeValue()

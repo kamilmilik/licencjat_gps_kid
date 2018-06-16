@@ -17,7 +17,7 @@ import kamilmilik.licencjat_gps_kid.models.UserMarkerInformationModel
 class FinderUserConnection(private var context: Context,
                            private var progressDialog: ProgressDialog,
                            private var recyclerViewAction: RecyclerViewAction,
-                           private var locationFirebaseMarkerAction: LocationFirebaseMarkerAction) {
+                           private var locationFirebaseMarkerAction: LocationFirebaseMarkerAction) : BasicListenerContent(){
 
     private val TAG = FinderUserConnection::class.java.simpleName
 
@@ -59,16 +59,19 @@ class FinderUserConnection(private var context: Context,
             override fun onChildChanged(dataSnapshot: DataSnapshot?, p1: String?) {
                 Log.i(TAG, "onChildChanged()")
                 userInFollowingSystemAction(dataSnapshot)
+                putChildEventListenersToMap(query, this)
             }
 
             override fun onChildAdded(dataSnapshot: DataSnapshot?, previousKey: String?) {
                 Log.i(TAG, "onChildAdded()")
                 userInFollowingSystemAction(dataSnapshot)
+                putChildEventListenersToMap(query, this)
             }
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
                 Log.i(TAG, "onChildRemoved()")
                 (context as Activity).recreate()
+                putChildEventListenersToMap(query, this)
             }
         })
     }
@@ -78,9 +81,10 @@ class FinderUserConnection(private var context: Context,
             for (childSingleSnapshot in singleSnapshot.children) {
                 var user = childSingleSnapshot!!.getValue(User::class.java)
                 Log.i(TAG, "value following system: " + user!!.user_id + " " + user.email)
-                var userInformation = UserMarkerInformationModel(user!!.email, user.user_name!!)
+                var userInformation = UserMarkerInformationModel(user!!.email, user.user_name!!, user.user_id!!)
 
                 recyclerViewAction.updateChangeUserNameInRecycler(userInformation)
+                Log.i(TAG,"userInFollowingSystemAction() startuje userLocationAction")
                 locationFirebaseMarkerAction!!.userLocationAction(user.user_id!!, recyclerViewAction, progressDialog)
             }
         }
@@ -106,6 +110,7 @@ class FinderUserConnection(private var context: Context,
                 override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
                     Log.i(TAG, "onChildRemoved()")
                     (context as Activity).recreate()
+                    putChildEventListenersToMap(query, this)
                 }
             })
     }

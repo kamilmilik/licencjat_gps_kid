@@ -18,12 +18,15 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import com.google.firebase.database.ValueEventListener
+
+
 
 
 /**
  * Created by kamil on 25.02.2018.
  */
-class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Context) {
+class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Context) : BasicListenerContent() {
     private val TAG: String = LocationFirebaseMarkerAction::class.java.simpleName
 
     private var currentMarkerPosition: LatLng? = null
@@ -49,7 +52,7 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
         var locations = reference.child(Constants.DATABASE_LOCATIONS)
 
         if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
-            var userMarkerInformation = UserMarkerInformationModel(currentUser.email!!, currentUser!!.displayName!!)
+            var userMarkerInformation = UserMarkerInformationModel(currentUser.email!!, currentUser!!.displayName!!, currentUser.uid)
             locations.child(currentUser!!.uid)
                     .setValue(TrackingModel(currentUser.uid,
                             currentUser!!.email!!,
@@ -89,62 +92,65 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
                     Log.i(TAG,"onDataChange() increment workCounterForNoFirendsUser")
                     workCounterForNoFriendsUser!!.incrementAndGet()
                 }
+                putValueEventListenersToMap(query, this)
             }
         })
     }
 
 
-    fun userLocationAction(followingUserId: String, recyclerViewAction: RecyclerViewAction, progressDialog: ProgressDialog) {
+    fun userLocationAction(userId: String, recyclerViewAction: RecyclerViewAction, progressDialog: ProgressDialog) {
         Log.i(TAG, "userLocationAction")
 
         var reference = FirebaseDatabase.getInstance().reference
-        reference.child(Constants.DATABASE_LOCATIONS)
+        var query = reference.child(Constants.DATABASE_LOCATIONS)
                 .orderByChild(Constants.DATABASE_USER_ID_FIELD)
-                .equalTo(followingUserId)
-                .addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot?) {
-                        Log.i(TAG, "onDataChange in Locations listener " + dataSnapshot.toString())
-                        for (singleSnapshot in dataSnapshot!!.children) {
-                            userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
+                .equalTo(userId)
+        query.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                Log.i(TAG, "onDataChange in Locations listener " + dataSnapshot.toString())
+                for (singleSnapshot in dataSnapshot!!.children) {
+                    userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
 
-                            var userEmail = userWhoChangeLocation!!.email
-                            var userName = userWhoChangeLocation!!.user_name!!
+                    var userEmail = userWhoChangeLocation!!.email
+                    var userName = userWhoChangeLocation!!.user_name!!
+                    var userId = userWhoChangeLocation!!.user_id!!
 
-                            if (userWhoChangeLocation != null && FirebaseAuth.getInstance().currentUser != null) {
-                                recyclerViewAction.updateChangeUserNameInRecycler(UserMarkerInformationModel(userEmail, userName))
+                    if (userWhoChangeLocation != null && FirebaseAuth.getInstance().currentUser != null) {
+                        recyclerViewAction.updateChangeUserNameInRecycler(UserMarkerInformationModel(userEmail, userName, userId))
 
-                                updateUserNameIfChange(reference)
+                        updateUserNameIfChange(reference)
 
-                                var userMarkerInformation = UserMarkerInformationModel(userEmail, userName)
-                                var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())
+                        var userMarkerInformation = UserMarkerInformationModel(userEmail, userName, userId)
+                        var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())
 
-                                deletePreviousMarker(userMarkerInformation)
+                        deletePreviousMarker(userMarkerInformation)
 
-                                var firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, Tools.createLocationVariable(locationOfTheUserWhoChangeLocation))
-                                var markerFollowingUser = mapAdapter!!.addMarker(MarkerOptions()
-                                        .position(locationOfTheUserWhoChangeLocation)
-                                        .title(userName)
-                                        .snippet(context.getString(R.string.distance) + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second
-                                                + context.getString(R.string.timeLocationReport) + SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!)))
-                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
-                                markersMap.put(userMarkerInformation, markerFollowingUser)
-                                previousUserMarkerInformation = userMarkerInformation
+                        var firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, Tools.createLocationVariable(locationOfTheUserWhoChangeLocation))
+                        var markerFollowingUser = mapAdapter!!.addMarker(MarkerOptions()
+                                .position(locationOfTheUserWhoChangeLocation)
+                                .title(userName)
+                                .snippet(context.getString(R.string.distance) + " " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second
+                                        + context.getString(R.string.timeLocationReport) + " " + SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!)))
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+                        markersMap.put(userMarkerInformation, markerFollowingUser)
+                        previousUserMarkerInformation = userMarkerInformation
 
-                                recyclerViewAction.updateRecyclerView()
+                        recyclerViewAction.updateRecyclerView()
 
-                                Log.i(TAG,"onDataChange() increment workCounter")
+                        Log.i(TAG, "onDataChange() increment workCounter")
 
-                                // I use functions instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter
-                                onGetUsersLocationSuccess()
-                                onSuccessGetLocations(progressDialog)
+                        // I use functions instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter
+                        onGetUsersLocationSuccess()
+                        onSuccessGetLocations(progressDialog)
 
-                                dismissProgressDialog(progressDialog)
-                            }
-                        }
+                        dismissProgressDialog(progressDialog)
                     }
+                }
+                putValueEventListenersToMap(query, this)
+            }
 
-                    override fun onCancelled(databaseError: DatabaseError?) {}
-                })
+            override fun onCancelled(databaseError: DatabaseError?) {}
+        })
     }
 
     private fun deletePreviousMarker(userMarkerInformation: UserMarkerInformationModel){
@@ -193,12 +199,12 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 for (singleSnapshot in dataSnapshot!!.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var user = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
+                        var user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                         if (user!!.user_id == userId) {
                             Log.i(TAG, "onDataChange() update name" + childSingleSnapshot)
                             var map = HashMap<String, Any>() as MutableMap<String, Any>
                             map.put(Constants.DATABASE_USER_NAME_FIELD, userName)
-                            childSingleSnapshot!!.ref.child(Constants.DATABASE_USER).updateChildren(map)
+                            childSingleSnapshot!!.ref.child(Constants.DATABASE_USER_FIELD).updateChildren(map)
                         }
                     }
                 }
@@ -212,7 +218,7 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
                 var location = Tools.createLocationVariable(value.position)
                 var firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, location)
                 value.hideInfoWindow()
-                value.snippet = context.getString(R.string.distance) + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second + context.getString(R.string.timeLocationReport) + SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!))
+                value.snippet = context.getString(R.string.distance) + " " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second + context.getString(R.string.timeLocationReport) + " " +  SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!))
             }
         }
     }

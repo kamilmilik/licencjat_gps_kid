@@ -60,4 +60,8 @@
     <string name="name">Name</string>
     <string name="shareInviteCodeInformation">Share invite code</string>
     <string name="loading">Loading...</string>
+    <string name="yourPassword">Your password</string>
+    <string name="yourValidEmail">Your email address</string>
+    <string name="yourName">Your name</string>
+    <string name="loginInOtherDevice">You are currently logged in other device. Please sign out in other device and then logging in this device.</string>
 </resources>

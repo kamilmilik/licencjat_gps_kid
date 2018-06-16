@@ -3,10 +3,10 @@ package kamilmilik.licencjat_gps_kid.login
 import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.ApplicationActivity
 import kamilmilik.licencjat_gps_kid.utils.Constants
@@ -60,26 +60,57 @@ class LoginActivity : ApplicationActivity() {
                         .addOnCompleteListener { task ->
                             progressDialog.dismiss()
                             if (task.isSuccessful) {
-                                if (!Constants.TEST_MODE_FLAG) {
-                                    if (firebaseAuth.currentUser!!.isEmailVerified) {
-                                        Toast.makeText(this, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
-                                        addDeviceTokenToDatabaseAndStartNewActivity()
-                                        addNewUserAccountToDatabase(email, firebaseAuth.currentUser!!.displayName!!)
-                                    } else {
-                                        Toast.makeText(this, getString(R.string.emailNotVerified), Toast.LENGTH_LONG).show()
-                                        firebaseAuth.signOut()
-                                    }
-                                } else {
-                                    Toast.makeText(this, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
-                                    addDeviceTokenToDatabaseAndStartNewActivity()
-                                    addNewUserAccountToDatabase(email, firebaseAuth.currentUser!!.displayName!!)
-                                }
+                                checkIfUserLoggedInOtherDeviceAndIfNotLogIn(email)
                             } else {
                                 Toast.makeText(this, task.exception!!.message, Toast.LENGTH_LONG).show()
                             }
                         }
             }
         })
+    }
+
+    fun addInformationAboutLoggedUser(){
+        FirebaseDatabase.getInstance().reference!!.child(Constants.DATABASE_USER_LOGGED)
+                .child(Constants.DATABASE_USER_FIELD)
+                .child(firebaseAuth!!.currentUser!!.uid)
+                .setValue(firebaseAuth!!.currentUser!!.uid)
+    }
+
+    private fun checkIfUserLoggedInOtherDeviceAndIfNotLogIn(email: String){
+        FirebaseDatabase.getInstance().reference!!
+                .child(Constants.DATABASE_USER_LOGGED)
+                .child(Constants.DATABASE_USER_FIELD)
+                .orderByKey()
+                .equalTo(firebaseAuth!!.currentUser!!.uid)
+                .addListenerForSingleValueEvent(object : ValueEventListener{
+                    override fun onCancelled(p0: DatabaseError?) {}
+
+                    override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                        for (singleSnapshot in dataSnapshot!!.children) {
+                            firebaseAuth.signOut()
+                            Toast.makeText(this@LoginActivity, getString(R.string.loginInOtherDevice), Toast.LENGTH_LONG).show()
+                        }
+                        if(!dataSnapshot.exists()){
+                            Log.i(TAG,"onDataChange() user not logged in yea")
+                            addInformationAboutLoggedUser()
+                            if (!Constants.TEST_MODE_FLAG) {
+                                if (firebaseAuth.currentUser!!.isEmailVerified) {
+                                    Toast.makeText(this@LoginActivity, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
+                                    Tools.addDeviceTokenToDatabaseAndStartNewActivity(this@LoginActivity, MapActivity::class.java)
+                                    addNewUserAccountToDatabase(email, firebaseAuth.currentUser!!.displayName!!)
+                                } else {
+                                    Toast.makeText(this@LoginActivity, getString(R.string.emailNotVerified), Toast.LENGTH_LONG).show()
+                                    firebaseAuth.signOut()
+                                }
+                            } else {
+                                Toast.makeText(this@LoginActivity, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
+                                Tools.addDeviceTokenToDatabaseAndStartNewActivity(this@LoginActivity, MapActivity::class.java)
+                                addNewUserAccountToDatabase(email, firebaseAuth.currentUser!!.displayName!!)
+                            }
+                        }
+                    }
+
+                })
     }
 
     private fun registrationButtonAction() {
@@ -93,15 +124,6 @@ class LoginActivity : ApplicationActivity() {
         resetPasswordButton.setOnClickListener({
             startActivity(Intent(this, ResetPasswordActivity::class.java))
         })
-    }
-
-    private fun addDeviceTokenToDatabaseAndStartNewActivity() {
-        var userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
-        var currentUserId = firebaseAuth!!.currentUser!!.uid
-        var deviceTokenId = FirebaseInstanceId.getInstance().token
-        userDatabase!!.child(currentUserId).child(Constants.DATABASE_DEVICE_TOKEN_FIELD).setValue(deviceTokenId).addOnSuccessListener {
-            Tools.startNewActivityWithoutPrevious(this, MapActivity::class.java)
-        }
     }
 
     fun addNewUserAccountToDatabase(email: String, name: String) {

@@ -105,12 +105,18 @@
             android:exported="true"
             android:finishOnTaskLaunch="true"
             android:noHistory="true"
-            android:process=":separate"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             android:stopWithTask="false" />
 
         <receiver android:name=".background.AlarmReceiver" />
+
+        <service
+            android:name=".background.FirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

@@ -37,19 +37,26 @@ class RecyclerViewAdapter(internal var context: Context, internal var dataList: 
 
 
     }
-    fun setClickListener(IRecyclerViewListener: IRecyclerViewListener){
+
+    fun setClickListener(IRecyclerViewListener: IRecyclerViewListener) {
         this.IRecyclerViewListener = IRecyclerViewListener
     }
+
     override fun getItemCount(): Int {
 
         return dataList.size
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),View.OnClickListener {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnLongClickListener, View.OnClickListener {
+
+        override fun onLongClick(v: View?): Boolean {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
 
         override fun onClick(v: View?) {
-            IRecyclerViewListener!!.setOnItemClick(v!!, getAdapterPosition())
+            IRecyclerViewListener!!.setOnItemClick(v!!, adapterPosition)
         }
+
 
         var textEmail: TextView
 

@@ -60,7 +60,7 @@ class InsideOrOutsideArea(var context : Context ,var locationOfUserWhoChangeIt: 
         val jsonString : String= sharedPref.getString(Constants.SHARED_POLYGON_KEY,"")
         if(jsonString != ""){
             var type : Type =  object : TypeToken<HashMap<UserAndPolygonKeyModel, Boolean>>() {}.type
-            Log.i(TAG,"getValueFromSharedPreferences() json " + jsonString)
+//            Log.i(TAG,"getValueFromSharedPreferences() json " + jsonString)
             var map : HashMap<UserAndPolygonKeyModel,Boolean> =  GsonBuilder().create().fromJson<HashMap<UserAndPolygonKeyModel,Boolean>>(jsonString, type)
             return map
         }

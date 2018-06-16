@@ -14,7 +14,7 @@ import android.support.v4.app.NotificationCompat
 import kamilmilik.licencjat_gps_kid.map.MapActivity
 import android.support.v4.app.NotificationManagerCompat
 import android.R
-import kamilmilik.licencjat_gps_kid.background.ForegroundService
+import kamilmilik.licencjat_gps_kid.map.BasicListenerContent
 import kamilmilik.licencjat_gps_kid.utils.Tools
 
 
@@ -22,26 +22,26 @@ import kamilmilik.licencjat_gps_kid.utils.Tools
  * Created by kamil on 17.03.2018.
  */
 
-class Notification(var context: Context) : ForegroundService(){
+class Notification(var context: Context) : BasicListenerContent(){
     private var TAG = Notification::class.java.simpleName
 
     fun notificationAction(isRunOnlyOnce: Boolean) {
-        Log.i(TAG, "notificationAction, current user id : " + FirebaseAuth.getInstance().currentUser!!.uid)
+        Log.i(TAG, "notificationAction, current user id : " + FirebaseAuth.getInstance()?.currentUser?.uid)
         findConnectionUsers(Constants.DATABASE_FOLLOWERS, isRunOnlyOnce)
         findConnectionUsers(Constants.DATABASE_FOLLOWING, isRunOnlyOnce)
     }
 
     private fun findConnectionUsers(databaseTable : String, isRunOnlyOnce: Boolean) {
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        var currentUser = FirebaseAuth.getInstance()?.currentUser
         val reference = FirebaseDatabase.getInstance().reference
         val query = reference.child(databaseTable)
                 .orderByKey()
-                .equalTo(currentUser!!.uid)
+                .equalTo(currentUser?.uid)
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var user = childSingleSnapshot.child(Constants.DATABASE_USER).getValue(User::class.java)
+                        var user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                         Log.i(TAG, "value : " + user!!.user_id + " " + user!!.email)
                         loadLocationsFromDatabaseForGivenUserId(user.user_id!!, isRunOnlyOnce)
                     }
@@ -53,6 +53,7 @@ class Notification(var context: Context) : ForegroundService(){
                 if (dataSnapshot.value == null) {//nothing found
                     Log.i(TAG, "nothing found in onDataChange in following")
                 }
+                putValueEventListenersToMap(query, this)
             }
             override fun onCancelled(databaseError: DatabaseError) {}
         })
@@ -71,7 +72,9 @@ class Notification(var context: Context) : ForegroundService(){
                     var locationOfUserWhoChangeIt = Tools.createLocationVariable(LatLng(userWhoChangeLocation!!.lat!!.toDouble(),userWhoChangeLocation!!.lng!!.toDouble()))
                     var userIdToSendNotification = userWhoChangeLocation.user_id
                     var currentUser = FirebaseAuth.getInstance().currentUser
-                    getPolygonFromDatabase(locationOfUserWhoChangeIt, userIdToSendNotification!!, currentUser!!.uid)
+                    if(currentUser != null){// Prevent if user click logout and async task not end yet.
+                        getPolygonFromDatabase(locationOfUserWhoChangeIt, userIdToSendNotification!!, currentUser!!.uid)
+                    }
                 }
                 if(isRunOnlyOnce){
                     Log.i(TAG,"onDataChange() remove listener")
@@ -80,6 +83,7 @@ class Notification(var context: Context) : ForegroundService(){
                 if (dataSnapshot.value == null) {//nothing found
                     Log.i(TAG, "nothing found in onDataChange")
                 }
+                putValueEventListenersToMap(query, this)
             }
             override fun onCancelled(databaseError: DatabaseError?) {}
         })
@@ -132,6 +136,7 @@ class Notification(var context: Context) : ForegroundService(){
                     if (dataSnapshot.value == null) {//nothing found
                         Log.i(TAG, "nothing found in onDataChange")
                     }
+                    putValueEventListenersToMap(query, this)
                 }
 
                 override fun onCancelled(p0: DatabaseError?) {}

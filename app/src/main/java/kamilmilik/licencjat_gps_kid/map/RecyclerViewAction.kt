@@ -30,7 +30,7 @@ class RecyclerViewAction(var activity: Activity, var locationFirebaseMarkerActio
         //add current user and other users are add in FinderUserConnection
         valueSet = HashSet()
         if (FirebaseAuth.getInstance().currentUser != null) {
-            valueSet.add(UserMarkerInformationModel(currentUser.email!!, currentUser.displayName!!))
+            valueSet.add(UserMarkerInformationModel(currentUser.email!!, currentUser.displayName!!, currentUser.uid))
             var valueList = ArrayList(valueSet)
             adapter = RecyclerViewAdapter(activity, valueList)
             recyclerView.adapter = adapter
@@ -46,7 +46,7 @@ class RecyclerViewAction(var activity: Activity, var locationFirebaseMarkerActio
 
     fun updateRecyclerView() {
         var currentUser = FirebaseAuth.getInstance().currentUser
-        valueSet.add(UserMarkerInformationModel(currentUser!!.email!!, currentUser.displayName!!))
+        valueSet.add(UserMarkerInformationModel(currentUser!!.email!!, currentUser.displayName!!, currentUser.uid))
         var valueList = ArrayList(valueSet)
         adapter = RecyclerViewAdapter(activity, valueList)
         recyclerView.adapter = adapter
