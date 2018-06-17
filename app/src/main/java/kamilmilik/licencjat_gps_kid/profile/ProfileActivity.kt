@@ -227,14 +227,12 @@ class ProfileActivity : ApplicationActivity() {
         FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LAST_ONLINE).child(currentUser.uid).removeValue()
 
         val reference = FirebaseDatabase.getInstance().reference
-        removeUserFromFollowing(currentUser, reference)
-        removeUserFromFollowers(currentUser, reference)
-
-
+        removeUsersFromConnection(currentUser, reference, Constants.DATABASE_FOLLOWERS, Constants.DATABASE_FOLLOWING)
+        removeUsersFromConnection(currentUser, reference, Constants.DATABASE_FOLLOWING, Constants.DATABASE_FOLLOWERS)
     }
 
-    private fun removeUserFromFollowing(currentUser: FirebaseUser, reference: DatabaseReference) {
-        val query = reference.child(Constants.DATABASE_FOLLOWERS)
+    private fun removeUsersFromConnection(currentUser: FirebaseUser, reference: DatabaseReference, databaseNode : String, databaseNode2: String) {
+        val query = reference.child(databaseNode)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -242,7 +240,7 @@ class ProfileActivity : ApplicationActivity() {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                        val query = reference.child(Constants.DATABASE_FOLLOWING)
+                        val query = reference.child(databaseNode2)
                                 .orderByKey()
                                 .equalTo(userFollowers!!.user_id)
                         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -253,7 +251,7 @@ class ProfileActivity : ApplicationActivity() {
                                         // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow
                                         if (userFollowing!!.user_id.equals(currentUser.uid)) {
                                             childSingleSnapshot.ref.removeValue()
-                                            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_FOLLOWERS).child(currentUser.uid).removeValue()
+                                            FirebaseDatabase.getInstance().getReference(databaseNode).child(currentUser.uid).removeValue()
                                         }
                                     }
                                 }
@@ -266,39 +264,4 @@ class ProfileActivity : ApplicationActivity() {
             override fun onCancelled(databaseError: DatabaseError?) {}
         })
     }
-
-    private fun removeUserFromFollowers(currentUser: FirebaseUser, reference: DatabaseReference) {
-        val query = reference.child(Constants.DATABASE_FOLLOWING)
-                .orderByKey()
-                .equalTo(currentUser!!.uid)
-        query.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (singleSnapshot in dataSnapshot.children) {
-                    for (childSingleSnapshot in singleSnapshot.children) {
-                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                        val query = reference.child(Constants.DATABASE_FOLLOWERS)
-                                .orderByKey()
-                                .equalTo(userFollowing!!.user_id)
-                        query.addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                for (singleSnapshot in dataSnapshot.children) {
-                                    for (childSingleSnapshot in singleSnapshot.children) {
-                                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                                        // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow
-                                        if (userFollowers!!.user_id.equals(currentUser.uid)) {
-                                            childSingleSnapshot.ref.removeValue()
-                                            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_FOLLOWING).child(currentUser.uid).removeValue()
-                                        }
-                                    }
-                                }
-                            }
-                            override fun onCancelled(databaseError: DatabaseError?) {}
-                        })
-                    }
-                }
-            }
-            override fun onCancelled(databaseError: DatabaseError?) {}
-        })
-    }
-
 }

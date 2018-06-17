@@ -85,6 +85,7 @@ class RegistrationActivity : ApplicationActivity() {
                         //TODO to wyrzucic w finalnej wersji bo to jest w sendEmailVerification wysylaniem emailu weryf poniewaz w tej metodzie jest nadawanie nazwy na serwerze
                         val user = FirebaseAuth.getInstance().currentUser
                         Tools.updateProfileName(this, user!!, name, OnCompleteListener { activity.finish() })
+                        //TODO czasami po rejestracji chowa nam sie okno aplikacji(zwykle jak probujemy sie rejestrowac 2 raz tzn np rejestrujemy sie , usuwamy konto i znowi sie rejestrujemy), a jak je wznowimy z task manager to jestesmy automaczynie zalogowani(wersja bez weryfikacji email)
 
                     } else {
                         Toast.makeText(this, task.exception!!.message, Toast.LENGTH_LONG).show()

@@ -82,7 +82,7 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
         }
     }
 
-    private fun checkIfUserExistInDatabase(query : Query){
+    private fun checkIfUserExistInDatabase(query : Query, progressDialog: ProgressDialog){
         query.addValueEventListener(object : ValueEventListener{
             override fun onCancelled(p0: DatabaseError?) {}
 
@@ -91,6 +91,7 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
                     Log.i(TAG,"onDataChange() no friends")
                     Log.i(TAG,"onDataChange() increment workCounterForNoFirendsUser")
                     workCounterForNoFriendsUser!!.incrementAndGet()
+                    dismissProgressDialog(progressDialog)
                 }
                 putValueEventListenersToMap(query, this)
             }
@@ -162,22 +163,21 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
     }
 
     private fun progressDialogDismissAction(reference: DatabaseReference, currentUser : FirebaseUser, progressDialog: ProgressDialog){
-        workCounterForNoFriendsUser!!.incrementAndGet()
-        Log.i(TAG,"progressDialogDismissAction() increment workCounter and WorkCounterForNoFriendsUSer")
         var query = reference.child(Constants.DATABASE_FOLLOWERS)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
-        checkIfUserExistInDatabase(query)
+        checkIfUserExistInDatabase(query, progressDialog)
         query = reference.child(Constants.DATABASE_FOLLOWING)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
-        checkIfUserExistInDatabase(query)
+        checkIfUserExistInDatabase(query, progressDialog)
 
         dismissProgressDialog(progressDialog)
     }
 
     private fun dismissProgressDialog(progressDialog: ProgressDialog) {
-        if (workCounterForNoFriendsUser!!.compareAndSet(3, 0)) {
+        Log.i(TAG,"dismissProgressDialog() workCounterForNoFriendsUser = " + workCounterForNoFriendsUser)
+        if (workCounterForNoFriendsUser!!.compareAndSet(2, 0)) {
             progressDialog.dismiss()
         }
     }

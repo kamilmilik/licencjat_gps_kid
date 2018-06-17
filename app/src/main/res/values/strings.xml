@@ -64,4 +64,5 @@
     <string name="yourValidEmail">Your email address</string>
     <string name="yourName">Your name</string>
     <string name="loginInOtherDevice">You are currently logged in other device. Please sign out in other device and then logging in this device.</string>
+    <string name="unfollowYourselfInformation">You cannot unfollow yourself</string>
 </resources>

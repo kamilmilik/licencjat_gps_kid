@@ -102,7 +102,7 @@ object Tools {
     }
 
     fun updateProfileName(activity: Activity, currentUser: FirebaseUser, newName: String, onCompleteListener: OnCompleteListener<Void>) {
-        activity.progressBarRelative.visibility = View.VISIBLE
+        activity.progressBarRelative?.visibility = View.VISIBLE
 
         val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(newName)
@@ -110,7 +110,7 @@ object Tools {
         currentUser.updateProfile(profileUpdates)
                 .addOnCompleteListener { task ->
                         onCompleteListener.onComplete(task)
-                        activity.progressBarRelative.visibility = View.GONE
+                        activity.progressBarRelative?.visibility = View.GONE
                 }
     }
 

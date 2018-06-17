@@ -9,5 +9,8 @@ import android.view.View
  * interface callback to get clicked position in recyclerView
  */
 interface IRecyclerViewListener {
+
     fun setOnItemClick(view: View, position: Int)
+
+    fun setOnLongItemClick(view: View, position: Int) : Boolean
 }

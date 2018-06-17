@@ -95,7 +95,7 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
 
         locationFirebaseMarkerAction = LocationFirebaseMarkerAction(this.googleMap!!, this)
         recyclerViewAction = RecyclerViewAction(this, locationFirebaseMarkerAction!!)
-        recyclerViewAction!!.setupRecyclerView()
+        recyclerViewAction?.setupRecyclerView()
         progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
         finderUserConnection = FinderUserConnection(this, progressDialog!!, recyclerViewAction!!, locationFirebaseMarkerAction!!)
         finderUserConnection!!.findFollowersConnectionAndUpdateRecyclerView()
