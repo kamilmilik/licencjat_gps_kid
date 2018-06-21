@@ -64,4 +64,7 @@
     <string name="yourName">Twoję imię</string>
     <string name="loginInOtherDevice">"Jesteś obecnie zalogowany na innym urządzeniu. Wyloguj się w innym urządzeniu, a następnie zaloguj się na tym urządzeniu. "</string>
     <string name="unfollowYourselfInformation">Nie możesz przestać obserwować samego siebie</string>
+    <string name="unfollowUserTitle">Odobserwuj użytkownika</string>
+    <string name="unfollowUser">Czy na pewno chcesz przestać obserwować tego użytkownika?</string>
+
 </resources>

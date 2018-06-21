@@ -1,4 +1,4 @@
-package kamilmilik.licencjat_gps_kid.online
+package kamilmilik.licencjat_gps_kid.login
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -13,20 +13,23 @@ class DatabaseOnlineUserAction {
     private val TAG: String = DatabaseOnlineUserAction::class.java.simpleName
 
     private var onlineRef: DatabaseReference = FirebaseDatabase.getInstance().reference.child(".info/connected")
-    private var currentUserRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("last_online").child(FirebaseAuth.getInstance().currentUser!!.uid)
-    private var counterRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("last_online")
+
+    private var currentUserRef: DatabaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LAST_ONLINE).child(FirebaseAuth.getInstance().currentUser!!.uid)
+
+    private var counterRef: DatabaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LAST_ONLINE)
 
     fun addOnlineUserToDatabase() {
         onlineRef.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {}
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var connected = dataSnapshot.getValue(Boolean::class.java)
+                val connected = dataSnapshot.getValue(Boolean::class.java)
                 if (connected!!) {
                     currentUserRef.onDisconnect().removeValue()//Remove the value at this location when the client disconnects
                     //add to last_online current user
-                    var deviceTokenId = FirebaseInstanceId.getInstance().token
+                    val deviceTokenId = FirebaseInstanceId.getInstance().token
 
-                    counterRef.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(User(FirebaseAuth.getInstance().currentUser!!.uid, FirebaseAuth.getInstance().currentUser!!.email!!, deviceTokenId!!, FirebaseAuth.getInstance().currentUser!!.displayName!!))
+                    val currentUser = FirebaseAuth.getInstance().currentUser!!
+                    counterRef.child(currentUser.uid).setValue(User(currentUser.uid, currentUser.email!!, deviceTokenId!!, currentUser.displayName!!))
                 }
             }
         })
@@ -42,7 +45,7 @@ class DatabaseOnlineUserAction {
         }
     }
 
-    fun removeLoggedUser() {
+    private fun removeLoggedUser() {
         FirebaseDatabase.getInstance().reference!!.child(Constants.DATABASE_USER_LOGGED)
                 .child(Constants.DATABASE_USER_FIELD).
                 child(FirebaseAuth.getInstance()!!.currentUser!!.uid).removeValue()

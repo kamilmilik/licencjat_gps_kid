@@ -36,6 +36,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
 import kamilmilik.licencjat_gps_kid.models.PolygonModel
+import kamilmilik.licencjat_gps_kid.models.TrackingModel
 import org.json.JSONObject
 import java.io.DataOutputStream
 import java.net.HttpURLConnection
@@ -103,14 +104,13 @@ object Tools {
 
     fun updateProfileName(activity: Activity, currentUser: FirebaseUser, newName: String, onCompleteListener: OnCompleteListener<Void>) {
         activity.progressBarRelative?.visibility = View.VISIBLE
-
         val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(newName)
                 .build()
         currentUser.updateProfile(profileUpdates)
                 .addOnCompleteListener { task ->
-                        onCompleteListener.onComplete(task)
-                        activity.progressBarRelative?.visibility = View.GONE
+                    onCompleteListener.onComplete(task)
+                    activity.progressBarRelative?.visibility = View.GONE
                 }
     }
 
@@ -242,34 +242,33 @@ object Tools {
         }
     }
 
-    fun addLocationToFirebaseDatabaseByRest(email: String, latitude: String, longitude: String, currentTime: Long, userGeneratedAuthId: String, userName: String) {
+    fun addLocationToFirebaseDatabaseByRest(trackingModel: TrackingModel, tokenId : String) {
         try {
-            var currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-            var url = URL("https://licencjat-kid-track.firebaseio.com/Locations/$currentUserId.json?auth=" + userGeneratedAuthId);
+            var url = URL("https://licencjat-kid-track.firebaseio.com/Locations/${trackingModel.user_id}.json?auth=" + tokenId)
             var conn = url.openConnection() as HttpURLConnection
-            conn.requestMethod = "PUT";
-            conn.setRequestProperty("Accept", "application/json");
-            conn.doOutput = true;
-            conn.doInput = true;
+            conn.requestMethod = "PUT"
+            conn.setRequestProperty("Accept", "application/json")
+            conn.doOutput = true
+            conn.doInput = true
 
             var jsonParam = JSONObject();
-            jsonParam.put("email", email)
-            jsonParam.put("lat", latitude)
-            jsonParam.put("lng", longitude)
-            jsonParam.put("time", currentTime)
-            jsonParam.put("user_id", currentUserId)
-            jsonParam.put("user_name", userName)
+            jsonParam.put("email", trackingModel.email)
+            jsonParam.put("lat", trackingModel.lat)
+            jsonParam.put("lng", trackingModel.lng)
+            jsonParam.put("time", trackingModel.time)
+            jsonParam.put("user_id", trackingModel.user_id)
+            jsonParam.put("user_name", trackingModel.user_name)
 
-            Log.i("JSON", jsonParam.toString());
-            var os = DataOutputStream(conn.outputStream);
-            os.writeBytes(jsonParam.toString());
-            os.flush();
-            os.close();
-            Log.i("STATUS", (conn.responseCode).toString());
-            Log.i("MSG", conn.responseMessage);
+            Log.i("JSON", jsonParam.toString())
+            var os = DataOutputStream(conn.outputStream)
+            os.writeBytes(jsonParam.toString())
+            os.flush()
+            os.close()
+            Log.i("STATUS", (conn.responseCode).toString())
+            Log.i("MSG", conn.responseMessage)
             conn.disconnect()
         } catch (e: Exception) {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 

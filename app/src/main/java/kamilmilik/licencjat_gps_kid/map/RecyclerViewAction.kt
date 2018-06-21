@@ -22,12 +22,14 @@ class RecyclerViewAction(var activity: Activity, var locationFirebaseMarkerActio
 
     private val TAG = RecyclerViewAction::class.java.simpleName
 
-    lateinit var adapter: RecyclerViewAdapter
-    lateinit var recyclerView: RecyclerView
-    lateinit var valueSet: HashSet<UserMarkerInformationModel>
+    private lateinit var adapter: RecyclerViewAdapter
+
+    private lateinit var recyclerView: RecyclerView
+
+    private lateinit var valueSet: HashSet<UserMarkerInformationModel>
 
     fun setupRecyclerView() {
-        var currentUser = FirebaseAuth.getInstance().currentUser!!
+        val currentUser = FirebaseAuth.getInstance().currentUser!!
         recyclerView = this.activity.findViewById(R.id.listOnline)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
@@ -44,7 +46,7 @@ class RecyclerViewAction(var activity: Activity, var locationFirebaseMarkerActio
     }
 
     fun updateRecyclerView() {
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = FirebaseAuth.getInstance().currentUser
         valueSet.add(UserMarkerInformationModel(currentUser!!.email!!, currentUser.displayName!!, currentUser.uid))
         var valueList = ArrayList(valueSet)
         adapter = RecyclerViewAdapter(activity, valueList)
@@ -72,7 +74,7 @@ class RecyclerViewAction(var activity: Activity, var locationFirebaseMarkerActio
     }
 
     override fun setOnLongItemClick(view: View, position: Int): Boolean {
-        var alert2 = Tools.makeAlertDialogBuilder(activity, "Unfollowe user", "Are you sure to unfollow this user?")
+        var alert2 = Tools.makeAlertDialogBuilder(activity, activity.getString(R.string.unfollowUserTitle), activity.getString(R.string.unfollowUser))
         alert2.setPositiveButton(activity.getString(R.string.ok)) { dialog, whichButton ->
             unfollowUser(position)
         }
@@ -85,11 +87,10 @@ class RecyclerViewAction(var activity: Activity, var locationFirebaseMarkerActio
         var valueList = ArrayList(valueSet)
         var clickedUser = valueList[position]
 
-        if(clickedUser.userId.equals(FirebaseAuth.getInstance().currentUser!!.uid)){
+        if(clickedUser.userId == FirebaseAuth.getInstance().currentUser!!.uid){
             Toast.makeText(activity, activity.getString(R.string.unfollowYourselfInformation), Toast.LENGTH_LONG).show()
         }else{
             val reference = FirebaseDatabase.getInstance().reference
-
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWERS, Constants.DATABASE_FOLLOWING)
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWING, Constants.DATABASE_FOLLOWERS)
         }
@@ -108,22 +109,22 @@ class RecyclerViewAction(var activity: Activity, var locationFirebaseMarkerActio
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                        val query = reference.child(nodeTable2)
+                        val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                        val query2 = reference.child(nodeTable2)
                                 .orderByKey()
                                 .equalTo(currentUserId)
-                        query.addListenerForSingleValueEvent(object : ValueEventListener {
+                        query2.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                for (singleSnapshot in dataSnapshot.children) {
-                                    for (childSingleSnapshot in singleSnapshot.children) {
-                                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                                for (singleSnapshot2 in dataSnapshot.children) {
+                                    for (childSingleSnapshot2 in singleSnapshot2.children) {
+                                        val user2 = childSingleSnapshot2.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                                         // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow
-                                        if (userFollowers?.user_id.equals(userToUnfollowId)) {
-                                            childSingleSnapshot.ref.removeValue()
+                                        if (user2?.user_id.equals(userToUnfollowId)) {
+                                            childSingleSnapshot2.ref.removeValue()
                                         }
                                     }
                                 }
-                                if(userFollowing?.user_id.equals(currentUserId)){ // Delete me.
+                                if(user?.user_id.equals(currentUserId)){ // Delete me.
                                     childSingleSnapshot.ref.removeValue()
                                 }
                             }

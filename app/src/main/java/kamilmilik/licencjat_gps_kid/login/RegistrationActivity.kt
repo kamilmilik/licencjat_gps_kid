@@ -55,7 +55,7 @@ class RegistrationActivity : ApplicationActivity() {
     }
 
 
-    fun registrationButtonAction() {
+    private fun registrationButtonAction() {
         registrationButton.setOnClickListener({
             email = emailLoginEditText!!.text.toString()
             password = passwordLoginEditText!!.text.toString()
@@ -73,7 +73,7 @@ class RegistrationActivity : ApplicationActivity() {
         }
     }
 
-    fun registerNewUser(email: String, password: String, name: String, activity: Activity) {
+    private fun registerNewUser(email: String, password: String, name: String, activity: Activity) {
         val progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
         firebaseAuth!!.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->

@@ -65,4 +65,6 @@
     <string name="yourName">Your name</string>
     <string name="loginInOtherDevice">You are currently logged in other device. Please sign out in other device and then logging in this device.</string>
     <string name="unfollowYourselfInformation">You cannot unfollow yourself</string>
+    <string name="unfollowUserTitle">Unfollow user</string>
+    <string name="unfollowUser">Are you sure to unfollow this user?</string>
 </resources>

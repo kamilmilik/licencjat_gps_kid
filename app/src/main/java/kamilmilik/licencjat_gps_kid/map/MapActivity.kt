@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import android.view.MotionEvent
 import kamilmilik.licencjat_gps_kid.utils.LocationOperations
 import kamilmilik.licencjat_gps_kid.map.PolygonOperation.DrawPolygon
-import kamilmilik.licencjat_gps_kid.online.DatabaseOnlineUserAction
+import kamilmilik.licencjat_gps_kid.login.DatabaseOnlineUserAction
 import com.google.firebase.FirebaseApp
 import android.app.ProgressDialog
 import android.content.ComponentCallbacks2

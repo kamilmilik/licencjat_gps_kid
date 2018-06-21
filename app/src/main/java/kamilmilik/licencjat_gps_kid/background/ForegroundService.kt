@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GetTokenResult
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.utils.Constants
@@ -121,38 +122,33 @@ open class ForegroundService : Service() {
     private fun addCurrentUserLocationToFirebase(lastLocation: Location) {
         FirebaseApp.initializeApp(applicationContext)//I must called this first otherwise foreground/background service is not running since without it get nullPointerException
         var currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
-            Log.i(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser!!.uid + " location " + lastLocation.toString())
+            Log.i(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser?.uid + " location " + lastLocation.toString())
             object : Thread(){
                 override fun run() {
                     Log.i(TAG,"addCurrentUserLocationToFirebase() is internet? " + Tools.isInternetConnection(this@ForegroundService))
                 }
             }.start()
-            var mUser = FirebaseAuth.getInstance().getCurrentUser();
-            mUser?.getIdToken(true)?.addOnCompleteListener(object : OnCompleteListener<GetTokenResult> {
-                override fun onComplete(task: Task<GetTokenResult>) {
-                    if(task.isSuccessful){
-                        var tokenId = task.result.token
-                        RestFirebaseAsync(TrackingModel(tokenId!!,
-                                currentUser!!.email!!,
-                                lastLocation.latitude.toString(),
-                                lastLocation.longitude.toString(),
-                                currentUser!!.displayName!!,
-                                System.currentTimeMillis()), object : OnDataAddedListener {
-                            override fun onDataAdded() {
-                                Log.i(TAG, "onComplete() position: $lastLocation saved to firebase database")
-                                Log.i(TAG, "okey stop service")
-                                stopForeground(true)
-                                stopSelf()
-                                fusedLocationClient.removeLocationUpdates(locationCallback)
-                                notificationMethods?.removeValueEventListeners()
-                            }
-                        }).execute()
-                    }
+            currentUser?.getIdToken(true)?.addOnCompleteListener { task ->
+                if(task.isSuccessful){
+                    var tokenId = task.result.token
+                    RestFirebaseAsync(TrackingModel(currentUser.uid,
+                            currentUser.email!!,
+                            lastLocation.latitude.toString(),
+                            lastLocation.longitude.toString(),
+                            currentUser.displayName!!,
+                            System.currentTimeMillis()), tokenId!!, object : OnDataAddedListener {
+                        override fun onDataAdded() {
+                            Log.i(TAG, "onComplete() position: $lastLocation saved to firebase database")
+                            Log.i(TAG, "okey stop service")
+                            stopForeground(true)
+                            stopSelf()
+                            fusedLocationClient.removeLocationUpdates(locationCallback)
+                            notificationMethods?.removeValueEventListeners()
+                        }
+                    }).execute()
                 }
+            }
 
-            });
-        }
     }
 
 }

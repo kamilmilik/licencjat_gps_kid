@@ -9,7 +9,7 @@ import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import kamilmilik.licencjat_gps_kid.online.DatabaseOnlineUserAction
+import kamilmilik.licencjat_gps_kid.login.DatabaseOnlineUserAction
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
 import kamilmilik.licencjat_gps_kid.utils.Tools
 import android.text.method.PasswordTransformationMethod
@@ -225,6 +225,8 @@ class ProfileActivity : ApplicationActivity() {
         FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS).child(currentUser.uid).removeValue()
         FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LOCATIONS).child(currentUser.uid).removeValue()
         FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LAST_ONLINE).child(currentUser.uid).removeValue()
+        FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_LOGGED).child(Constants.DATABASE_USER_FIELD).child(currentUser.uid).removeValue()
+
 
         val reference = FirebaseDatabase.getInstance().reference
         removeUsersFromConnection(currentUser, reference, Constants.DATABASE_FOLLOWERS, Constants.DATABASE_FOLLOWING)

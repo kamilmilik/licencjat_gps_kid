@@ -115,8 +115,7 @@ class LoginActivity : ApplicationActivity() {
 
     private fun registrationButtonAction() {
         registrationButton.setOnClickListener({
-            val intent = Intent(this@LoginActivity, RegistrationActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegistrationActivity::class.java))
         })
     }
 
@@ -127,8 +126,8 @@ class LoginActivity : ApplicationActivity() {
     }
 
     fun addNewUserAccountToDatabase(email: String, name: String) {
-        var deviceTokenId = FirebaseInstanceId.getInstance().token
-        var user = User(firebaseAuth!!.currentUser!!.uid, email, deviceTokenId!!, name)
+        val deviceTokenId = FirebaseInstanceId.getInstance().token
+        val user = User(firebaseAuth!!.currentUser!!.uid, email, deviceTokenId!!, name)
 
         FirebaseDatabase.getInstance().reference!!.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
                 .child(firebaseAuth!!.currentUser!!.uid)
