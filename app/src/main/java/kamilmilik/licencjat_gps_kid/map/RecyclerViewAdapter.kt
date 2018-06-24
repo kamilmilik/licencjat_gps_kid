@@ -15,7 +15,7 @@ import kamilmilik.licencjat_gps_kid.utils.IRecyclerViewListener
 /**
  * Created by kamil on 22.02.2018.
  */
-class RecyclerViewAdapter(internal var context: Context, internal var dataList: ArrayList<UserMarkerInformationModel>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+class RecyclerViewAdapter(internal var context: Context, private var dataList: ArrayList<UserMarkerInformationModel>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
    private val TAG = RecyclerViewAdapter::class.java.simpleName
 
@@ -48,7 +48,6 @@ class RecyclerViewAdapter(internal var context: Context, internal var dataList: 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnLongClickListener, View.OnClickListener {
 
         override fun onLongClick(v: View?): Boolean {
-            Log.i(TAG,"onLongClick()")
             return recyclerViewListener!!.setOnLongItemClick(v!!, adapterPosition)
         }
 
@@ -57,10 +56,9 @@ class RecyclerViewAdapter(internal var context: Context, internal var dataList: 
         }
 
 
-        var textEmail: TextView
+        var textEmail: TextView = itemView.findViewById(R.id.emailText)
 
         init {
-            textEmail = itemView.findViewById(R.id.emailText)
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
         }

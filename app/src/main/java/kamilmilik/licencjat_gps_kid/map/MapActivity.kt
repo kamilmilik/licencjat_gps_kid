@@ -1,6 +1,7 @@
 package kamilmilik.licencjat_gps_kid.map
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.view.Menu
 import kotlinx.android.synthetic.main.activity_map.*
@@ -19,48 +20,46 @@ import kamilmilik.licencjat_gps_kid.utils.LocationOperations
 import kamilmilik.licencjat_gps_kid.map.PolygonOperation.DrawPolygon
 import kamilmilik.licencjat_gps_kid.login.DatabaseOnlineUserAction
 import com.google.firebase.FirebaseApp
-import android.app.ProgressDialog
 import android.content.ComponentCallbacks2
+import android.location.Location
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.database.FirebaseDatabase
 import kamilmilik.licencjat_gps_kid.ApplicationActivity
 import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
 import kamilmilik.licencjat_gps_kid.map.PolygonOperation.notification.Notification
+import kamilmilik.licencjat_gps_kid.models.User
+import kamilmilik.licencjat_gps_kid.models.UserMarkerInformationModel
 import kamilmilik.licencjat_gps_kid.profile.ProfileActivity
 import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.utils.Tools
-import kamilmilik.licencjat_gps_kid.map.adapter.google.GoogleGeoMap
-import kamilmilik.licencjat_gps_kid.map.adapter.GeoMap
+import kotlinx.android.synthetic.main.progress_bar.*
 
 
-class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adapter.GeoOnMapReadyCallback {
+class MapActivity : ApplicationActivity(), OnMapReadyCallback {
 
     private val TAG: String = MapActivity::class.java.simpleName
 
-    var geoMap: GeoMap? = null
-
-    //Firebase
     private var databaseOnlineUserAction: DatabaseOnlineUserAction? = null
-    //view
 
-    //permission
     private var isPermissionDenied = false
-    //Location
+
     private var locationOperations: LocationOperations? = null
 
     private var finderUserConnection: FinderUserConnection? = null
 
     private var locationFirebaseMarkerAction: LocationFirebaseMarkerAction? = null
-    //maps
+
     private var googleMap: GoogleMap? = null
 
-    private var progressDialog: ProgressDialog? = null
+    private var recyclerViewAction: RecyclerViewAction? = null
 
-    var recyclerViewAction: RecyclerViewAction? = null
+    private var buttonClickedPolygonAction: Boolean? = false // to detect map is movable
 
-    var buttonClickedPolygonAction: Boolean? = false // to detect map is movable
-
-    var drawPolygon: DrawPolygon? = null
+    private var drawPolygon: DrawPolygon? = null
 
     private var notificationMethods : Notification? = null
 
@@ -72,12 +71,12 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        FirebaseApp.initializeApp(applicationContext)//I must called this first otherwise foreground/background service is not running since without it get nullPointerException
+        FirebaseApp.initializeApp(applicationContext)
 
         setContentView(R.layout.activity_map)
+        progressBarRelative?.visibility = View.VISIBLE
 
-        geoMap = GoogleGeoMap()
-        geoMap!!.getMapAsync(this, this)
+        (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment).getMapAsync(this)
 
         Tools.goToAddIgnoreBatteryOptimizationSettings(this)
 
@@ -88,20 +87,14 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
         setupAddOnlineUserToDatabaseHelper()
     }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        this.googleMap = googleMap
 
-    @SuppressLint("MissingPermission")
-    override fun onMapReady(geoMap: GeoMap) {
-        this.googleMap = (this.geoMap as GoogleGeoMap).googleMap
+        initialize()
 
-        locationFirebaseMarkerAction = LocationFirebaseMarkerAction(this.googleMap!!, this)
-        recyclerViewAction = RecyclerViewAction(this, locationFirebaseMarkerAction!!)
         recyclerViewAction?.setupRecyclerView()
-        progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
-        finderUserConnection = FinderUserConnection(this, progressDialog!!, recyclerViewAction!!, locationFirebaseMarkerAction!!)
         finderUserConnection!!.findFollowersConnectionAndUpdateRecyclerView()
-        locationOperations = LocationOperations(this, progressDialog!!, locationFirebaseMarkerAction!!, recyclerViewAction!!)
 
-        drawPolygon = DrawPolygon(this.googleMap!!, this)
         drawPolygonButtonAction()
         editPolygonButtonAction()
 
@@ -110,6 +103,13 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
         runCheckAreaAction()
     }
 
+    private fun initialize(){
+        locationFirebaseMarkerAction = LocationFirebaseMarkerAction(this)
+        recyclerViewAction = RecyclerViewAction(this)
+        locationOperations = LocationOperations(this)
+        finderUserConnection = FinderUserConnection(this)
+        drawPolygon = DrawPolygon(this)
+    }
     private fun runCheckAreaAction(){
         // PolygonAction it is also run in foregroundService.
         object : Thread() {
@@ -150,13 +150,11 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
     private fun drawPolygonButtonAction() {
         drawButton.setOnClickListener {
             drawButton.isEnabled = false
-            draggable.setOnTouchListener(object : View.OnTouchListener {
-                override fun onTouch(v: View?, motionEvent: MotionEvent?): Boolean {
-                    drawPolygon!!.onTouchAction(motionEvent, draggable)
-                    drawButton.isEnabled = true
-                    return true
-                }
-            })
+            draggable.setOnTouchListener { v, motionEvent ->
+                drawPolygon!!.onTouchAction(motionEvent, draggable)
+                drawButton.isEnabled = true
+                true
+            }
         }
     }
 
@@ -169,7 +167,6 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
                         locationOperations!!.getLocation()
                         googleMap!!.isMyLocationEnabled = true
                     }
-
                 } else {
                     isPermissionDenied = true
                     databaseOnlineUserAction!!.logoutUser()
@@ -183,15 +180,13 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
 
     private fun generateCodeButtonAction() {
         buttonToActivityGenerateCode.setOnClickListener({
-            var intent = Intent(this, SendInviteActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, SendInviteActivity::class.java))
         })
     }
 
     private fun enterCodeButtonAction() {
         buttonToActivityEnterInvite.setOnClickListener({
-            var intent = Intent(this, EnterInviteActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, EnterInviteActivity::class.java))
         })
 
     }
@@ -212,20 +207,14 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
     override fun onResume() {
         super.onResume()
 
-        var response = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
+        val response = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
         if (response != ConnectionResult.SUCCESS) {
            GoogleApiAvailability.getInstance().getErrorDialog(this, response, 1).show()
         }
     }
 
-
-    override fun onDestroy() {
-        progressDialog!!.dismiss()
-        super.onDestroy()
-    }
-
     override fun onTrimMemory(level: Int) {
-        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {//detect when UI is hidden
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {// Detect when UI is hidden.
             try {
                 locationOperations!!.fusedLocationClient.removeLocationUpdates(locationOperations!!.locationCallback)
             } catch (exception: Exception) {
@@ -256,14 +245,37 @@ class MapActivity : ApplicationActivity(), kamilmilik.licencjat_gps_kid.map.adap
         when (item!!.itemId) {
             R.id.action_logout -> {
                 databaseOnlineUserAction!!.logoutUser()
-                // Remove old listener when user sign out.
-                finderUserConnection?.removeChildEventListeners()
-                locationFirebaseMarkerAction?.removeValueEventListeners()
-                notificationMethods?.removeValueEventListeners()
-                locationOperations?.fusedLocationClient?.removeLocationUpdates(locationOperations?.locationCallback)
+                removeOldListeners()
                 Tools.startNewActivityWithoutPrevious(this, LoginActivity::class.java)
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun removeOldListeners(){
+        finderUserConnection?.removeChildEventListeners()
+        locationFirebaseMarkerAction?.removeValueEventListeners()
+        notificationMethods?.removeValueEventListeners()
+        locationOperations?.fusedLocationClient?.removeLocationUpdates(locationOperations?.locationCallback)
+    }
+
+    fun getActivity() : Activity = this
+
+    fun getMap() : GoogleMap = googleMap!!
+
+    fun updateChangeUserNameInRecycler(userInformation : UserMarkerInformationModel){
+        recyclerViewAction?.updateChangeUserNameInRecycler(userInformation)
+    }
+
+    fun userLocationAction(user : User){
+        locationFirebaseMarkerAction?.userLocationAction(user.user_id!!, recyclerViewAction!!, progressBarRelative!!)
+    }
+
+    fun goToThisMarker(clickedUser: UserMarkerInformationModel){
+        locationFirebaseMarkerAction?.goToThisMarker(clickedUser)
+    }
+
+    fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location){
+        locationFirebaseMarkerAction?.addCurrentUserMarkerAndRemoveOld(lastLocation, recyclerViewAction!!, progressBarRelative!!)
     }
 }

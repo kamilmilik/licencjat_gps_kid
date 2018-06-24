@@ -6,6 +6,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kamilmilik.licencjat_gps_kid.map.MapActivity
 import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.utils.Tools
 import kamilmilik.licencjat_gps_kid.map.adapter.GeoLatLng
@@ -14,7 +15,7 @@ import kamilmilik.licencjat_gps_kid.models.PolygonModel
 /**
  * Created by kamil on 17.03.2018.
  */
-class PolygonDatabaseOperation(override var googleMap: GoogleMap, override var context: Context, var onGetDataListener: OnGetDataListener) : PolygonContent(googleMap, context) {
+class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetDataListener: OnGetDataListener) : PolygonContent(mapActivity) {
 
     private var TAG = PolygonDatabaseOperation::class.java.simpleName
 
@@ -25,9 +26,9 @@ class PolygonDatabaseOperation(override var googleMap: GoogleMap, override var c
     private var polygonsMap: HashMap<String, ArrayList<GeoLatLng>> = HashMap()
 
     fun savePolygonToDatabase(polygonMap: PolygonModel) {
-        var tag = polygonMap.tag!!.substring(polygonMap.tag!!.lastIndexOf('@') + 1)
-        var databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val tag = polygonMap.tag!!.substring(polygonMap.tag!!.lastIndexOf('@') + 1)
+        val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
+        val currentUser = FirebaseAuth.getInstance().currentUser
         Log.i(TAG, "Polygon tag : " + tag + " polygon " + polygonMap.toString())
         databaseReference.child(currentUser!!.uid).child(tag)
                 .setValue(polygonMap)
@@ -35,16 +36,16 @@ class PolygonDatabaseOperation(override var googleMap: GoogleMap, override var c
 
     fun removePolygonFromDatabase(polygonTagToRemove: String) {
         Log.i(TAG, "removePolygonFromDatabase " + polygonTagToRemove)
-        var polygonTagToRemove = polygonTagToRemove.substring(polygonTagToRemove.lastIndexOf('@') + 1)
-        var databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val polygonTagToRemove = polygonTagToRemove.substring(polygonTagToRemove.lastIndexOf('@') + 1)
+        val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
+        val currentUser = FirebaseAuth.getInstance().currentUser
         databaseReference.child(currentUser!!.uid)
                 .child(polygonTagToRemove).removeValue()
     }
 
     private fun getPolygonFromDatabase(onGetDataListener: OnGetDataListener) {
-        var databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
+        val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {//prevent if user click logout
             databaseReference
                     .orderByKey()
@@ -77,12 +78,12 @@ class PolygonDatabaseOperation(override var googleMap: GoogleMap, override var c
      */
     private fun drawPolygonFromDatabase(polygonTag: String, polygonList: ArrayList<LatLng>) {
         Log.i(TAG, "drawPolygonFromDatabase()")
-        polygon = googleMap.addPolygon(PolygonOptions().addAll(polygonList))
+        polygon = mapActivity.getMap().addPolygon(PolygonOptions().addAll(polygonList))
         polygon!!.isClickable = true
         polygon!!.tag = polygonTag
 
         polygonList.forEach { position ->
-            var marker = createMarker(position, polygonTag)
+            val marker = createMarker(position, polygonTag)
             marker.isVisible = false
             markerList.add(marker)
         }
@@ -90,7 +91,7 @@ class PolygonDatabaseOperation(override var googleMap: GoogleMap, override var c
         Log.i(TAG, "markersMap size: " + markersMap!!.size + " markerList size: " + markerList.size)
         markerList = ArrayList()
 
-        googleMap.setOnPolygonClickListener { polygon ->
+        mapActivity.getMap().setOnPolygonClickListener { polygon ->
             //this is run before user draw some polygon
             Log.i(TAG, "clicked in drawPolygon" + polygon!!.tag.toString())
             polygonsMap.remove(polygon.tag.toString())

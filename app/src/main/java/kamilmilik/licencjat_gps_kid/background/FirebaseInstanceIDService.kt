@@ -18,7 +18,6 @@ class FirebaseInstanceIDService : FirebaseInstanceIdService() {
 
     // The onTokenRefreshcallback fires whenever a new token is generated.
     override fun onTokenRefresh() {
-        Log.i(TAG,"onTokenRefresh()")
         Tools.addDeviceTokenToDatabase()
     }
 }

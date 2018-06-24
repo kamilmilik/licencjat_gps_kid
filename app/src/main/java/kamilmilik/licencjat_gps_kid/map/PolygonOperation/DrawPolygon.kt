@@ -17,16 +17,17 @@ import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.widget.FrameLayout
 import com.google.android.gms.maps.model.BitmapDescriptor
+import kamilmilik.licencjat_gps_kid.map.MapActivity
 
 
 /**
  * Created by kamil on 17.03.2018.
  */
-class DrawPolygon(override var googleMap: GoogleMap, override var context: Context) : PolygonContent(googleMap, context), OnGetDataListener {
+class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapActivity), OnGetDataListener {
 
     private var TAG = DrawPolygon::class.java.simpleName
 
-    private var polygonDatabaseOperation: PolygonDatabaseOperation = PolygonDatabaseOperation(googleMap, context, this)
+    private var polygonDatabaseOperation: PolygonDatabaseOperation = PolygonDatabaseOperation(mapActivity, this)
 
     /**
      * listener for getting markersMap from database from PolygonDatabaseOperation class
@@ -34,11 +35,11 @@ class DrawPolygon(override var googleMap: GoogleMap, override var context: Conte
     override fun setOnMarkerDragListenerAfterAddPolygon(markersMap: HashMap<ArrayList<Marker>, Polygon>) {
         Log.i(TAG, "setOnMarkerDragListenerAfterAddPolygon()")
         this.markersMap = markersMap
-        googleMap.setOnMarkerDragListener(MarkerListener(polygonsGeoLatLngMap,markersMap, polygonDatabaseOperation!!))
+        mapActivity.getMap().setOnMarkerDragListener(MarkerListener(polygonsGeoLatLngMap,markersMap, polygonDatabaseOperation!!))
     }
 
     fun onTouchAction(motionEvent: MotionEvent?, draggable: FrameLayout) {
-        var position = googleMap.projection.fromScreenLocation(
+        var position = mapActivity.getMap().projection.fromScreenLocation(
                 Point(motionEvent!!.x.toInt(), motionEvent!!.y.toInt()));
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -49,7 +50,7 @@ class DrawPolygon(override var googleMap: GoogleMap, override var context: Conte
                 polygonGeoLatLngPoints.add(GeoLatLng(position.latitude, position.longitude))
                 polygonLatLngPoints.add(position)
 
-                polygon = googleMap.addPolygon(PolygonOptions().addAll(polygonLatLngPoints))
+                polygon = mapActivity.getMap().addPolygon(PolygonOptions().addAll(polygonLatLngPoints))
                 polygon!!.tag = polygon.toString().replace(".", "")
                 polygon!!.isClickable = true
 
@@ -89,7 +90,7 @@ class DrawPolygon(override var googleMap: GoogleMap, override var context: Conte
     }
 
     private fun removePolygonAction(){
-        googleMap.setOnPolygonClickListener { polygon ->
+        mapActivity.getMap().setOnPolygonClickListener { polygon ->
             polygonsGeoLatLngMap.remove(polygon!!.tag.toString())
             polygonsLatLngMap.remove(polygon.tag.toString())
             polygonDatabaseOperation.removePolygonFromDatabase(polygon.tag.toString())

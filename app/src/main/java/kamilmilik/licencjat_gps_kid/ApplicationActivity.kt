@@ -1,11 +1,11 @@
 package kamilmilik.licencjat_gps_kid
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DataSnapshot
@@ -32,11 +32,10 @@ open class ApplicationActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG,"onCreate()")
 
-        logoutDeletedUser()
+        deleteUserFromFirebaseAuth()
     }
-    fun logoutDeletedUser(){
+    private fun deleteUserFromFirebaseAuth(){
         var currentUser = FirebaseAuth.getInstance().currentUser
         if(currentUser != null){
             FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(currentUser!!.uid).
@@ -47,12 +46,13 @@ open class ApplicationActivity : AppCompatActivity() {
                         override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
                             Log.i(TAG,"onChildRemoved()")
                             if(FirebaseDatabase.getInstance() != null && FirebaseAuth.getInstance().currentUser != null){
-                                FirebaseAuth.getInstance().signOut()
-                                var intent = Intent(this@ApplicationActivity, LoginActivity::class.java);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                startActivity(intent)
+                                currentUser.delete()
+                                        .addOnCompleteListener({ task ->
+                                            if (task.isSuccessful) {
+                                                Toast.makeText(this@ApplicationActivity, getString(R.string.deletedAccountInformation), Toast.LENGTH_LONG).show()
+                                                Tools.startNewActivityWithoutPrevious(this@ApplicationActivity, LoginActivity::class.java)
+                                            }
+                                        })
                             }
                         }
                         override fun onChildMoved(dataSnapshot: DataSnapshot?, s: String?) {}

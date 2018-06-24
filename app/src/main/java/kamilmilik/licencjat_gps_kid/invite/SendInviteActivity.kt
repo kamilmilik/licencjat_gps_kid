@@ -37,8 +37,7 @@ class SendInviteActivity : ApplicationActivity() {
     }
 
     private fun generatedUniqueCodeAction() {
-        addCurrentUserGeneratedKeyToDatabase(Tools.generateRandomKey(8))
-        //removeUniqueKeyAfterGivenTimeAfterClickGenerateCode()
+        addCurrentUserGeneratedKeyToDatabase(Tools.generateRandomKey(Constants.LENGTH_RANDOM_CHARACTERS))
     }
 
     /**
@@ -47,14 +46,10 @@ class SendInviteActivity : ApplicationActivity() {
      */
     private fun addCurrentUserGeneratedKeyToDatabase(generatedUniqueKey: String) {
         progressBarRelative.visibility = View.VISIBLE
-        var currentFirebaseUser = FirebaseAuth.getInstance().currentUser!!
-        var userId = currentFirebaseUser.uid
-        var userEmail = currentFirebaseUser.email
-        var uniqueKeyId = FirebaseDatabase.getInstance().reference.push().key
-        var deviceTokenId = FirebaseInstanceId.getInstance().token
-        var name = currentFirebaseUser.displayName
+        val currentFirebaseUser = FirebaseAuth.getInstance().currentUser!!
+        val uniqueKeyId = FirebaseDatabase.getInstance().reference.push().key
 
-        var userUniqueKey = UserUniqueKey(userId, userEmail!!, generatedUniqueKey, deviceTokenId!!, name!!)
+        val userUniqueKey = UserUniqueKey(currentFirebaseUser.uid, currentFirebaseUser.email!!, generatedUniqueKey, FirebaseInstanceId.getInstance().token!!, currentFirebaseUser.displayName!!)
         val reference = FirebaseDatabase.getInstance().reference
         val query = reference.child(Constants.DATABASE_USER_KEYS)
                 .orderByChild(Constants.DATABASE_UNIQUE_KEY_FIELD)
@@ -70,7 +65,7 @@ class SendInviteActivity : ApplicationActivity() {
                     textViewGeneratedCode.text = generatedUniqueKey
                     progressBarRelative.visibility = View.GONE
                 } else {
-                    addCurrentUserGeneratedKeyToDatabase(Tools.generateRandomKey(8))
+                    addCurrentUserGeneratedKeyToDatabase(Tools.generateRandomKey(Constants.LENGTH_RANDOM_CHARACTERS))
                 }
             }
 
@@ -81,26 +76,10 @@ class SendInviteActivity : ApplicationActivity() {
 
     private fun addTimeDateToDatabase(uniqueKeyId: String) {
         val ref = FirebaseDatabase.getInstance().reference
-        var map = HashMap<String, Any>() as MutableMap<String, Any>
+        val map = HashMap<String, Any>() as MutableMap<String, Any>
         map.put(Constants.DATABASE_TIME_FIELD, ServerValue.TIMESTAMP)
         ref.child(Constants.DATABASE_USER_KEYS)
                 .child(uniqueKeyId)
                 .updateChildren(map)
-    }
-
-    private fun removeUniqueKeyAfterGivenTimeAfterClickGenerateCode() {
-        val refDb = FirebaseDatabase.getInstance().reference
-        val cutoff = (Date().time - TimeUnit.MILLISECONDS.convert(10, TimeUnit.SECONDS)).toDouble()
-        val oldItems = refDb.child(Constants.DATABASE_USER_KEYS).orderByChild(Constants.DATABASE_TIME_FIELD).endAt(cutoff)
-        oldItems.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (itemSnapshot in snapshot.children) {
-                    itemSnapshot.ref.removeValue()
-                    Log.i(TAG, "value to delete adter time: " + itemSnapshot.value)
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
     }
 }

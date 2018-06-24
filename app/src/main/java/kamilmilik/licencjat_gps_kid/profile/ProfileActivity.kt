@@ -13,6 +13,7 @@ import kamilmilik.licencjat_gps_kid.login.DatabaseOnlineUserAction
 import kamilmilik.licencjat_gps_kid.login.LoginActivity
 import kamilmilik.licencjat_gps_kid.utils.Tools
 import android.text.method.PasswordTransformationMethod
+import android.util.Log
 
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.EmailAuthProvider
@@ -41,20 +42,18 @@ class ProfileActivity : ApplicationActivity() {
 
         changePasswordAction(currentUser)
 
-//        changeEmailAction(currentUser)
-
         deleteAccountAction(currentUser)
 
     }
 
     private fun changeUserNameAction(currentUser: FirebaseUser) {
-        var userName = currentUser!!.displayName
+        val userName = currentUser!!.displayName
         userNameTextView.text = userName
         userNameRelative.setOnClickListener(View.OnClickListener {
-            var alert = Tools.makeAlertDialogBuilder(this, getString(R.string.editName), getString(R.string.writeNewName))
-            var input = EditText(this)
+            val alert = Tools.makeAlertDialogBuilder(this, getString(R.string.editName), getString(R.string.writeNewName))
+            val input = EditText(this)
             alert.setView(input)
-            alert.setPositiveButton("Ok") { dialog, whichButton ->
+            alert.setPositiveButton(getString(R.string.ok)) { dialog, whichButton ->
                 val newName = input.text.toString()
                 if (newName.isEmpty()) {
                     Toast.makeText(this@ProfileActivity, getString(R.string.emptyFieldInformation), Toast.LENGTH_LONG).show()
@@ -70,85 +69,31 @@ class ProfileActivity : ApplicationActivity() {
     }
 
     private fun sendNewNameToDatabase(activity : Activity, currentUser: FirebaseUser, newName : String) {
-        var map = HashMap<String, Any>() as MutableMap<String, Any>
+        val map = HashMap<String, Any>() as MutableMap<String, Any>
         map.put(Constants.DATABASE_USER_NAME_FIELD, newName)
         FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS).child(currentUser.uid).updateChildren(map)
         FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_LOCATIONS).child(currentUser.uid).updateChildren(map)
         activity.userNameTextView.text = currentUser.displayName
     }
 
-//    private fun changeEmailAction(currentUser: FirebaseUser) {
-//        currentUser!!.reload().addOnSuccessListener {
-//            Log.i(TAG, "changeEmailAction() reload user " + currentUser.email)
-//            userEmailTextView.text = currentUser.email
-//            userEmailRelative.setOnClickListener({
-//                var alert2 = Tools.makeAlertDialogBuilder(this, "Re-authenticate", "You must re-authenticate\n Sign in again to change email")
-//                var inflate = layoutInflater.inflate(R.layout.login_dialog, null)
-//                alert2.setView(inflate)
-//                alert2.setPositiveButton("Ok") { dialog, whichButton ->
-//                    var email = inflate.findViewById<View>(R.id.emailDialog) as EditText
-//                    var password = inflate.findViewById<View>(R.id.passwordDialog) as EditText
-//                    if (email.text.isEmpty() || password.text.isEmpty()) {
-//                        Toast.makeText(this@ProfileActivity, "Text field cannot be empty", Toast.LENGTH_LONG).show()
-//                    } else {
-//                        val credential = EmailAuthProvider
-//                                .getCredential(email.text.toString(), password.text.toString())
-//                        currentUser!!.reauthenticate(credential)
-//                                .addOnCompleteListener { task ->
-//                                    if (task.isSuccessful) {
-//                                        var alert = Tools.makeAlertDialogBuilder(this, "Change email", "Enter your new email")
-//                                        var input = EditText(this)
-//                                        alert.setView(input)
-//                                        alert.setPositiveButton("Ok") { dialog, whichButton ->
-//                                            val newEmail = input.text.toString()
-//                                            if (newEmail.isEmpty()) {
-//                                                Toast.makeText(this@ProfileActivity, "Text field cannot be empty", Toast.LENGTH_LONG).show()
-//                                            } else {
-//                                                FirebaseAuth.getInstance().useAppLanguage()
-//                                                currentUser.updateEmail(newEmail)
-//                                                        .addOnCompleteListener { task ->
-//                                                            if (task.isSuccessful) {
-//                                                                Toast.makeText(this@ProfileActivity, "Email changed", Toast.LENGTH_LONG).show()
-//                                                                userEmailTextView.text = currentUser.email
-//                                                            } else {
-//                                                                Toast.makeText(this@ProfileActivity, "Error try again change your email.", Toast.LENGTH_LONG).show()
-//                                                            }
-//                                                        }
-//                                            }
-//                                        }
-//                                        alert.setNegativeButton("Cancel") { dialog, whichButton -> }
-//                                        alert.show()
-//                                        Toast.makeText(this@ProfileActivity, "re-authenticate", Toast.LENGTH_LONG).show()
-//                                    } else {
-//                                        Toast.makeText(this@ProfileActivity, "Your email or password is incorrect. Try again.", Toast.LENGTH_LONG).show()
-//                                    }
-//                                }
-//                    }
-//                }
-//                alert2.setNegativeButton("Cancel") { dialog, whichButton -> }
-//                alert2.show()
-//            })
-//        }
-//    }
-
     private fun changePasswordAction(currentUser: FirebaseUser) {
         userPasswordRelative.setOnClickListener(View.OnClickListener {
-            var alert2 = Tools.makeAlertDialogBuilder(this, getString(R.string.reauthenticate), getString(R.string.reauthenticateInformation))
-            var inflate = layoutInflater.inflate(R.layout.login_dialog, null)
+            val alert2 = Tools.makeAlertDialogBuilder(this, getString(R.string.reauthenticate), getString(R.string.reauthenticateInformation))
+            val inflate = layoutInflater.inflate(R.layout.login_dialog, null)
             alert2.setView(inflate)
             alert2.setPositiveButton(getString(R.string.ok)) { dialog, whichButton ->
-                var email = inflate.findViewById<View>(R.id.emailDialog) as EditText
-                var password = inflate.findViewById<View>(R.id.passwordDialog) as EditText
+                val email = inflate.findViewById<View>(R.id.emailDialog) as EditText
+                val password = inflate.findViewById<View>(R.id.passwordDialog) as EditText
                 if (email.text.isEmpty() || password.text.isEmpty()) {
                     Toast.makeText(this@ProfileActivity, getString(R.string.emptyFieldInformation), Toast.LENGTH_LONG).show()
                 } else {
                     val credential = EmailAuthProvider
                             .getCredential(email.text.toString(), password.text.toString())
-                    currentUser!!.reauthenticate(credential)
+                    currentUser.reauthenticate(credential)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
-                                    var alert = Tools.makeAlertDialogBuilder(this, getString(R.string.changePassword), getString(R.string.enterNewPassword))
-                                    var input = EditText(this)
+                                    val alert = Tools.makeAlertDialogBuilder(this, getString(R.string.changePassword), getString(R.string.enterNewPassword))
+                                    val input = EditText(this)
                                     input.transformationMethod = PasswordTransformationMethod.getInstance()
                                     alert.setView(input)
                                     alert.setPositiveButton(getString(R.string.ok)) { dialog, whichButton ->
@@ -181,33 +126,26 @@ class ProfileActivity : ApplicationActivity() {
 
     private fun deleteAccountAction(currentUser: FirebaseUser) {
         deleteAccountRelative.setOnClickListener({
-            var alert2 = Tools.makeAlertDialogBuilder(this, getString(R.string.reauthenticate), getString(R.string.reauthenticateInformation))
-            var inflate = layoutInflater.inflate(R.layout.login_dialog, null)
+            val alert2 = Tools.makeAlertDialogBuilder(this, getString(R.string.reauthenticate), getString(R.string.reauthenticateInformation))
+            val inflate = layoutInflater.inflate(R.layout.login_dialog, null)
             alert2.setView(inflate)
             alert2.setPositiveButton(getString(R.string.ok)) { dialog, whichButton ->
-                var email = inflate.findViewById<View>(R.id.emailDialog) as EditText
-                var password = inflate.findViewById<View>(R.id.passwordDialog) as EditText
+                val email = inflate.findViewById<View>(R.id.emailDialog) as EditText
+                val password = inflate.findViewById<View>(R.id.passwordDialog) as EditText
                 if (email.text.isEmpty() || password.text.isEmpty()) {
                     Toast.makeText(this@ProfileActivity, getString(R.string.emptyFieldInformation), Toast.LENGTH_LONG).show()
                 } else {
                     val credential = EmailAuthProvider
                             .getCredential(email.text.toString(), password.text.toString())
-                    currentUser!!.reauthenticate(credential)
+                    currentUser.reauthenticate(credential)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
-                                    var alert = Tools.makeAlertDialogBuilder(this, getString(R.string.deleteUser), getString(R.string.deleteUserConfirmation))
-                                    alert.setPositiveButton("Ok") { dialog, whichButton ->
+                                    val alert = Tools.makeAlertDialogBuilder(this, getString(R.string.deleteUser), getString(R.string.deleteUserConfirmation))
+                                    alert.setPositiveButton(getString(R.string.ok)) { dialog, whichButton ->
                                         //TODO przy 3 userach za duzo usuwa
                                         removeUserFromDatabase(currentUser)
-                                        currentUser.delete()
-                                                .addOnCompleteListener({ task ->
-                                                    if (task.isSuccessful) {
-                                                        Toast.makeText(this@ProfileActivity, getString(R.string.deletedAccountInformation), Toast.LENGTH_LONG).show()
-                                                        Tools.startNewActivityWithoutPrevious(this, LoginActivity::class.java)
-                                                    }
-                                                })
                                     }
-                                    alert.setNegativeButton("Cancel") { dialog, whichButton -> }
+                                    alert.setNegativeButton(getString(R.string.cancel)) { dialog, whichButton -> }
                                     alert.show()
                                 } else {
                                     Toast.makeText(this@ProfileActivity, getString(R.string.emailOrPasswordIncorrect), Toast.LENGTH_LONG).show()
@@ -234,25 +172,27 @@ class ProfileActivity : ApplicationActivity() {
     }
 
     private fun removeUsersFromConnection(currentUser: FirebaseUser, reference: DatabaseReference, databaseNode : String, databaseNode2: String) {
+        Log.i(TAG,"removeUsersFromConnection() current user " + currentUser.uid)
         val query = reference.child(databaseNode)
                 .orderByKey()
-                .equalTo(currentUser!!.uid)
+                .equalTo(currentUser.uid)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                        val query = reference.child(databaseNode2)
+                        val userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                        Log.i(TAG,"onDataChange()")
+                        val query2 = reference.child(databaseNode2)
                                 .orderByKey()
                                 .equalTo(userFollowers!!.user_id)
-                        query.addListenerForSingleValueEvent(object : ValueEventListener {
+                        query2.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                for (singleSnapshot in dataSnapshot.children) {
-                                    for (childSingleSnapshot in singleSnapshot.children) {
-                                        var userFollowing = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                                        // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow
+                                for (singleSnapshot2 in dataSnapshot.children) {
+                                    for (childSingleSnapshot2 in singleSnapshot2.children) {
+                                        val userFollowing = childSingleSnapshot2.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                                        // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow.
                                         if (userFollowing!!.user_id.equals(currentUser.uid)) {
-                                            childSingleSnapshot.ref.removeValue()
+                                            childSingleSnapshot2.ref.removeValue()
                                             FirebaseDatabase.getInstance().getReference(databaseNode).child(currentUser.uid).removeValue()
                                         }
                                     }

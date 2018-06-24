@@ -17,13 +17,11 @@ class AlarmReceiver : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.i(TAG,"onReceive() alarm")
-
-        var intent = Intent(context, ForegroundService::class.java)
+        val newIntent = Intent(context, ForegroundService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context!!.startForegroundService(intent);
+            context!!.startForegroundService(newIntent);
         } else {
-            context!!.startService(intent);
+            context!!.startService(newIntent);
         }
     }
 }

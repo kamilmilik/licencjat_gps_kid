@@ -1,6 +1,8 @@
 package kamilmilik.licencjat_gps_kid.utils
 
+import android.R
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.POWER_SERVICE
@@ -27,6 +29,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.widget.Toast
@@ -53,15 +56,15 @@ object Tools {
     fun checkIfUserEnterValidData(context: Context?, email: String, password: String, name: String): Boolean {
         Log.i(TAG, "checkIfUserEnterValidData: check if is valid data in user login/register")
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(context, "Please enter currentUserId", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context!!.getString(kamilmilik.licencjat_gps_kid.R.string.enterEmail), Toast.LENGTH_SHORT).show()
             return false
         }
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(context, "Please enter password", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context!!.getString(kamilmilik.licencjat_gps_kid.R.string.enterPassword), Toast.LENGTH_SHORT).show()
             return false
         }
         if (TextUtils.isEmpty(name)) {
-            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context!!.getString(kamilmilik.licencjat_gps_kid.R.string.enterName), Toast.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -70,11 +73,11 @@ object Tools {
     fun checkIfUserEnterValidData(context: Context?, email: String, password: String): Boolean {
         Log.i(TAG, "checkIfUserEnterValidData: check if is valid data in user login/register")
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(context, "Please enter currentUserId", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context!!.getString(kamilmilik.licencjat_gps_kid.R.string.enterEmail), Toast.LENGTH_SHORT).show()
             return false
         }
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(context, "Please enter password", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context!!.getString(kamilmilik.licencjat_gps_kid.R.string.enterPassword), Toast.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -129,19 +132,19 @@ object Tools {
     }
 
     fun  addDeviceTokenToDatabase() {
-        var currentUser = FirebaseAuth.getInstance()!!.currentUser
+        val currentUser = FirebaseAuth.getInstance()!!.currentUser
             if(currentUser != null){
-            var userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
-            var currentUserId = currentUser.uid
-            var deviceTokenId = FirebaseInstanceId.getInstance().token
+            val userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
+            val currentUserId = currentUser.uid
+            val deviceTokenId = FirebaseInstanceId.getInstance().token
             userDatabase!!.child(currentUserId).child(Constants.DATABASE_DEVICE_TOKEN_FIELD).setValue(deviceTokenId)
         }
     }
 
     fun <T> addDeviceTokenToDatabaseAndStartNewActivity(activity: Activity, classType: Class<T>) {
-        var userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
-        var currentUserId = FirebaseAuth.getInstance()!!.currentUser!!.uid
-        var deviceTokenId = FirebaseInstanceId.getInstance().token
+        val userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
+        val currentUserId = FirebaseAuth.getInstance()!!.currentUser!!.uid
+        val deviceTokenId = FirebaseInstanceId.getInstance().token
         userDatabase!!.child(currentUserId).child(Constants.DATABASE_DEVICE_TOKEN_FIELD).setValue(deviceTokenId).addOnSuccessListener {
             startNewActivityWithoutPrevious(activity, classType)
         }
@@ -149,7 +152,7 @@ object Tools {
 
     fun generateRandomKey(length: Int): String {
         val baseChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        var randomRange = 36
+        val randomRange = Constants.RANGE_RANDOM
         val random = Random()
         val sb = StringBuilder(length)
         for (i in 0 until length)
@@ -159,11 +162,6 @@ object Tools {
 
     fun removeWhiteSpaceFromString(givenString: String): String {
         return givenString.replace("\\s".toRegex(), "")
-    }
-
-    fun isInternetConnection(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return cm.activeNetworkInfo != null && cm.activeNetworkInfo.isConnected
     }
 
     fun checkApkVersion(): Boolean = (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -181,25 +179,25 @@ object Tools {
         }
     }
 
-    fun checkIsWeShouldShowExplanationOfPermission(activity: Activity, permission: String): Boolean = (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission))
+    private fun checkIsWeShouldShowExplanationOfPermission(activity: Activity, permission: String): Boolean = (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission))
 
-    fun showExplanationDialogOfUsedPermission(activity: Activity, permission: String) {
+    private fun showExplanationDialogOfUsedPermission(activity: Activity, permission: String) {
         AlertDialog.Builder(activity)
-                .setTitle("Location Permission Needed")
-                .setMessage("This app needs the Location permission, please accept to use locationOfUserWhoChangeIt functionality")
-                .setPositiveButton("Location Settings", DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
+                .setTitle(activity.getString(kamilmilik.licencjat_gps_kid.R.string.needLocationPermission))
+                .setMessage(activity.getString(kamilmilik.licencjat_gps_kid.R.string.acceptLocationPermission))
+                .setPositiveButton(activity.getString(kamilmilik.licencjat_gps_kid.R.string.locationSettings), DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
                     ActivityCompat.requestPermissions(activity,
                             arrayOf(permission),
                             Constants.MY_PERMISSION_REQUEST_CODE);
                 })
-                .setNegativeButton("Cancel", DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
+                .setNegativeButton(activity.getString(R.string.cancel), DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
                     paramDialogInterface.cancel()
                     FirebaseAuth.getInstance().signOut()
                     Tools.startNewActivityWithoutPrevious(activity, LoginActivity::class.java)
                 }).create().show()
     }
 
-    fun requestPermission(activity: Activity, permission: String) {
+    private fun requestPermission(activity: Activity, permission: String) {
         ActivityCompat.requestPermissions(activity,
                 arrayOf(permission),
                 Constants.MY_PERMISSION_REQUEST_CODE)
@@ -211,14 +209,14 @@ object Tools {
     }
 
     fun createLocationVariable(userLatLng: LatLng): Location {
-        var userLoc = Location("")
+        val userLoc = Location("")
         userLoc.latitude = userLatLng.latitude
         userLoc.longitude = userLatLng.longitude
         return userLoc
     }
 
     fun calculateDistanceBetweenTwoPoints(currentUserLocation: Location, followingUserLoc: Location): Pair<Float, String> {
-        var measure: String?
+        val measure: String?
         var distance: Float = currentUserLocation.distanceTo(followingUserLoc)
         if (distance > 1000) {
             distance = (distance / 1000)
@@ -231,9 +229,9 @@ object Tools {
 
     fun addAppToWhiteList(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            var intent = Intent()
-            var packageName = activity.packageName
-            var pm = activity.getSystemService(POWER_SERVICE) as PowerManager
+            val intent = Intent()
+            val packageName = activity.packageName
+            val pm = activity.getSystemService(POWER_SERVICE) as PowerManager
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
                 intent.data = Uri.parse("package:" + packageName);
@@ -244,14 +242,14 @@ object Tools {
 
     fun addLocationToFirebaseDatabaseByRest(trackingModel: TrackingModel, tokenId : String) {
         try {
-            var url = URL("https://licencjat-kid-track.firebaseio.com/Locations/${trackingModel.user_id}.json?auth=" + tokenId)
-            var conn = url.openConnection() as HttpURLConnection
+            val url = URL("https://licencjat-kid-track.firebaseio.com/Locations/${trackingModel.user_id}.json?auth=" + tokenId)
+            val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "PUT"
             conn.setRequestProperty("Accept", "application/json")
             conn.doOutput = true
             conn.doInput = true
 
-            var jsonParam = JSONObject();
+            val jsonParam = JSONObject();
             jsonParam.put("email", trackingModel.email)
             jsonParam.put("lat", trackingModel.lat)
             jsonParam.put("lng", trackingModel.lng)
@@ -260,7 +258,7 @@ object Tools {
             jsonParam.put("user_name", trackingModel.user_name)
 
             Log.i("JSON", jsonParam.toString())
-            var os = DataOutputStream(conn.outputStream)
+            val os = DataOutputStream(conn.outputStream)
             os.writeBytes(jsonParam.toString())
             os.flush()
             os.close()
@@ -277,16 +275,16 @@ object Tools {
      * @param polygonsFromDbMap given polygon map model (model with tag and arrayList<GeoLatLng)
      */
     fun changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap: PolygonModel): ArrayList<LatLng> {
-        var newList: ArrayList<LatLng> = ArrayList(polygonsFromDbMap!!.polygonLatLngList!!.size)
-        polygonsFromDbMap!!.polygonLatLngList!!.mapTo(newList) { LatLng(it.latitude!!, it.longitude!!) }
+        val newList: ArrayList<LatLng> = ArrayList(polygonsFromDbMap.polygonLatLngList.size)
+        polygonsFromDbMap.polygonLatLngList.mapTo(newList) { LatLng(it.latitude!!, it.longitude!!) }
         return newList
     }
 
     fun goToAddIgnoreBatteryOptimizationSettings(activity: Activity){
 //        xiaomiOptimizationAction(activity)
-        var intent = Intent()
-        var packageName = activity.packageName
-        var pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val intent = Intent()
+        val packageName = activity.packageName
+        val pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
@@ -298,7 +296,7 @@ object Tools {
 
     private fun xiaomiOptimizationAction(activity: Activity){
         if (Build.BRAND.equals("xiaomi", true)) {
-            var intent = Intent()
+            val intent = Intent()
             intent.component = ComponentName ("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")
             activity.startActivity(intent)
         }

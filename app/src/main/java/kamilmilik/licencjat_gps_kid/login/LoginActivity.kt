@@ -39,21 +39,15 @@ class LoginActivity : ApplicationActivity() {
     }
 
     private fun startMapActivityIfUserLogged() {
-        if (Constants.TEST_MODE_FLAG) {//this is use only for test app, normally use code in else block
-            if (firebaseAuth.currentUser != null) {
-                Tools.startNewActivityWithoutPrevious(this, MapActivity::class.java)
-            }
-        } else {
             if (firebaseAuth.currentUser != null && firebaseAuth.currentUser!!.isEmailVerified) {
                 Tools.startNewActivityWithoutPrevious(this, MapActivity::class.java)
             }
-        }
     }
 
     private fun loginButtonAction() {
         loginButton.setOnClickListener({
-            var email = emailLoginEditText!!.text.toString()
-            var password = passwordLoginEditText!!.text.toString()
+            val email = emailLoginEditText!!.text.toString()
+            val password = passwordLoginEditText!!.text.toString()
             if (Tools.checkIfUserEnterValidData(this, email, password)) {
                 val progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
                 firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -92,9 +86,8 @@ class LoginActivity : ApplicationActivity() {
                         }
                         if(!dataSnapshot.exists()){
                             Log.i(TAG,"onDataChange() user not logged in yea")
-                            addInformationAboutLoggedUser()
-                            if (!Constants.TEST_MODE_FLAG) {
                                 if (firebaseAuth.currentUser!!.isEmailVerified) {
+                                    addInformationAboutLoggedUser()
                                     Toast.makeText(this@LoginActivity, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
                                     Tools.addDeviceTokenToDatabaseAndStartNewActivity(this@LoginActivity, MapActivity::class.java)
                                     addNewUserAccountToDatabase(email, firebaseAuth.currentUser!!.displayName!!)
@@ -102,11 +95,6 @@ class LoginActivity : ApplicationActivity() {
                                     Toast.makeText(this@LoginActivity, getString(R.string.emailNotVerified), Toast.LENGTH_LONG).show()
                                     firebaseAuth.signOut()
                                 }
-                            } else {
-                                Toast.makeText(this@LoginActivity, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
-                                Tools.addDeviceTokenToDatabaseAndStartNewActivity(this@LoginActivity, MapActivity::class.java)
-                                addNewUserAccountToDatabase(email, firebaseAuth.currentUser!!.displayName!!)
-                            }
                         }
                     }
 
@@ -127,10 +115,10 @@ class LoginActivity : ApplicationActivity() {
 
     fun addNewUserAccountToDatabase(email: String, name: String) {
         val deviceTokenId = FirebaseInstanceId.getInstance().token
-        val user = User(firebaseAuth!!.currentUser!!.uid, email, deviceTokenId!!, name)
+        val user = User(firebaseAuth.currentUser!!.uid, email, deviceTokenId!!, name)
 
         FirebaseDatabase.getInstance().reference!!.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
-                .child(firebaseAuth!!.currentUser!!.uid)
+                .child(firebaseAuth.currentUser!!.uid)
                 .setValue(user)
     }
 

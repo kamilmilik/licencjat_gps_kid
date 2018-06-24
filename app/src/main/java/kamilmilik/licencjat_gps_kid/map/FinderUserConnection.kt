@@ -1,9 +1,9 @@
 package kamilmilik.licencjat_gps_kid.map
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Context
 import android.util.Log
+import android.widget.RelativeLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
@@ -14,33 +14,24 @@ import kamilmilik.licencjat_gps_kid.models.UserMarkerInformationModel
 /**
  * Created by kamil on 24.02.2018.
  */
-class FinderUserConnection(private var context: Context,
-                           private var progressDialog: ProgressDialog,
-                           private var recyclerViewAction: RecyclerViewAction,
-                           private var locationFirebaseMarkerAction: LocationFirebaseMarkerAction) : BasicListenerContent(){
+class FinderUserConnection(private var mapActivity: MapActivity) : BasicListenerContent() {
 
     private val TAG = FinderUserConnection::class.java.simpleName
 
     fun findFollowersConnectionAndUpdateRecyclerView() {
         Log.i(TAG, "findFollowersConnectionAndUpdateRecyclerView, current user id : " + FirebaseAuth.getInstance().currentUser!!.uid)
-        var currentUser = FirebaseAuth.getInstance().currentUser
         val reference = FirebaseDatabase.getInstance().reference
 
-        findFollowersUser(reference, currentUser!!)
-        findFollowingUser(reference, currentUser!!)
+        findConnectedUser(Constants.DATABASE_FOLLOWING)
+        findConnectedUser(Constants.DATABASE_FOLLOWERS)
 
         reloadScreenAfterDeleteUser(reference)
     }
 
-    private fun findFollowersUser(reference: DatabaseReference, currentUser: FirebaseUser) {
-        val query = reference.child(Constants.DATABASE_FOLLOWERS)
-                .orderByKey()
-                .equalTo(currentUser!!.uid)
-        childEventAction(query)
-    }
-
-    private fun findFollowingUser(reference: DatabaseReference, currentUser: FirebaseUser) {
-        var query = reference.child(Constants.DATABASE_FOLLOWING)
+    private fun findConnectedUser(nodeName : String) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val reference = FirebaseDatabase.getInstance().reference
+        val query = reference.child(nodeName)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
         childEventAction(query)
@@ -48,13 +39,9 @@ class FinderUserConnection(private var context: Context,
 
     private fun childEventAction(query: Query){
         query.addChildEventListener(object : ChildEventListener {
-            override fun onCancelled(p0: DatabaseError?) {
-                Log.i(TAG, "onCancelled()")
-            }
+            override fun onCancelled(p0: DatabaseError?) {}
 
-            override fun onChildMoved(dataSnapshot: DataSnapshot?, p1: String?) {
-                Log.i(TAG, "onChildMoved()")
-            }
+            override fun onChildMoved(dataSnapshot: DataSnapshot?, p1: String?) {}
 
             override fun onChildChanged(dataSnapshot: DataSnapshot?, p1: String?) {
                 Log.i(TAG, "onChildChanged()")
@@ -70,7 +57,7 @@ class FinderUserConnection(private var context: Context,
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
                 Log.i(TAG, "onChildRemoved()")
-                (context as Activity).recreate()
+                mapActivity.getActivity().recreate()
                 putChildEventListenersToMap(query, this)
             }
         })
@@ -79,13 +66,13 @@ class FinderUserConnection(private var context: Context,
     private fun userInFollowingSystemAction(dataSnapshot: DataSnapshot?) {
         for (singleSnapshot in dataSnapshot!!.children) {
             for (childSingleSnapshot in singleSnapshot.children) {
-                var user = childSingleSnapshot!!.getValue(User::class.java)
+                val user = childSingleSnapshot!!.getValue(User::class.java)
                 Log.i(TAG, "value following system: " + user!!.user_id + " " + user.email)
-                var userInformation = UserMarkerInformationModel(user!!.email, user.user_name!!, user.user_id!!)
+                val userInformation = UserMarkerInformationModel(user.email, user.user_name!!, user.user_id!!)
 
-                recyclerViewAction.updateChangeUserNameInRecycler(userInformation)
+                mapActivity.updateChangeUserNameInRecycler(userInformation)
                 Log.i(TAG,"userInFollowingSystemAction() startuje userLocationAction")
-                locationFirebaseMarkerAction!!.userLocationAction(user.user_id!!, recyclerViewAction, progressDialog)
+                mapActivity.userLocationAction(user)
             }
         }
     }
@@ -109,11 +96,10 @@ class FinderUserConnection(private var context: Context,
 
                 override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
                     Log.i(TAG, "onChildRemoved()")
-                    (context as Activity).recreate()
+                    mapActivity.getActivity().recreate()
                     putChildEventListenersToMap(query, this)
                 }
             })
     }
-
 
 }

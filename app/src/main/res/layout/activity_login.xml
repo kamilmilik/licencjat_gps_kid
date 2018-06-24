@@ -52,8 +52,8 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentStart="true"
-                    android:hint="@string/yourValidEmail"
-                    android:layout_below="@+id/textView" />
+                    android:layout_below="@+id/textView"
+                    android:hint="@string/yourValidEmail" />
 
                 <TextView
                     android:id="@+id/textView2"

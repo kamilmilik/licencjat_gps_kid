@@ -12,9 +12,9 @@
     <string name="loginSuccess">Zalogowano</string>
     <string name="waitInformation">Proszę czekać..</string>
     <string name="waitMessage">Przetwarzanie...</string>
-    <string name="verificationEmailSentInformation">Email weryfikacyjny wysłany do</string>
+    <string name="verificationEmailSentInformation">"Email weryfikacyjny wysłany do "</string>
     <string name="failedVerificationEmailSend">Błąd podczas wysłania emailu weryfikacyjnego</string>
-    <string name="changePasswordSent">Link do zmiany hasła wysłano na email</string>
+    <string name="changePasswordSent">"Link do zmiany hasła wysłano na email "</string>
     <string name="validEmail">Wpisz poprawny email</string>
     <string name="emptyFieldInformation">Pole nie może być puste</string>
     <string name="invalidCode">Kod jest nieprawidłowy</string>
@@ -66,5 +66,11 @@
     <string name="unfollowYourselfInformation">Nie możesz przestać obserwować samego siebie</string>
     <string name="unfollowUserTitle">Odobserwuj użytkownika</string>
     <string name="unfollowUser">Czy na pewno chcesz przestać obserwować tego użytkownika?</string>
+    <string name="enterEmail">Proszę wpisz email</string>
+    <string name="enterPassword">Proszę wpisz hasło</string>
+    <string name="enterName">Proszę wpisz imię</string>
+    <string name="needLocationPermission">Wymagane pozwolenie lokalizacji</string>
+    <string name="acceptLocationPermission">Ta aplikacji wymaga pozwolenia na pobieranie lokalizacji, proszę zaakceptuj pozwolenia abyy używać funkcjonalności lokalizacji</string>
+    <string name="locationSettings">Ustawienia lokalizacji</string>
 
 </resources>

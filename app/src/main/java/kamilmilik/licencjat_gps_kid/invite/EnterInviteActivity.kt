@@ -61,8 +61,8 @@ class EnterInviteActivity : ApplicationActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     userUniqueKeyModel = singleSnapshot.getValue(UserUniqueKey::class.java)
-                    var currentUser = FirebaseAuth.getInstance().currentUser
-                    if (!checkIfGivenUsersAreDifferent(userUniqueKeyModel!!.user_id, currentUser!!.uid)) {//prevent add user self
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    if (!checkIfGivenUsersAreDifferent(userUniqueKeyModel!!.user_id, currentUser!!.uid)) {// Prevent add user self.
                         addConnectedUserToDatabase(userUniqueKeyModel!!)
                     }
                     Tools.startNewActivityWithoutPrevious(this@EnterInviteActivity, MapActivity::class.java)
@@ -76,37 +76,33 @@ class EnterInviteActivity : ApplicationActivity() {
     }
 
     private fun checkIfGivenUsersAreDifferent(user1Id: String?, user2Id: String): Boolean {
-        if (user1Id.equals(user2Id)) {
+        return if (user1Id.equals(user2Id)) {
             Toast.makeText(this, getString(R.string.yourselfInviteCode), Toast.LENGTH_LONG).show()
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
     /**
-     * add new connection between two account, @param is founded user who had generated invite code
+     * Add new connection between two account, @param is founded user who had generated invite code.
      * @param userUniqueKeyModel
      */
     private fun addConnectedUserToDatabase(userUniqueKeyModel: UserUniqueKey) {
         var currentFirebaseUser = FirebaseAuth.getInstance().currentUser!!
-        var currentUserId = currentFirebaseUser.uid
-        var currentUserEmail = currentFirebaseUser.email
-        var deviceTokenId = FirebaseInstanceId.getInstance().token
-        var name = currentFirebaseUser.displayName
+        var currentUser = User(currentFirebaseUser.uid, currentFirebaseUser.email!!, FirebaseInstanceId.getInstance().token!!, currentFirebaseUser.displayName!!)
+        var followedUser = User(userUniqueKeyModel.user_id!!, userUniqueKeyModel.user_email!!, userUniqueKeyModel.device_token!!, userUniqueKeyModel.user_name!!)
 
-        var currentUser = User(currentUserId, currentUserEmail!!, deviceTokenId!!, name!!)
-        var followedUser = User(userUniqueKeyModel.user_id!!, userUniqueKeyModel!!.user_email!!, userUniqueKeyModel.device_token!!, userUniqueKeyModel.user_name!!)
         FirebaseDatabase.getInstance().reference
                 .child(Constants.DATABASE_FOLLOWING)
                 .child(currentUser.user_id)
-                .child(followedUser!!.user_id)
+                .child(followedUser.user_id)
                 .child(Constants.DATABASE_USER_FIELD)
                 .setValue(followedUser);
 
         FirebaseDatabase.getInstance().reference
                 .child(Constants.DATABASE_FOLLOWERS)
-                .child(userUniqueKeyModel!!.user_id)
+                .child(userUniqueKeyModel.user_id)
                 .child(currentUser.user_id)
                 .child(Constants.DATABASE_USER_FIELD)
                 .setValue(currentUser)

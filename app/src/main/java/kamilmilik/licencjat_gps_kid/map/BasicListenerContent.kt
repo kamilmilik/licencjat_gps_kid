@@ -10,14 +10,15 @@ import java.util.HashMap
  * Created by kamil on 14.06.2018.
  */
 open class BasicListenerContent {
-    val firebaseDatabaseValueEventListenersMap: HashMap<Query, ValueEventListener>? = HashMap()
-    val firebaseDatabaseChildEventListenersMap: HashMap<Query, ChildEventListener>? = HashMap()
+    private val firebaseDatabaseValueEventListenersMap: HashMap<Query, ValueEventListener>? = HashMap()
 
-    fun putValueEventListenersToMap(query: Query, valueEventListener: ValueEventListener){
+    private val firebaseDatabaseChildEventListenersMap: HashMap<Query, ChildEventListener>? = HashMap()
+
+    fun putValueEventListenersToMap(query: Query, valueEventListener: ValueEventListener) {
         firebaseDatabaseValueEventListenersMap?.put(query, valueEventListener)
     }
 
-    fun putChildEventListenersToMap(query: Query, childEventListener: ChildEventListener){
+    fun putChildEventListenersToMap(query: Query, childEventListener: ChildEventListener) {
         firebaseDatabaseChildEventListenersMap?.put(query, childEventListener)
     }
 
@@ -29,7 +30,7 @@ open class BasicListenerContent {
         }
     }
 
-    fun removeChildEventListeners(){
+    fun removeChildEventListeners() {
         if (firebaseDatabaseChildEventListenersMap != null) {
             for ((key, value) in firebaseDatabaseChildEventListenersMap) {
                 key.removeEventListener(value)

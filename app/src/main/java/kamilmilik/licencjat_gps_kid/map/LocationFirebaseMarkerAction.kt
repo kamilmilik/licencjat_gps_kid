@@ -1,9 +1,10 @@
 package kamilmilik.licencjat_gps_kid.map
 
-import android.app.ProgressDialog
 import android.content.Context
 import android.location.Location
 import android.util.Log
+import android.view.View
+import android.widget.RelativeLayout
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
@@ -15,7 +16,6 @@ import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.utils.Tools
 import kamilmilik.licencjat_gps_kid.models.*
 import java.text.DecimalFormat
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import com.google.firebase.database.ValueEventListener
@@ -26,7 +26,7 @@ import com.google.firebase.database.ValueEventListener
 /**
  * Created by kamil on 25.02.2018.
  */
-class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Context) : BasicListenerContent() {
+class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : BasicListenerContent() {
     private val TAG: String = LocationFirebaseMarkerAction::class.java.simpleName
 
     private var currentMarkerPosition: LatLng? = null
@@ -45,27 +45,20 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
 
     private var isUsersLocationsAdded = false
 
-    fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location, recyclerViewAction: RecyclerViewAction, progressDialog: ProgressDialog) {
+    fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location, recyclerViewAction: RecyclerViewAction, progressBar: RelativeLayout) {
         Log.i(TAG, "addCurrentUserMarkerAndRemoveOld")
-        var currentUser = FirebaseAuth.getInstance().currentUser
-        var reference = FirebaseDatabase.getInstance().reference
-        var locations = reference.child(Constants.DATABASE_LOCATIONS)
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val reference = FirebaseDatabase.getInstance().reference
+        val locationsDatabaseReference = reference.child(Constants.DATABASE_LOCATIONS)
 
-        if (currentUser != null) {//prevent if user click logout to not update locationOfUserWhoChangeIt
-            var userMarkerInformation = UserMarkerInformationModel(currentUser.email!!, currentUser!!.displayName!!, currentUser.uid)
-            locations.child(currentUser!!.uid)
-                    .setValue(TrackingModel(currentUser.uid,
-                            currentUser!!.email!!,
-                            lastLocation.latitude.toString(),
-                            lastLocation.longitude.toString(),
-                            currentUser!!.displayName!!,
-                            System.currentTimeMillis()))
+        if (currentUser != null) {// Prevent if user click logout.
+            val userMarkerInformation = UserMarkerInformationModel(currentUser.email!!, currentUser.displayName!!, currentUser.uid)
+
+            saveLocationToDatabase(currentUser, locationsDatabaseReference, lastLocation)
 
             deletePreviousMarker(userMarkerInformation)
 
-            var currentMarker = mapAdapter!!.addMarker(MarkerOptions()
-                    .position(LatLng(lastLocation.latitude!!, lastLocation.longitude!!))
-                    .title(currentUser!!.displayName))
+            val currentMarker = createMarker(currentUser, lastLocation)
             markersMap.put(userMarkerInformation, currentMarker)
             currentUserLocation = Tools.createLocationVariable(currentMarker.position)
 
@@ -76,13 +69,30 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
             recyclerViewAction.updateRecyclerView()
 
             onGetMyLocationSuccess()
-            onSuccessGetLocations(progressDialog)
+            onSuccessGetLocations(progressBar)
 
-            progressDialogDismissAction(reference, currentUser, progressDialog)
+            progressBarDismissAction(reference, currentUser, progressBar)
         }
     }
 
-    private fun checkIfUserExistInDatabase(query : Query, progressDialog: ProgressDialog){
+    private fun saveLocationToDatabase(currentUser: FirebaseUser, locationsDatabaseReference: DatabaseReference, lastLocation: Location){
+        locationsDatabaseReference.child(currentUser.uid)
+                .setValue(TrackingModel(currentUser.uid,
+                        currentUser.email!!,
+                        lastLocation.latitude.toString(),
+                        lastLocation.longitude.toString(),
+                        currentUser.displayName!!,
+                        System.currentTimeMillis()))
+    }
+
+    private fun createMarker(currentUser: FirebaseUser, lastLocation: Location): Marker {
+        return mapActivity.getMap().addMarker(MarkerOptions()
+                .position(LatLng(lastLocation.latitude, lastLocation.longitude))
+                .title(currentUser.displayName))
+    }
+
+
+    private fun checkIfUserExistInDatabase(query : Query, progressBar: RelativeLayout){
         query.addValueEventListener(object : ValueEventListener{
             override fun onCancelled(p0: DatabaseError?) {}
 
@@ -91,7 +101,7 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
                     Log.i(TAG,"onDataChange() no friends")
                     Log.i(TAG,"onDataChange() increment workCounterForNoFirendsUser")
                     workCounterForNoFriendsUser!!.incrementAndGet()
-                    dismissProgressDialog(progressDialog)
+                    dismissProgressBar(progressBar)
                 }
                 putValueEventListenersToMap(query, this)
             }
@@ -99,11 +109,11 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
     }
 
 
-    fun userLocationAction(userId: String, recyclerViewAction: RecyclerViewAction, progressDialog: ProgressDialog) {
+    fun userLocationAction(userId: String, recyclerViewAction: RecyclerViewAction, progressBar: RelativeLayout) {
         Log.i(TAG, "userLocationAction")
 
-        var reference = FirebaseDatabase.getInstance().reference
-        var query = reference.child(Constants.DATABASE_LOCATIONS)
+        val reference = FirebaseDatabase.getInstance().reference
+        val query = reference.child(Constants.DATABASE_LOCATIONS)
                 .orderByChild(Constants.DATABASE_USER_ID_FIELD)
                 .equalTo(userId)
         query.addValueEventListener(object : ValueEventListener {
@@ -112,26 +122,25 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
                 for (singleSnapshot in dataSnapshot!!.children) {
                     userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
 
-                    var userEmail = userWhoChangeLocation!!.email
-                    var userName = userWhoChangeLocation!!.user_name!!
-                    var userId = userWhoChangeLocation!!.user_id!!
+                    val userEmail = userWhoChangeLocation!!.email
+                    val userName = userWhoChangeLocation!!.user_name!!
+                    val userId = userWhoChangeLocation!!.user_id!!
 
                     if (userWhoChangeLocation != null && FirebaseAuth.getInstance().currentUser != null) {
                         recyclerViewAction.updateChangeUserNameInRecycler(UserMarkerInformationModel(userEmail, userName, userId))
 
                         updateUserNameIfChange(reference)
 
-                        var userMarkerInformation = UserMarkerInformationModel(userEmail, userName, userId)
-                        var locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())
+                        val userMarkerInformation = UserMarkerInformationModel(userEmail, userName, userId)
+                        val locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocation!!.lat!!.toDouble(), userWhoChangeLocation!!.lng!!.toDouble())
 
                         deletePreviousMarker(userMarkerInformation)
 
-                        var firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, Tools.createLocationVariable(locationOfTheUserWhoChangeLocation))
-                        var markerFollowingUser = mapAdapter!!.addMarker(MarkerOptions()
+                        val firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, Tools.createLocationVariable(locationOfTheUserWhoChangeLocation))
+                        val markerFollowingUser = mapActivity.getMap().addMarker(MarkerOptions()
                                 .position(locationOfTheUserWhoChangeLocation)
                                 .title(userName)
-                                .snippet(context.getString(R.string.distance) + " " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second
-                                        + context.getString(R.string.timeLocationReport) + " " + SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!)))
+                                .snippet(mapActivity.getActivity().getString(R.string.distance) + " " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second)
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
                         markersMap.put(userMarkerInformation, markerFollowingUser)
                         previousUserMarkerInformation = userMarkerInformation
@@ -140,11 +149,11 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
 
                         Log.i(TAG, "onDataChange() increment workCounter")
 
-                        // I use functions instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter
+                        // I use functions instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter.
                         onGetUsersLocationSuccess()
-                        onSuccessGetLocations(progressDialog)
+                        onSuccessGetLocations(progressBar)
 
-                        dismissProgressDialog(progressDialog)
+                        dismissProgressBar(progressBar)
                     }
                 }
                 putValueEventListenersToMap(query, this)
@@ -162,23 +171,23 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
         }
     }
 
-    private fun progressDialogDismissAction(reference: DatabaseReference, currentUser : FirebaseUser, progressDialog: ProgressDialog){
+    private fun progressBarDismissAction(reference: DatabaseReference, currentUser : FirebaseUser, progressBar: RelativeLayout){
         var query = reference.child(Constants.DATABASE_FOLLOWERS)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
-        checkIfUserExistInDatabase(query, progressDialog)
+        checkIfUserExistInDatabase(query, progressBar)
         query = reference.child(Constants.DATABASE_FOLLOWING)
                 .orderByKey()
                 .equalTo(currentUser!!.uid)
-        checkIfUserExistInDatabase(query, progressDialog)
+        checkIfUserExistInDatabase(query, progressBar)
 
-        dismissProgressDialog(progressDialog)
+        dismissProgressBar(progressBar)
     }
 
-    private fun dismissProgressDialog(progressDialog: ProgressDialog) {
-        Log.i(TAG,"dismissProgressDialog() workCounterForNoFriendsUser = " + workCounterForNoFriendsUser)
+    private fun dismissProgressBar(progressBar: RelativeLayout) {
+        Log.i(TAG,"dismissProgressBar() workCounterForNoFriendsUser = " + workCounterForNoFriendsUser)
         if (workCounterForNoFriendsUser!!.compareAndSet(2, 0)) {
-            progressDialog.dismiss()
+            progressBar.visibility = View.GONE
         }
     }
 
@@ -199,10 +208,10 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 for (singleSnapshot in dataSnapshot!!.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        var user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                        val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                         if (user!!.user_id == userId) {
                             Log.i(TAG, "onDataChange() update name" + childSingleSnapshot)
-                            var map = HashMap<String, Any>() as MutableMap<String, Any>
+                            val map = HashMap<String, Any>() as MutableMap<String, Any>
                             map.put(Constants.DATABASE_USER_NAME_FIELD, userName)
                             childSingleSnapshot!!.ref.child(Constants.DATABASE_USER_FIELD).updateChildren(map)
                         }
@@ -215,25 +224,25 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
     private fun updateMarkerSnippetDistance(userToAvoidUpdate: UserMarkerInformationModel, currentUserLocation: Location) {
         for ((key, value) in markersMap) {
             if (key != userToAvoidUpdate) {
-                var location = Tools.createLocationVariable(value.position)
-                var firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, location)
+                val location = Tools.createLocationVariable(value.position)
+                val firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, location)
                 value.hideInfoWindow()
-                value.snippet = context.getString(R.string.distance) + " " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second + context.getString(R.string.timeLocationReport) + " " +  SimpleDateFormat("MMM dd,yyyy HH:mm").format(Date(userWhoChangeLocation!!.time!!))
+                value.snippet = mapActivity.getActivity().getString(R.string.distance) + " " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second
             }
         }
     }
 
     fun goToThisMarker(clickedUserMarkerInformation: UserMarkerInformationModel) {
         Log.i(TAG, "goToThisMarker() clicked user email " + clickedUserMarkerInformation)
-        var searchedMarker = findMarker(clickedUserMarkerInformation)
-        mapAdapter!!.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedMarker!!.position, 12.0f))
+        val searchedMarker = findMarker(clickedUserMarkerInformation)
+        mapActivity.getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(searchedMarker!!.position, Constants.MAP_CAMERA_ZOOM))
         searchedMarker.showInfoWindow()
     }
 
-    //hash code and equals in UserMarkerInformationModel is important here
+    // Hash code and equals in UserMarkerInformationModel is important here.
     private fun findMarker(searchedUserMarkerInformationKey: UserMarkerInformationModel): Marker? = markersMap.getValue(searchedUserMarkerInformationKey)
 
-    fun onGetMyLocationSuccess() {
+    private fun onGetMyLocationSuccess() {
         isMyLocationAdded = true
     }
 
@@ -241,9 +250,9 @@ class LocationFirebaseMarkerAction(var mapAdapter: GoogleMap, var context: Conte
         isUsersLocationsAdded = true
     }
 
-    fun onSuccessGetLocations(progressDialog: ProgressDialog) {
+    fun onSuccessGetLocations(progressBar: RelativeLayout) {
         if(isMyLocationAdded && isUsersLocationsAdded){
-            progressDialog.dismiss()
+            progressBar.visibility = View.GONE
             isMyLocationAdded = false
             isUsersLocationsAdded = false
         }

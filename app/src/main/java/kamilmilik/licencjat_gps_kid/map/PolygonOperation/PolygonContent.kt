@@ -7,12 +7,13 @@ import android.graphics.drawable.Drawable
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import kamilmilik.licencjat_gps_kid.R
+import kamilmilik.licencjat_gps_kid.map.MapActivity
 import kamilmilik.licencjat_gps_kid.map.adapter.GeoLatLng
 
 /**
  * Created by kamil on 08.06.2018.
  */
-open class PolygonContent(open var googleMap: GoogleMap, open var context: Context) {
+open class PolygonContent(open var mapActivity: MapActivity) {
 
     var polygon: Polygon? = null
 
@@ -41,8 +42,8 @@ open class PolygonContent(open var googleMap: GoogleMap, open var context: Conte
     }
 
     private fun createMarker(position: LatLng) : Marker {
-        val markerIcon = getMarkerIconFromDrawable(context.resources.getDrawable(R.drawable.round_icon))
-        return googleMap.addMarker(MarkerOptions()
+        val markerIcon = getMarkerIconFromDrawable(mapActivity.getActivity().resources.getDrawable(R.drawable.round_icon))
+        return mapActivity.getMap().addMarker(MarkerOptions()
                 .position(position).draggable(true).icon(markerIcon).anchor(0.5f, 0.5f))
     }
 

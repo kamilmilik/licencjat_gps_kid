@@ -11,9 +11,9 @@
     <string name="loginSuccess">Login successful</string>
     <string name="waitInformation">Please wait...</string>
     <string name="waitMessage">Processing...</string>
-    <string name="verificationEmailSentInformation">Verification email sent to</string>
+    <string name="verificationEmailSentInformation">"Verification email sent to "</string>
     <string name="failedVerificationEmailSend">Failed to send verification email</string>
-    <string name="changePasswordSent">Change password link sent to email</string>
+    <string name="changePasswordSent">"Change password link sent to email "</string>
     <string name="validEmail">Write valid email</string>
     <string name="emptyFieldInformation">Field cannot be empty</string>
     <string name="invalidCode">This code is invalid</string>
@@ -67,4 +67,10 @@
     <string name="unfollowYourselfInformation">You cannot unfollow yourself</string>
     <string name="unfollowUserTitle">Unfollow user</string>
     <string name="unfollowUser">Are you sure to unfollow this user?</string>
+    <string name="enterEmail">Please enter email</string>
+    <string name="enterPassword">Please enter password</string>
+    <string name="enterName">Please enter name</string>
+    <string name="needLocationPermission">Location permission needed</string>
+    <string name="acceptLocationPermission">This app needs the location permission, please accept to use location functionality</string>
+    <string name="locationSettings">Location settings</string>
 </resources>

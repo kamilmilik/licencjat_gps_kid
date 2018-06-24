@@ -6,94 +6,91 @@
     android:layout_height="match_parent"
     tools:context="kamilmilik.licencjat_gps_kid.map.MapActivity">
 
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
         <RelativeLayout
-            android:id="@+id/relativeLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            android:id="@+id/toolbarMapActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-                <include layout="@layout/progress_bar" />
+            <include layout="@layout/toolbar" />
+        </RelativeLayout>
 
-                <RelativeLayout
-                    android:id="@+id/toolbarMapActivity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                        <include layout="@layout/toolbar" />
-                </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/inviteCodeLinear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbarMapActivity"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal">
 
-                <LinearLayout
-                    android:id="@+id/inviteCodeLinear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/toolbarMapActivity"
-                    android:orientation="horizontal"
-                    android:layout_centerHorizontal="true"
-                    >
+            <Button
+                android:id="@+id/buttonToActivityGenerateCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/generateCode" />
 
-                <Button
-                    android:id="@+id/buttonToActivityGenerateCode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/toolbarMapActivity"
-                    android:text="@string/generateCode" />
+            <Button
+                android:id="@+id/buttonToActivityEnterInvite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enterCode" />
 
-                <Button
-                    android:id="@+id/buttonToActivityEnterInvite"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/buttonToActivityGenerateCode"
-                    android:text="@string/enterCode" />
+            <Button
+                android:id="@+id/buttonToChangeProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Profile" />
+        </LinearLayout>
 
-                <Button
-                    android:id="@+id/buttonToChangeProfile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/buttonToActivityEnterInvite"
-                    android:text="@string/Profile" />
-                </LinearLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/inviteCodeLinear">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/listOnline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/inviteCodeLinear"></android.support.v7.widget.RecyclerView>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/listOnline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-                <fragment
-                    android:id="@+id/map"
-                    android:name="com.google.android.gms.maps.SupportMapFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/listOnline" />
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/listOnline" />
 
-                <FrameLayout
-                    android:id="@+id/draggable"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/listOnline" />
+            <FrameLayout
+                android:id="@+id/draggable"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/listOnline" />
 
-                <Button
-                    android:id="@+id/drawButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/listOnline"
-                    android:text="@string/drawArea" />
+            <Button
+                android:id="@+id/drawButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/listOnline"
+                android:text="@string/drawArea" />
 
-                <Button
-                    android:id="@+id/editPolygonButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/listOnline"
-                    android:layout_toRightOf="@id/drawButton"
-                    android:text="@string/editArea" />
+            <Button
+                android:id="@+id/editPolygonButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/listOnline"
+                android:layout_toRightOf="@id/drawButton"
+                android:text="@string/editArea" />
+
+            <include layout="@layout/progress_bar" />
 
         </RelativeLayout>
 
-        <!--<include-->
-            <!--layout="@layout/progress_bar"-->
-            <!--app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--app:layout_constraintEnd_toEndOf="@+id/relativeLayout"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--app:layout_constraintTop_toTopOf="@+id/relativeLayout" />-->
+    </RelativeLayout>
+
 </android.support.constraint.ConstraintLayout>

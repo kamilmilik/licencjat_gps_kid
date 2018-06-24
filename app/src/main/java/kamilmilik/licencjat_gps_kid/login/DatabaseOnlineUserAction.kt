@@ -12,27 +12,25 @@ import kamilmilik.licencjat_gps_kid.utils.Constants
 class DatabaseOnlineUserAction {
     private val TAG: String = DatabaseOnlineUserAction::class.java.simpleName
 
-    private var onlineRef: DatabaseReference = FirebaseDatabase.getInstance().reference.child(".info/connected")
-
     private var currentUserRef: DatabaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LAST_ONLINE).child(FirebaseAuth.getInstance().currentUser!!.uid)
 
     private var counterRef: DatabaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LAST_ONLINE)
 
     fun addOnlineUserToDatabase() {
-        onlineRef.addValueEventListener(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError?) {}
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val connected = dataSnapshot.getValue(Boolean::class.java)
-                if (connected!!) {
-                    currentUserRef.onDisconnect().removeValue()//Remove the value at this location when the client disconnects
-                    //add to last_online current user
-                    val deviceTokenId = FirebaseInstanceId.getInstance().token
-
-                    val currentUser = FirebaseAuth.getInstance().currentUser!!
-                    counterRef.child(currentUser.uid).setValue(User(currentUser.uid, currentUser.email!!, deviceTokenId!!, currentUser.displayName!!))
-                }
-            }
-        })
+        FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_WHO_IS_CONNECTED)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onCancelled(p0: DatabaseError?) {}
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val connected = dataSnapshot.getValue(Boolean::class.java)
+                        if (connected!!) {
+                            currentUserRef.onDisconnect().removeValue()// Remove the value at this location when the client disconnects.
+                            // Add to last_online current user.
+                            val deviceTokenId = FirebaseInstanceId.getInstance().token
+                            val currentUser = FirebaseAuth.getInstance().currentUser!!
+                            counterRef.child(currentUser.uid).setValue(User(currentUser.uid, currentUser.email!!, deviceTokenId!!, currentUser.displayName!!))
+                        }
+                    }
+                })
     }
 
     fun logoutUser() {
