@@ -81,8 +81,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
                         currentUser.email!!,
                         lastLocation.latitude.toString(),
                         lastLocation.longitude.toString(),
-                        currentUser.displayName!!,
-                        System.currentTimeMillis()))
+                        currentUser.displayName!!))
     }
 
     private fun createMarker(currentUser: FirebaseUser, lastLocation: Location): Marker {

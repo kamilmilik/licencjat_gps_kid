@@ -13,11 +13,9 @@ import com.google.android.gms.location.*
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.licencjat_gps_kid.R
-import kamilmilik.licencjat_gps_kid.utils.Constants
-import kamilmilik.licencjat_gps_kid.utils.OnDataAddedListener
-import kamilmilik.licencjat_gps_kid.utils.RestFirebaseAsync
-import kamilmilik.licencjat_gps_kid.utils.Tools
 import kamilmilik.licencjat_gps_kid.models.TrackingModel
+import kamilmilik.licencjat_gps_kid.utils.*
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Created by kamil on 23.04.2018.
@@ -34,10 +32,17 @@ open class ForegroundService : Service() {
 
     private var notificationMethods: kamilmilik.licencjat_gps_kid.map.PolygonOperation.notification.Notification? = null
 
+    private var synchronizeAction : Synchronize? = null
+
     override fun onBind(p0: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (FirebaseAuth.getInstance().currentUser != null) {
+            notificationMethods = kamilmilik.licencjat_gps_kid.map.PolygonOperation.notification.Notification(this@ForegroundService)
+            synchronizeAction = Synchronize(this)
+            notificationMethods?.synchronizeAction = synchronizeAction
+            startForegroundService()
+
             getCurrentLocationAction()
             polygonAction()
         }
@@ -57,7 +62,6 @@ open class ForegroundService : Service() {
         object : Thread() {
             override fun run() {
                 Log.i(TAG, "dzialam")
-                startForegroundService()
                 if (Tools.isGooglePlayServicesAvailable(this@ForegroundService)) {
                     fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@ForegroundService)
                     createLocationRequest()
@@ -119,7 +123,7 @@ open class ForegroundService : Service() {
 
     private fun addCurrentUserLocationToFirebase(lastLocation: Location) {
         FirebaseApp.initializeApp(applicationContext)
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = FirebaseAuth.getInstance().currentUser
         Log.i(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser?.uid + " location " + lastLocation.toString())
         currentUser?.getIdToken(true)?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -128,15 +132,18 @@ open class ForegroundService : Service() {
                         currentUser.email!!,
                         lastLocation.latitude.toString(),
                         lastLocation.longitude.toString(),
-                        currentUser.displayName!!,
-                        System.currentTimeMillis()), tokenId!!, object : OnDataAddedListener {
+                        currentUser.displayName!!), tokenId!!, object : OnDataAddedListener {
                     override fun onDataAdded() {
                         Log.i(TAG, "onComplete() position: $lastLocation saved to firebase database")
-                        Log.i(TAG, "okey stop service")
-                        stopForeground(true)
-                        stopSelf()
-                        fusedLocationClient.removeLocationUpdates(locationCallback)
-                        notificationMethods?.removeValueEventListeners()
+                        synchronizeAction!!.allTaskDoneCounter.incrementAndGet()
+                        synchronizeAction!!.doOnlyOneTaskDoneCounter.incrementAndGet()
+                        Log.i(TAG,"onDataAdded() tutaj sie ma wykonac foregroundservice allTaskDoneCounter = " + synchronizeAction!!.allTaskDoneCounter + " doOnlyOneTaskDoneCounter " + synchronizeAction!!.doOnlyOneTaskDoneCounter)
+                        if(synchronizeAction!!.allTaskDoneCounter.compareAndSet(2,0) || synchronizeAction!!.doOnlyOneTaskDoneCounter.compareAndSet(3, 0)){
+                            Log.i(TAG,"onDataAdded() stop in foregroundService with allTaskDoneCounter = ${synchronizeAction!!.allTaskDoneCounter} and  doOnlyOneTaskDoneCounter = ${synchronizeAction!!.doOnlyOneTaskDoneCounter}")
+                            finishServiceAction()
+                        }
+                            fusedLocationClient.removeLocationUpdates(locationCallback)
+
                     }
                 }).execute()
             }
@@ -147,10 +154,15 @@ open class ForegroundService : Service() {
         object : Thread() {
             override fun run() {
                 FirebaseApp.initializeApp(applicationContext)//I must called this first otherwise foreground/background service is not running since without it get nullPointerException
-                notificationMethods = kamilmilik.licencjat_gps_kid.map.PolygonOperation.notification.Notification(this@ForegroundService)
                 notificationMethods!!.notificationAction(true)
             }
         }.start()
+    }
+
+    fun finishServiceAction(){
+       stopForeground(true)
+        stopSelf()
+        notificationMethods?.removeValueEventListeners()
     }
 
 }

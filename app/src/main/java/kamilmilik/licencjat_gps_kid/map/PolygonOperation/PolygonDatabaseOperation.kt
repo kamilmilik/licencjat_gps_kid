@@ -1,11 +1,10 @@
 package kamilmilik.licencjat_gps_kid.map.PolygonOperation
 
-import android.content.Context
 import android.util.Log
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kamilmilik.licencjat_gps_kid.R
 import kamilmilik.licencjat_gps_kid.map.MapActivity
 import kamilmilik.licencjat_gps_kid.utils.Constants
 import kamilmilik.licencjat_gps_kid.utils.Tools
@@ -54,11 +53,11 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
                         override fun onDataChange(dataSnapshot: DataSnapshot?) {
                             for (singleSnapshot in dataSnapshot!!.children) {
                                 for (child in singleSnapshot.children) {
-                                    var polygonsFromDbMap = child.getValue(PolygonModel::class.java)
+                                    val polygonsFromDbMap = child.getValue(PolygonModel::class.java)
                                     //Log.i(TAG,polygonsFromDbMap!!.tag + " " + polygonsFromDbMap!!.polygonLatLngList)
                                     polygonsMap.put(polygonsFromDbMap!!.tag!!, polygonsFromDbMap.polygonLatLngList)
 
-                                    var newList: ArrayList<LatLng> = Tools.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
+                                    val newList: ArrayList<LatLng> = Tools.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
 
                                     drawPolygonFromDatabase(polygonsFromDbMap.tag!!, newList)
                                 }
@@ -94,20 +93,13 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
         mapActivity.getMap().setOnPolygonClickListener { polygon ->
             //this is run before user draw some polygon
             Log.i(TAG, "clicked in drawPolygon" + polygon!!.tag.toString())
-            polygonsMap.remove(polygon.tag.toString())
-            removePolygonFromDatabase(polygon.tag.toString())
+            val alert = Tools.makeAlertDialogBuilder(mapActivity.getActivity(), mapActivity.getString(R.string.deleteAreaPolygon), mapActivity.getString(R.string.deleteAreaPolygonMessage))
+            alert.setPositiveButton(R.string.ok) { dialog, whichButton ->
+                polygonsMap.remove(polygon.tag.toString())
+                removePolygonFromDatabase(polygon.tag.toString())
 
-            markersMap!!.forEach { (markerList, polygonFromMap) ->
-                if (polygonFromMap.tag != null) {
-                    if (polygonFromMap.tag!! == polygon.tag) {
-                        markerList.forEach({ marker ->
-                            marker.remove()
-                        })
-                        //markersMap!!.remove(markerList)
-                    }
-                }
-            }
-            polygon.remove()
+                removePolygon()
+            }.setNegativeButton(R.string.cancel) { dialog, wchichButton -> }.create().show()
         }
     }
 

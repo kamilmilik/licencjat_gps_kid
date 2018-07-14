@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.util.Log
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import kamilmilik.licencjat_gps_kid.R
@@ -55,4 +56,18 @@ open class PolygonContent(open var mapActivity: MapActivity) {
         drawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
+
+    fun removePolygon(){
+        markersMap!!.forEach { (markerList, polygonValue) ->
+            if (polygonValue.tag != null) {//prevent nullpointer it could happen when i do polygon.remove and if i not remove from map this polygon, then in map i have null as previous polygon
+                if (polygonValue.tag!! == polygon?.tag) {
+                    markerList.forEach({ marker ->
+                        marker.remove()
+                    })
+                }
+            }
+        }
+        polygon?.remove()
+    }
+
 }

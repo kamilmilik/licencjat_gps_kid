@@ -21,7 +21,9 @@ import kamilmilik.licencjat_gps_kid.map.PolygonOperation.DrawPolygon
 import kamilmilik.licencjat_gps_kid.login.DatabaseOnlineUserAction
 import com.google.firebase.FirebaseApp
 import android.content.ComponentCallbacks2
+import android.graphics.Color
 import android.location.Location
+import android.util.Log
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -56,8 +58,6 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
 
     private var recyclerViewAction: RecyclerViewAction? = null
-
-    private var buttonClickedPolygonAction: Boolean? = false // to detect map is movable
 
     private var drawPolygon: DrawPolygon? = null
 
@@ -137,23 +137,35 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
 
     private fun editPolygonButtonAction() {
         editPolygonButton.setOnClickListener {
-            buttonClickedPolygonAction = !buttonClickedPolygonAction!!
-            drawButton.isEnabled = !buttonClickedPolygonAction!!
-            if (!buttonClickedPolygonAction!!) {
-                drawPolygon!!.hideAllMarkers()
-            } else {
-                drawPolygon!!.showAllMarkers()
+            if(!drawPolygon!!.markersMap!!.isEmpty()){
+                if(editPolygonButton.textColors.defaultColor == resources.getColor(R.color.blackColor)){
+                    editPolygonButton.setTextColor(Color.GRAY)
+                    drawPolygon!!.showAllMarkers()
+                    drawButton.isEnabled = false
+                } else {
+                    editPolygonButton.setTextColor(resources.getColor(R.color.blackColor))
+                    drawButton.isEnabled = true
+                    drawPolygon!!.hideAllMarkers()
+                }
             }
         }
     }
 
     private fun drawPolygonButtonAction() {
         drawButton.setOnClickListener {
-            drawButton.isEnabled = false
-            draggable.setOnTouchListener { v, motionEvent ->
-                drawPolygon!!.onTouchAction(motionEvent, draggable)
-                drawButton.isEnabled = true
-                true
+            if(drawButton.textColors.defaultColor == resources.getColor(R.color.blackColor)){
+                drawButton.setTextColor(Color.GRAY)
+                editPolygonButton.isEnabled = false
+                draggable.setOnTouchListener { v, motionEvent ->
+                    drawPolygon!!.onTouchAction(motionEvent, draggable)
+                    drawButton.setTextColor(resources.getColor(R.color.blackColor))
+                    editPolygonButton.isEnabled = true
+                    true
+                }
+            }else{
+                draggable.setOnTouchListener(null)
+                editPolygonButton.isEnabled = true
+                drawButton.setTextColor(resources.getColor(R.color.blackColor))
             }
         }
     }
@@ -209,7 +221,7 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
 
         val response = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
         if (response != ConnectionResult.SUCCESS) {
-           GoogleApiAvailability.getInstance().getErrorDialog(this, response, 1).show()
+            GoogleApiAvailability.getInstance().getErrorDialog(this, response, 1).show()
         }
     }
 

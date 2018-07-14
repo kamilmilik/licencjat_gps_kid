@@ -54,7 +54,17 @@ class LoginActivity : ApplicationActivity() {
                         .addOnCompleteListener { task ->
                             progressDialog.dismiss()
                             if (task.isSuccessful) {
-                                checkIfUserLoggedInOtherDeviceAndIfNotLogIn(email)
+//                                checkIfUserLoggedInOtherDeviceAndIfNotLogIn(email)
+                                //TODO jak wywale checkIfUserLoggedInOtherDeviceAndIfNotLogIn to to nizej caly ten if zostawic, jak nie wywalam to calego ifa z elsem usunac i odkomentowac jedynie checkIfUserLoggedInOtherDeviceAndIfNotLogIn i odkomentowac z DatabaseOnlineUserAction removeLoggedUser()z funkcji logoutUser
+
+                                if (firebaseAuth.currentUser!!.isEmailVerified) {
+                                    Toast.makeText(this@LoginActivity, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
+                                    Tools.addDeviceTokenToDatabaseAndStartNewActivity(this@LoginActivity, MapActivity::class.java)
+                                    addNewUserAccountToDatabase(email, firebaseAuth.currentUser!!.displayName!!)
+                                } else {
+                                    Toast.makeText(this@LoginActivity, getString(R.string.emailNotVerified), Toast.LENGTH_LONG).show()
+                                    firebaseAuth.signOut()
+                                }
                             } else {
                                 Toast.makeText(this, task.exception!!.message, Toast.LENGTH_LONG).show()
                             }

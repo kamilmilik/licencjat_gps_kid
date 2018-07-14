@@ -72,5 +72,7 @@
     <string name="needLocationPermission">Wymagane pozwolenie lokalizacji</string>
     <string name="acceptLocationPermission">Ta aplikacji wymaga pozwolenia na pobieranie lokalizacji, proszę zaakceptuj pozwolenia abyy używać funkcjonalności lokalizacji</string>
     <string name="locationSettings">Ustawienia lokalizacji</string>
+    <string name="deleteAreaPolygon">Usuń obszar</string>
+    <string name="deleteAreaPolygonMessage">Czy chcesz usunąc kliknięty obszar?</string>
 
 </resources>

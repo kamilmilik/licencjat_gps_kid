@@ -35,7 +35,7 @@ class DatabaseOnlineUserAction {
 
     fun logoutUser() {
         if (FirebaseAuth.getInstance() != null) {
-            removeLoggedUser()
+//            removeLoggedUser()
             currentUserRef.onDisconnect().removeValue()
             counterRef.onDisconnect().removeValue()
             currentUserRef.removeValue()

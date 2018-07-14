@@ -253,7 +253,6 @@ object Tools {
             jsonParam.put("email", trackingModel.email)
             jsonParam.put("lat", trackingModel.lat)
             jsonParam.put("lng", trackingModel.lng)
-            jsonParam.put("time", trackingModel.time)
             jsonParam.put("user_id", trackingModel.user_id)
             jsonParam.put("user_name", trackingModel.user_name)
 

@@ -1,23 +1,17 @@
 package kamilmilik.licencjat_gps_kid.map.PolygonOperation
 
-import android.content.Context
 import android.graphics.Point
 import android.util.Log
 import android.view.MotionEvent
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import kamilmilik.licencjat_gps_kid.map.adapter.GeoLatLng
 import kamilmilik.licencjat_gps_kid.models.PolygonModel
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.LatLng
 import kamilmilik.licencjat_gps_kid.R
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.widget.FrameLayout
-import com.google.android.gms.maps.model.BitmapDescriptor
 import kamilmilik.licencjat_gps_kid.map.MapActivity
+import kamilmilik.licencjat_gps_kid.utils.Tools
 
 
 /**
@@ -39,7 +33,7 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
     }
 
     fun onTouchAction(motionEvent: MotionEvent?, draggable: FrameLayout) {
-        var position = mapActivity.getMap().projection.fromScreenLocation(
+        val position = mapActivity.getMap().projection.fromScreenLocation(
                 Point(motionEvent!!.x.toInt(), motionEvent!!.y.toInt()));
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -89,23 +83,16 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
         }
     }
 
-    private fun removePolygonAction(){
+    private fun removePolygonAction() {
         mapActivity.getMap().setOnPolygonClickListener { polygon ->
-            polygonsGeoLatLngMap.remove(polygon!!.tag.toString())
-            polygonsLatLngMap.remove(polygon.tag.toString())
-            polygonDatabaseOperation.removePolygonFromDatabase(polygon.tag.toString())
+            val alert = Tools.makeAlertDialogBuilder(mapActivity.getActivity(), mapActivity.getString(R.string.deleteAreaPolygon), mapActivity.getString(R.string.deleteAreaPolygonMessage))
+            alert.setPositiveButton(R.string.ok) { dialog, whichButton ->
+                polygonsGeoLatLngMap.remove(polygon!!.tag.toString())
+                polygonsLatLngMap.remove(polygon.tag.toString())
+                polygonDatabaseOperation.removePolygonFromDatabase(polygon.tag.toString())
 
-            markersMap!!.forEach { (markerList, polygonValue) ->
-                Log.i(TAG, polygonValue.tag.toString() + " " + polygon.tag.toString())
-                if (polygonValue.tag != null) {//prevent nullpointer it could happen when i do polygon.remove and if i not remove from map this polygon, then in map i have null as previous polygon
-                    if (polygonValue.tag!! == polygon.tag) {
-                        markerList.forEach({ marker ->
-                            marker.remove()
-                        })
-                    }
-                }
-            }
-            polygon.remove()
+                removePolygon()
+            }.setNegativeButton(R.string.cancel) { dialog, wchichButton -> }.create().show()
         }
     }
 

@@ -73,4 +73,6 @@
     <string name="needLocationPermission">Location permission needed</string>
     <string name="acceptLocationPermission">This app needs the location permission, please accept to use location functionality</string>
     <string name="locationSettings">Location settings</string>
+    <string name="deleteAreaPolygon">Delete area</string>
+    <string name="deleteAreaPolygonMessage">Are you want to delete clicked area?</string>
 </resources>

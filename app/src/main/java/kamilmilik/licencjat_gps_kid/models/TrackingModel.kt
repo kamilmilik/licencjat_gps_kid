@@ -13,16 +13,14 @@ class TrackingModel{
     var lat : String? = null
     var lng : String? = null
     var user_name :String? = null
-    var time : Long? = null
 
     constructor() {}
-    constructor(user_id: String, email: String, lat: String, lng: String, user_name : String, time : Long){
+    constructor(user_id: String, email: String, lat: String, lng: String, user_name : String){
         this.user_id = user_id
         this.email = email
         this.lat = lat
         this.lng = lng
         this.user_name = user_name
-        this.time = time
     }
 
 
