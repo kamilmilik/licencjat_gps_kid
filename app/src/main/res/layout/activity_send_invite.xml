@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="kamilmilik.licencjat_gps_kid.invite.SendInviteActivity">
+    tools:context="kamilmilik.gps_tracker.invite.SendInviteActivity">
     <!--<android.support.v7.widget.Toolbar-->
         <!--android:id="@+id/toolbarSendInvite"-->
         <!--android:layout_width="match_parent"-->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="kamilmilik.licencjat_gps_kid">
+    package="kamilmilik.gps_tracker">
 
 
     <meta-data
@@ -24,14 +24,14 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/gps_tracker_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/gps_tracker_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".login.LoginActivity"
+            android:name="kamilmilik.gps_tracker.login.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,12 +40,12 @@
         </activity>
 
         <activity
-            android:name=".ApplicationActivity"
+            android:name="kamilmilik.gps_tracker.ApplicationActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
         <activity
-            android:name=".map.MapActivity"
+            android:name="kamilmilik.gps_tracker.map.MapActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -56,39 +56,39 @@
 
 
         <activity
-            android:name=".login.RegistrationActivity"
-            android:parentActivityName=".login.LoginActivity"
+            android:name="kamilmilik.gps_tracker.login.RegistrationActivity"
+            android:parentActivityName="kamilmilik.gps_tracker.login.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
 
         <activity
-            android:name=".profile.ProfileActivity"
-            android:parentActivityName=".map.MapActivity"
+            android:name="kamilmilik.gps_tracker.profile.ProfileActivity"
+            android:parentActivityName="kamilmilik.gps_tracker.map.MapActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
         <activity
-            android:name=".invite.SendInviteActivity"
-            android:parentActivityName=".map.MapActivity"
+            android:name="kamilmilik.gps_tracker.invite.SendInviteActivity"
+            android:parentActivityName="kamilmilik.gps_tracker.map.MapActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
         <activity
-            android:name=".invite.EnterInviteActivity"
-            android:parentActivityName=".map.MapActivity"
+            android:name="kamilmilik.gps_tracker.invite.EnterInviteActivity"
+            android:parentActivityName="kamilmilik.gps_tracker.map.MapActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
         <activity
-            android:name=".login.ResetPasswordActivity"
-            android:parentActivityName=".map.MapActivity"
+            android:name="kamilmilik.gps_tracker.login.ResetPasswordActivity"
+            android:parentActivityName="kamilmilik.gps_tracker.map.MapActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
 
         <service
-            android:name=".background.FirebaseMessagingService"
+            android:name="kamilmilik.gps_tracker.background.FirebaseMessagingService"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -96,7 +96,7 @@
         </service>
 
         <service
-            android:name=".background.ForegroundService"
+            android:name="kamilmilik.gps_tracker.background.ForegroundService"
             android:allowTaskReparenting="true"
             android:alwaysRetainTaskState="false"
             android:clearTaskOnLaunch="true"
@@ -109,10 +109,10 @@
             android:stateNotNeeded="true"
             android:stopWithTask="false" />
 
-        <receiver android:name=".background.AlarmReceiver" />
+        <receiver android:name="kamilmilik.gps_tracker.background.AlarmReceiver" />
 
         <service
-            android:name=".background.FirebaseInstanceIDService">
+            android:name="kamilmilik.gps_tracker.background.FirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>

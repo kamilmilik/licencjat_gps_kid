@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">licencjat_gps_kid</string>
+    <string name="app_name">Gps Tracker</string>
     <string name="mapActivityName">Map</string>
     <string name="loginActivityName">Login</string>
     <string name="resetPasswordActivityName">Reset Password</string>

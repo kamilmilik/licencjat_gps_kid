@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="kamilmilik.licencjat_gps_kid.login.RegistrationActivity">
+    tools:context="kamilmilik.gps_tracker.login.RegistrationActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
