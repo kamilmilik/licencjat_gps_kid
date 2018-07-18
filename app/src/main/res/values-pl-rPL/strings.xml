@@ -3,7 +3,7 @@
     <string name="app_name">Gps Tracker</string>
     <string name="mapActivityName">Mapa</string>
     <string name="loginActivityName">Login</string>
-    <string name="resetPasswordActivityName">Zresetuj Hasło</string>
+    <string name="resetPasswordActivityName">Resetuj hasło</string>
     <string name="registrationActivityName">Rejestracja</string>
     <string name="EnterInviteCodeActivityName">"Wpisz Kod "</string>
     <string name="sendInviteCodeActivity">Wyślij Kod</string>
@@ -50,8 +50,8 @@
     <string name="emailAddress">Adres email</string>
     <string name="password">Hasło</string>
     <string name="login">Login</string>
-    <string name="registration">Rejestracja</string>
-    <string name="resetPassword">Zresetuj hasło</string>
+    <string name="registration">Zarejestruj się!</string>
+    <string name="resetPassword">Zapomniałeś hasła?</string>
     <string name="userName">Nazwa użytkownika</string>
     <string name="userPassword">Hasło użytkownika</string>
     <string name="deleteMyAccount">Usuń moje konto</string>
@@ -74,5 +74,6 @@
     <string name="locationSettings">Ustawienia lokalizacji</string>
     <string name="deleteAreaPolygon">Usuń obszar</string>
     <string name="deleteAreaPolygonMessage">Czy chcesz usunąc kliknięty obszar?</string>
+    <string name="no_account_information">Nie masz konta?</string>
 
 </resources>

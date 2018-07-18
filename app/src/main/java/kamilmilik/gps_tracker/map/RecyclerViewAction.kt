@@ -37,6 +37,7 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
         if (FirebaseAuth.getInstance().currentUser != null) {
             valueSet.add(UserMarkerInformationModel(currentUser.email!!, currentUser.displayName!!, currentUser.uid))
             val valueList = ArrayList(valueSet)
+            //TODO zamiast tworzyc nowe obiekty recylerAdapter to w RecyclerViewAdapter zrobić setUser i to wywolywać na adapterze
             adapter = RecyclerViewAdapter(mapActivity.getActivity(), valueList)
             recyclerView.adapter = adapter
             adapter.setClickListener(this)

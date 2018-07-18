@@ -3,6 +3,7 @@ package kamilmilik.gps_tracker.map.PolygonOperation
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.util.Log
 import com.google.android.gms.maps.model.*
 import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.map.MapActivity
@@ -54,17 +55,17 @@ open class PolygonContent(open var mapActivity: MapActivity) {
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 
-    fun removePolygon(){
+    fun removePolygon(polygonTag: String){
         markersMap!!.forEach { (markerList, polygonValue) ->
             if (polygonValue.tag != null) {//prevent nullpointer it could happen when i do polygon.remove and if i not remove from map this polygon, then in map i have null as previous polygon
-                if (polygonValue.tag!! == polygon?.tag) {
+                if (polygonValue.tag!! == polygonTag) {
                     markerList.forEach({ marker ->
                         marker.remove()
                     })
+                    polygonValue.remove()
                 }
             }
         }
-        polygon?.remove()
     }
 
 }

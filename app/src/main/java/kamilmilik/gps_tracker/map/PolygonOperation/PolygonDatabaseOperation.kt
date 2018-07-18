@@ -97,8 +97,7 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
             alert.setPositiveButton(R.string.ok) { dialog, whichButton ->
                 polygonsMap.remove(polygon.tag.toString())
                 removePolygonFromDatabase(polygon.tag.toString())
-
-                removePolygon()
+                removePolygon(polygon.tag.toString())
             }.setNegativeButton(R.string.cancel) { dialog, wchichButton -> }.create().show()
         }
     }

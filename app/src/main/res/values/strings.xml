@@ -2,7 +2,7 @@
     <string name="app_name">Gps Tracker</string>
     <string name="mapActivityName">Map</string>
     <string name="loginActivityName">Login</string>
-    <string name="resetPasswordActivityName">Reset Password</string>
+    <string name="resetPasswordActivityName">Reset password</string>
     <string name="registrationActivityName">Registration</string>
     <string name="EnterInviteCodeActivityName">Enter Invite Code</string>
     <string name="sendInviteCodeActivity">Send Invite Code</string>
@@ -51,8 +51,8 @@
     <string name="emailAddress">Email address</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-    <string name="registration">Registration</string>
-    <string name="resetPassword">Reset password</string>
+    <string name="registration">Sign up!</string>
+    <string name="resetPassword">Forgot your password?</string>
     <string name="userName">User name</string>
     <string name="userPassword">User password</string>
     <string name="deleteMyAccount">Delete my account</string>
@@ -75,4 +75,5 @@
     <string name="locationSettings">Location settings</string>
     <string name="deleteAreaPolygon">Delete area</string>
     <string name="deleteAreaPolygonMessage">Are you want to delete clicked area?</string>
+    <string name="no_account_information">Don\'t have an account?</string>
 </resources>

@@ -37,7 +37,7 @@ class RegistrationActivity : ApplicationActivity() {
 
     private fun registrationButtonAction() {
         registrationButton.setOnClickListener({
-            email = emailLoginEditText!!.text.toString()
+            email = emailLoginEditText!!.text.toString().replace("\\s".toRegex(), "")
             password = passwordLoginEditText!!.text.toString()
             name = nameEditText!!.text.toString()
             if (Tools.checkIfUserEnterValidData(this, email!!, password!!, name!!)) {

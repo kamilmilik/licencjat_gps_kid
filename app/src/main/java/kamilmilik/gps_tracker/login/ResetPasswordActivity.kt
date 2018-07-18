@@ -24,7 +24,7 @@ class ResetPasswordActivity : ApplicationActivity() {
 
     private fun sendNewPasswordToEmail() {
         sendChangePasswordButton.setOnClickListener({
-            var emailAddress = changeUserPasswordEditText.text.toString()
+            val emailAddress = changeUserPasswordEditText.text.toString().replace("\\s".toRegex(), "")
             if (!emailAddress.isEmpty()) {
                 FirebaseAuth.getInstance().useAppLanguage()
                 FirebaseAuth.getInstance().sendPasswordResetEmail(emailAddress)

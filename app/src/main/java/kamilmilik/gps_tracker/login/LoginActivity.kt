@@ -46,7 +46,7 @@ class LoginActivity : ApplicationActivity() {
 
     private fun loginButtonAction() {
         loginButton.setOnClickListener({
-            val email = emailLoginEditText!!.text.toString()
+            val email = emailLoginEditText!!.text.toString().replace("\\s".toRegex(), "")
             val password = passwordLoginEditText!!.text.toString()
             if (Tools.checkIfUserEnterValidData(this, email, password)) {
                 val progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
@@ -118,7 +118,7 @@ class LoginActivity : ApplicationActivity() {
     }
 
     private fun resetPasswordButtonAction() {
-        resetPasswordButton.setOnClickListener({
+        resetPasswordText.setOnClickListener({
             startActivity(Intent(this, ResetPasswordActivity::class.java))
         })
     }

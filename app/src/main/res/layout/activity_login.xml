@@ -34,16 +34,6 @@
                 android:layout_height="match_parent"
                 android:padding="10dp">
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:text="@string/emailAddress"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
                 <EditText
                     android:id="@+id/emailLoginEditText"
                     android:layout_width="wrap_content"
@@ -52,18 +42,11 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentStart="true"
-                    android:layout_below="@+id/textView"
-                    android:hint="@string/yourValidEmail" />
+                    android:drawableLeft="@drawable/ic_email"
+                    android:drawableStart="@drawable/ic_email"
+                    android:hint="@string/yourValidEmail"
+                    android:inputType="textEmailAddress" />
 
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/emailLoginEditText"
-                    android:text="@string/password"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText
                     android:id="@+id/passwordLoginEditText"
@@ -73,36 +56,60 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_alignRight="@+id/emailLoginEditText"
-                    android:layout_below="@+id/textView2"
+                    android:layout_below="@+id/emailLoginEditText"
+                    android:drawableLeft="@drawable/ic_lock"
+                    android:drawableStart="@drawable/ic_lock"
                     android:ems="10"
                     android:hint="@string/yourPassword"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:paddingTop="25dp" />
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/resetPasswordText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
                     android:layout_below="@+id/passwordLoginEditText"
+                    android:paddingBottom="10dp"
+                    android:text="@string/resetPassword" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/resetPasswordText"
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="10dp">
 
                     <Button
                         android:id="@+id/loginButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:padding="10dp"
                         android:text="@string/login" />
 
-                    <Button
-                        android:id="@+id/registrationButton"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/registration" />
+                        android:orientation="horizontal"
+                        android:padding="10dp">
 
-                    <Button
-                        android:id="@+id/resetPasswordButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/resetPassword" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no_account_information" />
+
+                        <TextView
+                            android:id="@+id/registrationButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="5dp"
+                            android:text="@string/registration"
+                            android:textColor="@color/colorPrimary"
+                            android:textStyle="bold" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </RelativeLayout>

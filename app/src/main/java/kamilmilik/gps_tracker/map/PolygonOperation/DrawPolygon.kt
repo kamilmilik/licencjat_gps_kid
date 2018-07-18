@@ -90,8 +90,7 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
                 polygonsGeoLatLngMap.remove(polygon!!.tag.toString())
                 polygonsLatLngMap.remove(polygon.tag.toString())
                 polygonDatabaseOperation.removePolygonFromDatabase(polygon.tag.toString())
-
-                removePolygon()
+                removePolygon(polygon.tag.toString())
             }.setNegativeButton(R.string.cancel) { dialog, wchichButton -> }.create().show()
         }
     }

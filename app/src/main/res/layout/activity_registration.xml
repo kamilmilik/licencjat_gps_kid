@@ -34,16 +34,6 @@
                 android:layout_below="@id/toolbarRegistrationActivity"
                 android:padding="10dp">
 
-                <TextView
-                    android:id="@+id/nameTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:text="@string/name"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
                 <EditText
                     android:id="@+id/nameEditText"
                     android:layout_width="match_parent"
@@ -52,53 +42,51 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentStart="true"
-                    android:hint="@string/yourName"
-                    android:layout_below="@+id/nameTextView" />
-
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/nameEditText"
-                    android:text="@string/emailAddress"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:drawableLeft="@drawable/ic_name"
+                    android:drawableStart="@drawable/ic_name"
+                    android:hint="@string/yourName" />
 
                 <EditText
                     android:id="@+id/emailLoginEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/nameEditText"
+                    android:drawableLeft="@drawable/ic_email"
+                    android:drawableStart="@drawable/ic_email"
                     android:hint="@string/validEmail"
-                    android:layout_below="@+id/textView" />
+                    android:inputType="textEmailAddress"
+                    android:paddingTop="25dp" />
 
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/emailLoginEditText"
-                    android:text="@string/password"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText
                     android:id="@+id/passwordLoginEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignEnd="@+id/emailLoginEditText"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_alignRight="@+id/emailLoginEditText"
-                    android:layout_below="@+id/textView2"
+                    android:layout_below="@+id/emailLoginEditText"
+                    android:drawableLeft="@drawable/ic_lock"
+                    android:drawableStart="@drawable/ic_lock"
                     android:ems="10"
                     android:hint="@string/yourPassword"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:paddingTop="25dp" />
 
-                <Button
-                    android:id="@+id/registrationButton"
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/passwordLoginEditText"
-                    android:layout_centerHorizontal="true"
-                    android:text="@string/registration" />
+                    android:paddingTop="10dp">
+
+                    <Button
+                        android:id="@+id/registrationButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:text="@string/registration" />
+                </RelativeLayout>
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
