@@ -6,17 +6,13 @@ import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import kamilmilik.gps_tracker.utils.Constants
 import kamilmilik.gps_tracker.models.*
-import android.app.PendingIntent
-import android.content.Intent
-import android.support.v4.app.NotificationCompat
 import kamilmilik.gps_tracker.map.MapActivity
 import android.support.v4.app.NotificationManagerCompat
-import android.R
+import kamilmilik.gps_tracker.background.Synchronize
 import kamilmilik.gps_tracker.map.BasicListenerContent
-import kamilmilik.gps_tracker.utils.Synchronize
-import kamilmilik.gps_tracker.utils.Tools
+import kamilmilik.gps_tracker.utils.*
+import kamilmilik.gps_tracker.utils.Constants.NOTIFICATION_CHANNEL_AREA
 
 
 /**
@@ -38,7 +34,7 @@ class Notification(var context: Context) : BasicListenerContent(){
         val currentUser = FirebaseAuth.getInstance()?.currentUser
         val reference = FirebaseDatabase.getInstance().reference
         val query = reference.child(databaseNode).orderByKey().equalTo(currentUser?.uid)
-        Log.i(TAG,"findConnectionUsers() for databaseNode " + databaseNode)
+        LogUtils(context).appendLog(TAG,"findConnectionUsers() for databaseNode " + databaseNode)
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if(synchronizeAction != null){
@@ -47,7 +43,7 @@ class Notification(var context: Context) : BasicListenerContent(){
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
                         val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                        Log.i(TAG, "value : " + user!!.user_id + " " + user!!.email)
+                        LogUtils(context).appendLog(TAG, "value : " + user!!.user_id + " " + user.email)
                         loadLocationsFromDatabaseForGivenUserId(user.user_id!!, isRunOnlyOnce)
                     }
                 }
@@ -59,7 +55,7 @@ class Notification(var context: Context) : BasicListenerContent(){
                     if(synchronizeAction != null) {
                         synchronizeAction?.doOnlyOneAction()
                     }
-                    Log.i(TAG, "nothing found in onDataChange in $databaseNode")
+                    LogUtils(context).appendLog(TAG, "nothing found in onDataChange in $databaseNode")
                 }
                 putValueEventListenersToMap(query, this)
             }
@@ -76,9 +72,9 @@ class Notification(var context: Context) : BasicListenerContent(){
                 Log.i(TAG, "onDataChange in Locations listener notification " + dataSnapshot.toString())
                 for (singleSnapshot in dataSnapshot!!.children) {
                     val userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
-                    Log.i(TAG,"user who change locationOfUserWhoChangeIt : " + userWhoChangeLocation!!.email + " locationOfUserWhoChangeIt " + userWhoChangeLocation!!.lat + " " + userWhoChangeLocation!!.lng )
-                    val locationOfUserWhoChangeIt = Tools.createLocationVariable(LatLng(userWhoChangeLocation!!.lat!!.toDouble(),userWhoChangeLocation!!.lng!!.toDouble()))
+                    val locationOfUserWhoChangeIt = LocationUtils.createLocationVariable(LatLng(userWhoChangeLocation!!.lat!!.toDouble(),userWhoChangeLocation.lng!!.toDouble()))
                     val currentUser = FirebaseAuth.getInstance().currentUser
+                    LogUtils(context).appendLog(TAG,"onDataChange() jestem w loadLocationsFromDatabaseForGivenUserId a currentUser = " + currentUser + " userWhoChangeLocation " + userWhoChangeLocation!!.email + " locationOfUserWhoChangeIt " + userWhoChangeLocation.lat + " " + userWhoChangeLocation.lng )
                     if(currentUser != null){// Prevent if user click logout.
                         getPolygonFromDatabase(locationOfUserWhoChangeIt, userWhoChangeLocation.user_id!!)
                     }
@@ -88,7 +84,7 @@ class Notification(var context: Context) : BasicListenerContent(){
                     query.removeEventListener(this)
                 }
                 if (dataSnapshot.value == null) {//nothing found
-                    Log.i(TAG, "nothing found in onDataChange it couldn't happen since we have locations in db of other user")
+                    LogUtils(context).appendLog(TAG, "nothing found in onDataChange it couldn't happen since we have locations in db of other user")
                 }
                 putValueEventListenersToMap(query, this)
             }
@@ -104,12 +100,12 @@ class Notification(var context: Context) : BasicListenerContent(){
             val query: Query = databaseReference.orderByKey().equalTo(currentUser.uid)
             query.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                    LogUtils(context).appendLog(TAG, "onDataChange() w getPolygonFromDatabase")
                     for (singleSnapshot in dataSnapshot!!.children) {
                         for(child in singleSnapshot.children){
                             val polygonsFromDbMap = child.getValue(PolygonModel::class.java)
-                            Log.i(TAG,polygonsFromDbMap!!.tag + " " + polygonsFromDbMap.polygonLatLngList)
 
-                            val newList : ArrayList<LatLng> = Tools.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
+                            val newList : ArrayList<LatLng> = LocationUtils.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap!!)
                             val userAndPolygonKeyModel = UserAndPolygonKeyModel(userIdWhoChangeLocation,polygonsFromDbMap.tag!!)
                             polygonsLatLngMap.put(userAndPolygonKeyModel, newList)
                         }
@@ -119,7 +115,7 @@ class Notification(var context: Context) : BasicListenerContent(){
                         Log.i(TAG,"isInArea in polygon?")
                         val insideOrOutsideArea = InsideOrOutsideArea(context, locationOfUserWhoChangeIt)
                         val listOfIsInArea = insideOrOutsideArea.isPointInsidePolygon(polygonsLatLngMap)
-                        Log.i(TAG, "list of isInArea " + listOfIsInArea.toString())
+                        LogUtils(context).appendLog(TAG, "list of isInArea " + listOfIsInArea.toString())
                         for(it in listOfIsInArea){
                             if(it == Constants.EPolygonAreaState.ENTER.idOfState || it == Constants.EPolygonAreaState.EXIT.idOfState  ){
                                 notification(it, userIdWhoChangeLocation, listOfIsInArea.size)
@@ -127,7 +123,7 @@ class Notification(var context: Context) : BasicListenerContent(){
                                 //nie ma zmiany wiec poprostu policz iteracje
                                 if(synchronizeAction != null) {
                                     synchronizeAction?.endOfPolygonIterateAction(listOfIsInArea.size)
-                                    Log.i(TAG,"onDataChange() isInPolygon not change polygonActionCounter " + synchronizeAction?.polygonActionCounter + " howManyTimesActionRunConnectedUser " + synchronizeAction?.howManyTimesActionRunConnectedUser + " allTaskDone " + synchronizeAction?.allTaskDoneCounter)
+                                    LogUtils(context).appendLog(TAG,"onDataChange() isInPolygon not change polygonActionCounter " + synchronizeAction?.polygonActionCounter + " howManyTimesActionRunConnectedUser " + synchronizeAction?.howManyTimesActionRunConnectedUser + " allTaskDone " + synchronizeAction?.allTaskDoneCounter)
                                 }
                             }
                         }
@@ -138,7 +134,7 @@ class Notification(var context: Context) : BasicListenerContent(){
                         //ok tu sie moze to konczyc bo nie ma polygonu wiec sprawdz wynik
                         if(synchronizeAction != null) {
                             synchronizeAction?.oneUserEndPolygonAction()
-                            Log.i(TAG,"no polygon " + " howManyTimesActionRunConnectedUser " + synchronizeAction?.howManyTimesActionRunConnectedUser + " allTaskDone " + synchronizeAction?.allTaskDoneCounter)
+                            LogUtils(context).appendLog(TAG,"no polygon " + " howManyTimesActionRunConnectedUser " + synchronizeAction?.howManyTimesActionRunConnectedUser + " allTaskDone " + synchronizeAction?.allTaskDoneCounter)
                         }
                         Log.i(TAG, "nothing found in onDataChange")
                     }
@@ -151,17 +147,19 @@ class Notification(var context: Context) : BasicListenerContent(){
     }
 
     private fun notification(transition : Int, userIdWhoChangeLocation: String, listSize : Int){
+        val NOTIFICATION_ID_ENTER = java.lang.System.currentTimeMillis().toInt()
+        val NOTIFICATION_ID_EXIT = java.lang.System.currentTimeMillis().toInt()
         if(transition == Constants.EPolygonAreaState.ENTER.idOfState ){
             userNotifyAction(userIdWhoChangeLocation,
                     context.getString(kamilmilik.gps_tracker.R.string.inPolygonInformation),
-                    Constants.NOTIFICATION_CHANNEL_ID_ENTER,
-                    Constants.NOTIFICATION_ID_ENTER,
+                    NOTIFICATION_CHANNEL_AREA,
+                    NOTIFICATION_ID_ENTER,
                     listSize)
         } else if (transition == Constants.EPolygonAreaState.EXIT.idOfState) {
             userNotifyAction(userIdWhoChangeLocation,
                     context.getString(kamilmilik.gps_tracker.R.string.exitPolygonInformation),
-                    Constants.NOTIFICATION_CHANNEL_ID_EXIT,
-                    Constants.NOTIFICATION_ID_EXIT,
+                    NOTIFICATION_CHANNEL_AREA,
+                    NOTIFICATION_ID_EXIT,
                     listSize)
         }
     }
@@ -175,10 +173,12 @@ class Notification(var context: Context) : BasicListenerContent(){
                     override fun onDataChange(dataSnapshot: DataSnapshot?) {
                         for (singleSnapshot in dataSnapshot!!.children) {
                             val user = singleSnapshot!!.getValue(User::class.java)
-                            buildNotificationForInsideOrOutsideArea(context.getString(kamilmilik.gps_tracker.R.string.notificationAreaTitle),
-                                    "${user!!.user_name} $contentText",
+                            Log.i(TAG,"onDataChange() Build notification for " + user!!.user_name + " " + notificationChanelId + " " + notificationId)
+                            buildNotificationForInsideOrOutsideArea(NotificationModel(context.getString(kamilmilik.gps_tracker.R.string.app_name),
+                                    "${user.user_name} $contentText",
                                     notificationChanelId,
-                                    notificationId
+                                    notificationId,
+                                    true)
                             )
                         }
                         if(synchronizeAction != null){
@@ -190,19 +190,16 @@ class Notification(var context: Context) : BasicListenerContent(){
                 })
     }
 
-    fun buildNotificationForInsideOrOutsideArea(contentTitle : String, contentText : String, notificationChanelId : String, notificationId : Int){
-        val intent = Intent(context, MapActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+    fun buildNotificationForInsideOrOutsideArea(notificationModel : NotificationModel){
+        LogUtils(context).appendLog(TAG, "Build notification ${notificationModel.contentText}" )
+        Log.i(TAG,"buildNotificationForInsideOrOutsideArea() build notif")
+        val pendingIntent = NotificationUtils.createPendingIntent(context, MapActivity::class.java, true)
 
-        val mBuilder = NotificationCompat.Builder(context, notificationChanelId)
-                .setContentTitle(contentTitle)
-                .setContentText(contentText)
-                .setSmallIcon(R.drawable.ic_dialog_dialer)
-                .setContentIntent(pendingIntent)
-                .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
+        val notificationBuilder = NotificationUtils.createNotification(context, notificationModel)
+                ?.setContentIntent(pendingIntent)
+        NotificationUtils.createNotificationChannel(context, notificationModel)
 
         val notificationManager = NotificationManagerCompat.from(context)
-        notificationManager.notify(notificationId, mBuilder.build())
+        notificationManager.notify(notificationModel.notificationId, notificationBuilder!!.build())
     }
 }

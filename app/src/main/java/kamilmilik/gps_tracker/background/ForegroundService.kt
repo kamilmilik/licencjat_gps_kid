@@ -7,14 +7,19 @@ import android.content.Intent
 import android.location.Location
 import android.os.IBinder
 import android.os.Looper
-import android.support.v4.app.NotificationCompat
 import android.util.Log
+import android.widget.Toast
 import com.google.android.gms.location.*
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.gps_tracker.R
+import kamilmilik.gps_tracker.models.NotificationModel
 import kamilmilik.gps_tracker.models.TrackingModel
 import kamilmilik.gps_tracker.utils.*
+import kamilmilik.gps_tracker.utils.Constants.NOTIFICATION_CHANNEL_FOREGROUND
+import kamilmilik.gps_tracker.utils.Constants.NOTIFICATION_ID_GET_LOCATION
+import kamilmilik.gps_tracker.utils.listeners.OnDataAddedListener
+
 
 /**
  * Created by kamil on 23.04.2018.
@@ -29,9 +34,11 @@ open class ForegroundService : Service() {
 
     private var locationCallback: LocationCallback? = null
 
+    private var pendingIntent: PendingIntent? = null
+
     private var notificationMethods: kamilmilik.gps_tracker.map.PolygonOperation.notification.Notification? = null
 
-    private var synchronizeAction : Synchronize? = null
+    private var synchronizeAction: Synchronize? = null
 
     override fun onBind(p0: Intent?): IBinder? = null
 
@@ -39,6 +46,7 @@ open class ForegroundService : Service() {
         if (FirebaseAuth.getInstance().currentUser != null) {
             notificationMethods = kamilmilik.gps_tracker.map.PolygonOperation.notification.Notification(this@ForegroundService)
             synchronizeAction = Synchronize(this)
+            LogUtils(this).appendLog(TAG, "new Synchronize object : " + synchronizeAction?.allTaskDoneCounter?.get() + " " + synchronizeAction?.doOnlyOneTaskDoneCounter?.get() + " " + synchronizeAction?.howManyTimesActionRunConnectedUser?.get() + " " + synchronizeAction?.polygonActionCounter?.get())
             notificationMethods?.synchronizeAction = synchronizeAction
             startForegroundService()
 
@@ -49,25 +57,15 @@ open class ForegroundService : Service() {
         return START_STICKY
     }
 
-    private fun createLocationRequest() {
-        locationRequest = LocationRequest.create()
-        locationRequest!!.interval = Constants.LOCATION_INTERVAL
-        locationRequest!!.fastestInterval = Constants.LOCATION_FASTEST_INTERVAL
-        locationRequest!!.smallestDisplacement = Constants.LOCATION_SMALLEST_DISPLACEMENT
-        locationRequest!!.priority = Constants.LOCATION_PRIORITY
-    }
-
     private fun getCurrentLocationAction() {
         object : Thread() {
             override fun run() {
                 Log.i(TAG, "dzialam")
                 if (Tools.isGooglePlayServicesAvailable(this@ForegroundService)) {
                     fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@ForegroundService)
-                    createLocationRequest()
-                }
-                if (Tools.isGooglePlayServicesAvailable(this@ForegroundService)) {
-                    if (Tools.checkApkVersion()) {
-                        if (Tools.checkPermissionGranted(this@ForegroundService, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    locationRequest = LocationUtils.createLocationRequest()
+                    if (PermissionsUtils.checkApkVersion()) {
+                        if (PermissionsUtils.checkPermissionGranted(this@ForegroundService, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                             getCurrentLocation()
                         }
                     } else {
@@ -84,19 +82,25 @@ open class ForegroundService : Service() {
     private fun getCurrentLocation() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
-                Log.i(TAG, "onLocationResult() $locationResult")
+                LogUtils(this@ForegroundService).appendLog(TAG, "onLocationResult() $locationResult")
                 for (location in locationResult!!.locations) {
-                    addCurrentUserLocationToFirebase(location)
+                    val lastLocation = LocationUtils.getLocationFromSharedPref(this@ForegroundService)
+                    LogUtils(this@ForegroundService).appendLog(TAG, "accuracy locationResult: ${location.accuracy} isBetterLocation? " + LocationUtils.isBetterLocation(this@ForegroundService, location, lastLocation))
+                    if (LocationUtils.isBetterLocation(this@ForegroundService, location, lastLocation)) {
+                        LogUtils(this@ForegroundService).appendLog(TAG, "add location in onLocationResult : ${location.longitude} ${location.latitude} accuracy: ${location.accuracy}")
+                        addCurrentUserLocationToFirebase(location)
+                    }
                 }
             }
 
             override fun onLocationAvailability(locationAvailability: LocationAvailability?) {
                 super.onLocationAvailability(locationAvailability)
-                Log.i(TAG, "onLocationAvailability() " + locationAvailability!!.isLocationAvailable + " stop service")
-                if (!locationAvailability!!.isLocationAvailable) {
+                LogUtils(this@ForegroundService).appendLog(TAG, "onLocationAvailability() " + locationAvailability!!.isLocationAvailable + " stop service")
+                if (!locationAvailability.isLocationAvailable) {
                     fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                         if (location != null) {
-                            addCurrentUserLocationToFirebase(location!!)
+                            LogUtils(this@ForegroundService).appendLog(TAG, "add location in onLocationAvailability : ${location.longitude} ${location.latitude}")
+                            addCurrentUserLocationToFirebase(location)
                         }
                     }
                 }
@@ -107,42 +111,43 @@ open class ForegroundService : Service() {
     }
 
     private fun startForegroundService() {
-        val notificationIntent = Intent(this@ForegroundService, ForegroundService::class.java)
-        val pendingIntent = PendingIntent.getActivity(this@ForegroundService, 0, notificationIntent, 0)
+        pendingIntent = NotificationUtils.createPendingIntent(this@ForegroundService, ForegroundService::class.java, false)
+        val notificationModel = NotificationModel(getString(R.string.app_name), getString(R.string.getlocationInformation), NOTIFICATION_CHANNEL_FOREGROUND, NOTIFICATION_ID_GET_LOCATION, false)
+        val notification = NotificationUtils.createNotification(this@ForegroundService, notificationModel)
+                ?.setContentIntent(pendingIntent)
+                ?.build()
 
-        val notification = NotificationCompat.Builder(this@ForegroundService, Constants.NOTIFICATION_CHANNEL_FOREGROUND)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.getlocationInformation))
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentIntent(pendingIntent)
-                .build()
+        NotificationUtils.createNotificationChannel(this, notificationModel)
 
-        startForeground(Constants.NOTIFICATION_ID_GET_LOCATION, notification)
+        startForeground(NOTIFICATION_ID_GET_LOCATION, notification)
     }
 
+    //TODO z doOnlyOneTaskDoneCounter jest problem czasami rowny jest 18 lub wiecej nawet, sprawdzic dlaczego tak
     private fun addCurrentUserLocationToFirebase(lastLocation: Location) {
         FirebaseApp.initializeApp(applicationContext)
+        LocationUtils.saveLocationToSharedPref(this@ForegroundService, lastLocation)
         val currentUser = FirebaseAuth.getInstance().currentUser
-        Log.i(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser?.uid + " location " + lastLocation.toString())
+        LogUtils(this@ForegroundService).appendLog(TAG, "addCurrentUserMarkerAndRemoveOld() current user: " + currentUser?.uid + " location " + lastLocation.toString())
         currentUser?.getIdToken(true)?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                LogUtils(this@ForegroundService).appendLog(TAG, "addCurrentUserLocationToFirebase() task.isSuccessful")
                 val tokenId = task.result.token
-                RestFirebaseAsync(TrackingModel(currentUser.uid,
+                RestFirebaseUtils.RestFirebaseAsync(TrackingModel(currentUser.uid,
                         currentUser.email!!,
                         lastLocation.latitude.toString(),
                         lastLocation.longitude.toString(),
                         currentUser.displayName!!), tokenId!!, object : OnDataAddedListener {
                     override fun onDataAdded() {
-                        Log.i(TAG, "onComplete() position: $lastLocation saved to firebase database")
+                        LogUtils(this@ForegroundService).appendLog(TAG, "onComplete() position: ${lastLocation.latitude} ${lastLocation.longitude} saved to firebase database ")
                         synchronizeAction!!.allTaskDoneCounter.incrementAndGet()
                         synchronizeAction!!.doOnlyOneTaskDoneCounter.incrementAndGet()
-                        Log.i(TAG,"onDataAdded() tutaj sie ma wykonac foregroundservice allTaskDoneCounter = " + synchronizeAction!!.allTaskDoneCounter + " doOnlyOneTaskDoneCounter " + synchronizeAction!!.doOnlyOneTaskDoneCounter)
-                        if(synchronizeAction!!.allTaskDoneCounter.compareAndSet(2,0) || synchronizeAction!!.doOnlyOneTaskDoneCounter.compareAndSet(3, 0)){
-                            Log.i(TAG,"onDataAdded() stop in foregroundService with allTaskDoneCounter = ${synchronizeAction!!.allTaskDoneCounter} and  doOnlyOneTaskDoneCounter = ${synchronizeAction!!.doOnlyOneTaskDoneCounter}")
+                        LogUtils(this@ForegroundService).appendLog(TAG, "onDataAdded() tutaj sie ma wykonac foregroundservice allTaskDoneCounter = " + synchronizeAction!!.allTaskDoneCounter + " doOnlyOneTaskDoneCounter " + synchronizeAction!!.doOnlyOneTaskDoneCounter)
+                        fusedLocationClient.removeLocationUpdates(locationCallback)
+                        fusedLocationClient.removeLocationUpdates(pendingIntent)
+                        if (synchronizeAction!!.allTaskDoneCounter.compareAndSet(2, 0) || synchronizeAction!!.doOnlyOneTaskDoneCounter.compareAndSet(3, 0)) {
+                            LogUtils(this@ForegroundService).appendLog(TAG, "onDataAdded() stop in foregroundService with allTaskDoneCounter = ${synchronizeAction!!.allTaskDoneCounter} and  doOnlyOneTaskDoneCounter = ${synchronizeAction!!.doOnlyOneTaskDoneCounter}")
                             finishServiceAction()
                         }
-                            fusedLocationClient.removeLocationUpdates(locationCallback)
-
                     }
                 }).execute()
             }
@@ -158,10 +163,17 @@ open class ForegroundService : Service() {
         }.start()
     }
 
-    fun finishServiceAction(){
-       stopForeground(true)
-        stopSelf()
-        notificationMethods?.removeValueEventListeners()
+    fun finishServiceAction() {
+        LogUtils(this).writeLogToServerAsync(object : OnDataAddedListener {
+            override fun onDataAdded() {
+                LogUtils(this@ForegroundService).appendLog(TAG, "finishServiceAction : " + synchronizeAction?.allTaskDoneCounter?.get() + " " + synchronizeAction?.doOnlyOneTaskDoneCounter?.get() + " " + synchronizeAction?.howManyTimesActionRunConnectedUser?.get() + " " + synchronizeAction?.polygonActionCounter?.get())
+                LogUtils(this@ForegroundService).deleteLogFileAtTimeBetweenGivenHours(2, 4)
+                stopForeground(true)
+                stopSelf()
+                notificationMethods?.removeValueEventListeners()
+            }
+
+        })
     }
 
 }

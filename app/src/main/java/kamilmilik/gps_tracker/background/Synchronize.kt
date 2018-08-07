@@ -1,8 +1,8 @@
-package kamilmilik.gps_tracker.utils
+package kamilmilik.gps_tracker.background
 
 import android.util.Log
 import com.google.firebase.database.DataSnapshot
-import kamilmilik.gps_tracker.background.ForegroundService
+import kamilmilik.gps_tracker.utils.Constants
 import java.util.concurrent.atomic.AtomicInteger
 
 /**

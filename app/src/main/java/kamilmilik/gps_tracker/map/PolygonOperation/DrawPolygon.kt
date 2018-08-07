@@ -29,12 +29,12 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
     override fun setOnMarkerDragListenerAfterAddPolygon(markersMap: HashMap<ArrayList<Marker>, Polygon>) {
         Log.i(TAG, "setOnMarkerDragListenerAfterAddPolygon()")
         this.markersMap = markersMap
-        mapActivity.getMap().setOnMarkerDragListener(MarkerListener(polygonsGeoLatLngMap,markersMap, polygonDatabaseOperation!!))
+        mapActivity.getMap().setOnMarkerDragListener(MarkerListener(polygonsGeoLatLngMap,markersMap, polygonDatabaseOperation))
     }
 
     fun onTouchAction(motionEvent: MotionEvent?, draggable: FrameLayout) {
         val position = mapActivity.getMap().projection.fromScreenLocation(
-                Point(motionEvent!!.x.toInt(), motionEvent!!.y.toInt()));
+                Point(motionEvent!!.x.toInt(), motionEvent.y.toInt()));
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (polygon != null) {

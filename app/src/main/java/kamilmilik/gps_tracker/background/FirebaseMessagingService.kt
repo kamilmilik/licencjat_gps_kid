@@ -21,7 +21,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private var authListener: FirebaseAuth.AuthStateListener? = null
 
-    @SuppressLint("MissingPermission")
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
         Log.i(TAG, "onMessageReceived()")
@@ -30,7 +29,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             if (user != null) {
                 setupAlarmManager()
             } else {
-                Log.i(TAG, "onMessageReceived() user not loggin")
+                Log.i(TAG, "onMessageReceived() user not log in")
             }
         }
         FirebaseAuth.getInstance().addAuthStateListener(authListener!!)
@@ -39,16 +38,18 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private fun setupAlarmManager() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = PendingIntent.getBroadcast(this, 0, Intent(this, AlarmReceiver::class.java), 0)
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), alarmIntent)
-        } else if (Build.VERSION.SDK_INT >= 19) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), alarmIntent)
         }
     }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        FirebaseAuth.getInstance().removeAuthStateListener(authListener!!)
+        if(authListener != null){
+            FirebaseAuth.getInstance().removeAuthStateListener(authListener!!)
+        }
     }
 
 }

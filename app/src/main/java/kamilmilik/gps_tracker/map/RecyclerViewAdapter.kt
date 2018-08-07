@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.models.UserMarkerInformationModel
-import kamilmilik.gps_tracker.utils.IRecyclerViewListener
+import kamilmilik.gps_tracker.utils.listeners.IRecyclerViewListener
 
 
 /**

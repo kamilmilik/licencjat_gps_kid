@@ -24,7 +24,6 @@
     <string name="timeLocationReport">Location report</string>
     <string name="inPolygonInformation">is in area</string>
     <string name="exitPolygonInformation">exit area</string>
-    <string name="notificationAreaTitle" translatable="false">Kid Tracker</string>
     <string name="editName">Edit name</string>
     <string name="writeNewName">Write new name</string>
     <string name="cancel">Cancel</string>
@@ -76,4 +75,23 @@
     <string name="deleteAreaPolygon">Delete area</string>
     <string name="deleteAreaPolygonMessage">Are you want to delete clicked area?</string>
     <string name="no_account_information">Don\'t have an account?</string>
+    <string name="logoutMessage">Are you sure you want to log out?</string>
+    <string name="notificationAreaDestription">Gps Tracker area notification</string>
+    <string name="locationUnavailable">The location is unavailable. You have turned off the GPS or you do not have a GPS signal</string>
+    <string name="errorInvalidCustomToken">The custom token format is incorrect. Please check the documentation.</string>
+    <string name="errorCustomTokenMismatch">The custom token corresponds to a different audience.</string>
+    <string name="errorInvalidCredential">The supplied auth credential is malformed or has expired.</string>
+    <string name="errorInvalidEmail">The email address is badly formatted.</string>
+    <string name="errorWrongPassword">The password is invalid.</string>
+    <string name="errorUserMismatch">The supplied credentials do not correspond to the previously signed in user.</string>
+    <string name="errorRequresRecentLogin">This operation is sensitive and requires recent authentication. Log in again before retrying this request.</string>
+    <string name="errorAccountExistsWithDifferentCredential">An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.</string>
+    <string name="errorEmailArleadyInUse">The email address is already in use by another account.</string>
+    <string name="errorCredentialArleadyInUse">This credential is already associated with a different user account.</string>
+    <string name="errorUserDisabled">The user account has been disabled by an administrator.</string>
+    <string name="errorUserTokenExpired">The user\'s credential is no longer valid. The user must sign in again.</string>
+    <string name="errorUserNotFound">There is no user record corresponding to this identifier. The user may have been deleted.</string>
+    <string name="errorInvalidUserToken">The user\'s credential is no longer valid. The user must sign in again.</string>
+    <string name="errorOperationNotAllowed">This operation is not allowed. You must enable this service in the console.</string>
+    <string name="errorWeakPassword">The given password is invalid.</string>
 </resources>

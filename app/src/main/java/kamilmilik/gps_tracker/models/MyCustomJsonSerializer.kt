@@ -14,7 +14,7 @@ class MyCustomJsonSerializer :  JsonSerializer<UserAndPolygonKeyModel> {
     override fun serialize(src: UserAndPolygonKeyModel?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
         val result = JsonObject()
         result.add("userId", JsonPrimitive(src!!.userId))
-        result.add("polygonKey", JsonPrimitive(src!!.polygonKey))
+        result.add("polygonKey", JsonPrimitive(src.polygonKey))
         return result
     }
 

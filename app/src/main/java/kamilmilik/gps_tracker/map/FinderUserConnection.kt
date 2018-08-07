@@ -63,7 +63,7 @@ class FinderUserConnection(private var mapActivity: MapActivity) : BasicListener
         for (singleSnapshot in dataSnapshot!!.children) {
             for (childSingleSnapshot in singleSnapshot.children) {
                 val user = childSingleSnapshot!!.getValue(User::class.java)
-                Log.i(TAG, "value following system: " + user!!.user_id + " " + user.email)
+                Log.i(TAG, "value following system: " + user!!.user_id + " " + user.email + " " + user.user_name)
                 val userInformation = UserMarkerInformationModel(user.email, user.user_name!!, user.user_id!!)
 
                 mapActivity.updateChangeUserNameInRecycler(userInformation)

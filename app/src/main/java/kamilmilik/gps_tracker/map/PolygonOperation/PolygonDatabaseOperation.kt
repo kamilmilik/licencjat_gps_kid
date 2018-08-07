@@ -10,6 +10,7 @@ import kamilmilik.gps_tracker.utils.Constants
 import kamilmilik.gps_tracker.utils.Tools
 import kamilmilik.gps_tracker.map.adapter.GeoLatLng
 import kamilmilik.gps_tracker.models.PolygonModel
+import kamilmilik.gps_tracker.utils.LocationUtils
 
 /**
  * Created by kamil on 17.03.2018.
@@ -57,7 +58,7 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
                                     //Log.i(TAG,polygonsFromDbMap!!.tag + " " + polygonsFromDbMap!!.polygonLatLngList)
                                     polygonsMap.put(polygonsFromDbMap!!.tag!!, polygonsFromDbMap.polygonLatLngList)
 
-                                    val newList: ArrayList<LatLng> = Tools.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
+                                    val newList: ArrayList<LatLng> = LocationUtils.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap)
 
                                     drawPolygonFromDatabase(polygonsFromDbMap.tag!!, newList)
                                 }
@@ -86,7 +87,7 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
             marker.isVisible = false
             markerList.add(marker)
         }
-        markersMap!!.put(markerList, polygon!!)
+        markersMap?.put(markerList, polygon!!)
         Log.i(TAG, "markersMap size: " + markersMap!!.size + " markerList size: " + markerList.size)
         markerList = ArrayList()
 

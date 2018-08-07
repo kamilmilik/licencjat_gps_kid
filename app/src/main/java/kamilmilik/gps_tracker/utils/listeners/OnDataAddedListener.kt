@@ -1,4 +1,4 @@
-package kamilmilik.gps_tracker.utils
+package kamilmilik.gps_tracker.utils.listeners
 
 /**
  * Created by kamil on 01.06.2018.

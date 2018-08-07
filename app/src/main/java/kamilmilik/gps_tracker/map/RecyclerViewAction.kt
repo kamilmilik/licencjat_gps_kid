@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.models.User
-import kamilmilik.gps_tracker.utils.IRecyclerViewListener
+import kamilmilik.gps_tracker.utils.listeners.IRecyclerViewListener
 import kamilmilik.gps_tracker.models.UserMarkerInformationModel
 import kamilmilik.gps_tracker.utils.Constants
 import kamilmilik.gps_tracker.utils.Tools
@@ -32,12 +32,11 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(mapActivity.getActivity(), LinearLayoutManager.HORIZONTAL, false)
 
-        // Add current user and other users are add in FinderUserConnection.
+        // Add current user and other users are added in FinderUserConnection.
         valueSet = HashSet()
         if (FirebaseAuth.getInstance().currentUser != null) {
             valueSet.add(UserMarkerInformationModel(currentUser.email!!, currentUser.displayName!!, currentUser.uid))
             val valueList = ArrayList(valueSet)
-            //TODO zamiast tworzyc nowe obiekty recylerAdapter to w RecyclerViewAdapter zrobić setUser i to wywolywać na adapterze
             adapter = RecyclerViewAdapter(mapActivity.getActivity(), valueList)
             recyclerView.adapter = adapter
             adapter.setClickListener(this)

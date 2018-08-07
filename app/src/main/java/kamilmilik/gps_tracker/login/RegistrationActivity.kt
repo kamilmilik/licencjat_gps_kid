@@ -10,7 +10,9 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_registration.*
 import kamilmilik.gps_tracker.ApplicationActivity
 import kamilmilik.gps_tracker.R
+import kamilmilik.gps_tracker.utils.FirebaseAuthExceptions
 import kamilmilik.gps_tracker.utils.Tools
+import kamilmilik.gps_tracker.utils.ValidDataUtils
 
 
 class RegistrationActivity : ApplicationActivity() {
@@ -40,7 +42,7 @@ class RegistrationActivity : ApplicationActivity() {
             email = emailLoginEditText!!.text.toString().replace("\\s".toRegex(), "")
             password = passwordLoginEditText!!.text.toString()
             name = nameEditText!!.text.toString()
-            if (Tools.checkIfUserEnterValidData(this, email!!, password!!, name!!)) {
+            if (ValidDataUtils.checkIfUserEnterValidData(this, email!!, password!!, name!!)) {
                 registerNewUser(email!!, password!!, name!!, this)
             }
         })
@@ -54,7 +56,7 @@ class RegistrationActivity : ApplicationActivity() {
                     if (task.isSuccessful) {//user successfull registrered and logged in
                         sendEmailVerification(activity, name)
                     } else {
-                        Toast.makeText(this, task.exception!!.message, Toast.LENGTH_LONG).show()
+                        FirebaseAuthExceptions.translate(this, task)
                     }
                 }
     }

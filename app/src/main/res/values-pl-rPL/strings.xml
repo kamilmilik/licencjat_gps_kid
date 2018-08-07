@@ -75,5 +75,24 @@
     <string name="deleteAreaPolygon">Usuń obszar</string>
     <string name="deleteAreaPolygonMessage">Czy chcesz usunąc kliknięty obszar?</string>
     <string name="no_account_information">Nie masz konta?</string>
+    <string name="logoutMessage">Czy na pewno chcesz się wylogować?</string>
+    <string name="notificationAreaDestription">Gps Tracker powiadomienie obszaru</string>
+    <string name="locationUnavailable">Lokalizacja jest niedostępna. Wyłączyłeś GPS lub nie masz sygnału GPS</string>
+    <string name="errorInvalidCustomToken">Niestandardowy format tokenu jest niepoprawny. Sprawdź dokumentację.</string>
+    <string name="errorCustomTokenMismatch">Token niestandardowy odpowiada różnym odbiorcom.</string>
+    <string name="errorInvalidCredential">The supplied auth credential is malformed or has expired.</string>
+    <string name="errorInvalidEmail">Adres e-mail jest źle sformatowany.</string>
+    <string name="errorWrongPassword">Hasło jest nieprawidłowe.</string>
+    <string name="errorUserMismatch">"Podane poświadczenia nie odpowiadają wcześniej zarejestrowanemu użytkownikowi. "</string>
+    <string name="errorRequresRecentLogin">Ta operacja jest czuła i wymaga najnowszego uwierzytelnienia. Zaloguj się ponownie przed ponowieniem tego żądania.</string>
+    <string name="errorAccountExistsWithDifferentCredential">Konto już istnieje z tym samym adresem e-mail, ale z innymi danymi logowania. Zaloguj się przy użyciu dostawcy powiązanego z tym adresem e-mail.</string>
+    <string name="errorEmailArleadyInUse">Adres e-mail jest już używany przez inne konto.</string>
+    <string name="errorCredentialArleadyInUse">To poświadczenie jest już powiązane z innym kontem użytkownika.</string>
+    <string name="errorUserDisabled">Konto użytkownika zostało wyłączone przez administratora.</string>
+    <string name="errorUserTokenExpired">Dane uwierzytelniające użytkownika nie są już ważne. Użytkownik musi się ponownie zalogować.</string>
+    <string name="errorUserNotFound">Nie ma rekordu użytkownika odpowiadającego temu identyfikatorowi. Użytkownik mógł zostać usunięty.</string>
+    <string name="errorInvalidUserToken">"Dane uwierzytelniające użytkownika nie są już ważne. Użytkownik musi się ponownie zalogować. "</string>
+    <string name="errorOperationNotAllowed">"Ta operacja jest niedozwolona. Musisz włączyć tę usługę w konsoli. "</string>
+    <string name="errorWeakPassword">Podane hasło jest nieprawidłowe.</string>
 
 </resources>

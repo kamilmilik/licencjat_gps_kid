@@ -50,6 +50,7 @@ class InsideOrOutsideArea(var context : Context ,var locationOfUserWhoChangeIt: 
 
         return Constants.EPolygonAreaState.STILL_OUTSIDE_OR_INSIDE.idOfState
     }
+
     private fun getValueFromSharedPreferences() : HashMap<UserAndPolygonKeyModel,Boolean>{
         val sharedPref = context.getSharedPreferences(Constants.SHARED_KEY, Context.MODE_PRIVATE)
         val jsonString : String= sharedPref.getString(Constants.SHARED_POLYGON_KEY,"")

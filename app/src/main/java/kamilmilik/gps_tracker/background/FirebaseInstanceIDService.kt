@@ -13,7 +13,7 @@ class FirebaseInstanceIDService : FirebaseInstanceIdService() {
 
     private val TAG = FirebaseInstanceIDService::class.java.simpleName
 
-    // The onTokenRefreshcallback fires whenever a new token is generated.
+    // The onTokenRefresh callback fires whenever a new token is generated.
     override fun onTokenRefresh() {
         Tools.addDeviceTokenToDatabase()
     }

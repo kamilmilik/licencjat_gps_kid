@@ -17,8 +17,7 @@ import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import com.google.firebase.database.ValueEventListener
-
-
+import kamilmilik.gps_tracker.utils.LocationUtils
 
 
 /**
@@ -58,7 +57,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
             val currentMarker = createMarker(currentUser, lastLocation)
             markersMap.put(userMarkerInformation, currentMarker)
-            currentUserLocation = Tools.createLocationVariable(currentMarker.position)
+            currentUserLocation = LocationUtils.createLocationVariable(currentMarker.position)
 
             updateMarkerSnippetDistance(userMarkerInformation, currentUserLocation)
 
@@ -133,7 +132,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
                         deletePreviousMarker(userMarkerInformation)
 
-                        val firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, Tools.createLocationVariable(locationOfTheUserWhoChangeLocation))
+                        val firstDistanceSecondMeasure = LocationUtils.calculateDistanceBetweenTwoPoints(currentUserLocation, LocationUtils.createLocationVariable(locationOfTheUserWhoChangeLocation))
                         val markerFollowingUser = mapActivity.getMap().addMarker(MarkerOptions()
                                 .position(locationOfTheUserWhoChangeLocation)
                                 .title(userName)
@@ -171,11 +170,11 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
     private fun progressBarDismissAction(reference: DatabaseReference, currentUser : FirebaseUser, progressBar: RelativeLayout){
         var query = reference.child(Constants.DATABASE_FOLLOWERS)
                 .orderByKey()
-                .equalTo(currentUser!!.uid)
+                .equalTo(currentUser.uid)
         checkIfUserExistInDatabase(query, progressBar)
         query = reference.child(Constants.DATABASE_FOLLOWING)
                 .orderByKey()
-                .equalTo(currentUser!!.uid)
+                .equalTo(currentUser.uid)
         checkIfUserExistInDatabase(query, progressBar)
 
         dismissProgressBar(progressBar)
@@ -221,8 +220,8 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
     private fun updateMarkerSnippetDistance(userToAvoidUpdate: UserMarkerInformationModel, currentUserLocation: Location) {
         for ((key, value) in markersMap) {
             if (key != userToAvoidUpdate) {
-                val location = Tools.createLocationVariable(value.position)
-                val firstDistanceSecondMeasure = Tools.calculateDistanceBetweenTwoPoints(currentUserLocation, location)
+                val location = LocationUtils.createLocationVariable(value.position)
+                val firstDistanceSecondMeasure = LocationUtils.calculateDistanceBetweenTwoPoints(currentUserLocation, location)
                 value.hideInfoWindow()
                 value.snippet = mapActivity.getActivity().getString(R.string.distance) + " " + DecimalFormat("#.#").format(firstDistanceSecondMeasure.first) + firstDistanceSecondMeasure.second
             }

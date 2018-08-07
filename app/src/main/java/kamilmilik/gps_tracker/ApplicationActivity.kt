@@ -36,9 +36,9 @@ open class ApplicationActivity : AppCompatActivity() {
         deleteUserFromFirebaseAuth()
     }
     private fun deleteUserFromFirebaseAuth(){
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = FirebaseAuth.getInstance().currentUser
         if(currentUser != null){
-            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(currentUser!!.uid).
+            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(currentUser.uid).
                     addChildEventListener(object : ChildEventListener {
                         override fun onCancelled(databaseError: DatabaseError?) {}
                         override fun onChildAdded(dataSnapshot: DataSnapshot?, previousKey: String?) {}

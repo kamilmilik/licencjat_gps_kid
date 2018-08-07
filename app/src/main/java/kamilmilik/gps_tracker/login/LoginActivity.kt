@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.*
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.gps_tracker.ApplicationActivity
@@ -15,6 +15,8 @@ import kamilmilik.gps_tracker.map.MapActivity
 import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.utils.Tools
 import kamilmilik.gps_tracker.models.User
+import kamilmilik.gps_tracker.utils.FirebaseAuthExceptions
+import kamilmilik.gps_tracker.utils.ValidDataUtils
 
 
 class LoginActivity : ApplicationActivity() {
@@ -48,7 +50,7 @@ class LoginActivity : ApplicationActivity() {
         loginButton.setOnClickListener({
             val email = emailLoginEditText!!.text.toString().replace("\\s".toRegex(), "")
             val password = passwordLoginEditText!!.text.toString()
-            if (Tools.checkIfUserEnterValidData(this, email, password)) {
+            if (ValidDataUtils.checkIfUserEnterValidData(this, email, password)) {
                 val progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
                 firebaseAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
@@ -66,7 +68,7 @@ class LoginActivity : ApplicationActivity() {
                                     firebaseAuth.signOut()
                                 }
                             } else {
-                                Toast.makeText(this, task.exception!!.message, Toast.LENGTH_LONG).show()
+                                FirebaseAuthExceptions.translate(this, task)
                             }
                         }
             }
@@ -76,8 +78,8 @@ class LoginActivity : ApplicationActivity() {
     fun addInformationAboutLoggedUser(){
         FirebaseDatabase.getInstance().reference!!.child(Constants.DATABASE_USER_LOGGED)
                 .child(Constants.DATABASE_USER_FIELD)
-                .child(firebaseAuth!!.currentUser!!.uid)
-                .setValue(firebaseAuth!!.currentUser!!.uid)
+                .child(firebaseAuth.currentUser!!.uid)
+                .setValue(firebaseAuth.currentUser!!.uid)
     }
 
     private fun checkIfUserLoggedInOtherDeviceAndIfNotLogIn(email: String){
@@ -85,7 +87,7 @@ class LoginActivity : ApplicationActivity() {
                 .child(Constants.DATABASE_USER_LOGGED)
                 .child(Constants.DATABASE_USER_FIELD)
                 .orderByKey()
-                .equalTo(firebaseAuth!!.currentUser!!.uid)
+                .equalTo(firebaseAuth.currentUser!!.uid)
                 .addListenerForSingleValueEvent(object : ValueEventListener{
                     override fun onCancelled(p0: DatabaseError?) {}
 

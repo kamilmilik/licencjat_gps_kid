@@ -14,7 +14,6 @@ import kamilmilik.gps_tracker.invite.SendInviteActivity
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.auth.FirebaseAuth
-import kamilmilik.gps_tracker.utils.LocationOperations
 import kamilmilik.gps_tracker.map.PolygonOperation.DrawPolygon
 import kamilmilik.gps_tracker.login.DatabaseOnlineUserAction
 import com.google.firebase.FirebaseApp
@@ -31,8 +30,7 @@ import kamilmilik.gps_tracker.map.PolygonOperation.notification.Notification
 import kamilmilik.gps_tracker.models.User
 import kamilmilik.gps_tracker.models.UserMarkerInformationModel
 import kamilmilik.gps_tracker.profile.ProfileActivity
-import kamilmilik.gps_tracker.utils.Constants
-import kamilmilik.gps_tracker.utils.Tools
+import kamilmilik.gps_tracker.utils.*
 import kotlinx.android.synthetic.main.progress_bar.*
 
 
@@ -73,7 +71,7 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
 
         (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment).getMapAsync(this)
 
-        Tools.goToAddIgnoreBatteryOptimizationSettings(this)
+        BatteryOptimizationUtils.goToAddIgnoreBatteryOptimizationSettings(this)
 
         generateCodeButtonAction()
         enterCodeButtonAction()
@@ -117,16 +115,18 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     }
 
     private fun locationPermissionAction() {
-        if (Tools.checkApkVersion()) {
-            if (Tools.checkPermissionGranted(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if(locationOperations != null && this.googleMap != null ){
+            if (PermissionsUtils.checkApkVersion()) {
+                if (PermissionsUtils.checkPermissionGranted(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    locationOperations!!.getLocation()
+                    this.googleMap!!.isMyLocationEnabled = true
+                } else {
+                    PermissionsUtils.checkLocationPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+            } else {
                 locationOperations!!.getLocation()
                 this.googleMap!!.isMyLocationEnabled = true
-            } else {
-                Tools.checkLocationPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
             }
-        } else {
-            locationOperations!!.getLocation()
-            this.googleMap!!.isMyLocationEnabled = true
         }
     }
 
@@ -168,9 +168,9 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            Constants.MY_PERMISSION_REQUEST_CODE -> {
-                if (Tools.checkIsPermissionGrantedInRequestPermission(grantResults)) {
-                    if (Tools.checkPermissionGranted(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Constants.LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (PermissionsUtils.checkIsPermissionGrantedInRequestPermission(grantResults)) {
+                    if (PermissionsUtils.checkPermissionGranted(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                         locationOperations!!.getLocation()
                         googleMap!!.isMyLocationEnabled = true
                     }
@@ -214,6 +214,7 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
 
+        locationPermissionAction() // Update location point when user return to app.
         val response = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
         if (response != ConnectionResult.SUCCESS) {
             GoogleApiAvailability.getInstance().getErrorDialog(this, response, 1).show()
@@ -251,9 +252,13 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item!!.itemId) {
             R.id.action_logout -> {
-                databaseOnlineUserAction!!.logoutUser()
-                removeOldListeners()
-                Tools.startNewActivityWithoutPrevious(this, LoginActivity::class.java)
+                val alert = Tools.makeAlertDialogBuilder(this, getString(R.string.logout), getString(R.string.logoutMessage))
+                alert.setPositiveButton(R.string.ok) { dialog, whichButton ->
+                    databaseOnlineUserAction!!.logoutUser()
+                    removeOldListeners()
+                    Tools.startNewActivityWithoutPrevious(this, LoginActivity::class.java)
+                }.setNegativeButton(R.string.cancel) { dialog, wchichButton -> }.create().show()
+
             }
         }
         return super.onOptionsItemSelected(item)

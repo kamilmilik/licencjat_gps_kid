@@ -47,7 +47,7 @@ class ProfileActivity : ApplicationActivity() {
     }
 
     private fun changeUserNameAction(currentUser: FirebaseUser) {
-        val userName = currentUser!!.displayName
+        val userName = currentUser.displayName
         userNameTextView.text = userName
         userNameRelative.setOnClickListener(View.OnClickListener {
             val alert = Tools.makeAlertDialogBuilder(this, getString(R.string.editName), getString(R.string.writeNewName))
