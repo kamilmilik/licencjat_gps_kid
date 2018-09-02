@@ -7,16 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kamilmilik.gps_tracker.R
-import kamilmilik.gps_tracker.models.UserMarkerInformationModel
+import kamilmilik.gps_tracker.models.UserBasicInfo
 import kamilmilik.gps_tracker.utils.listeners.IRecyclerViewListener
 
 
 /**
  * Created by kamil on 22.02.2018.
  */
-class RecyclerViewAdapter(internal var context: Context, private var dataList: ArrayList<UserMarkerInformationModel>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+class RecyclerViewAdapter(internal var context: Context, private var dataList: ArrayList<UserBasicInfo>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
-   private val TAG = RecyclerViewAdapter::class.java.simpleName
+    private val TAG = RecyclerViewAdapter::class.java.simpleName
 
     private var recyclerViewListener: IRecyclerViewListener? = null
 
@@ -47,11 +47,18 @@ class RecyclerViewAdapter(internal var context: Context, private var dataList: A
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnLongClickListener, View.OnClickListener {
 
         override fun onLongClick(v: View?): Boolean {
-            return recyclerViewListener!!.setOnLongItemClick(v!!, adapterPosition)
+            recyclerViewListener?.apply {
+                v?.let {
+                    return setOnLongItemClick(v, adapterPosition)
+                }
+            }
+            return false
         }
 
         override fun onClick(v: View?) {
-            recyclerViewListener!!.setOnItemClick(v!!, adapterPosition)
+            v?.let {
+                recyclerViewListener?.setOnItemClick(v, adapterPosition)
+            }
         }
 
 

@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.activity_registration.*
 import kamilmilik.gps_tracker.ApplicationActivity
 import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.utils.FirebaseAuthExceptions
+import kamilmilik.gps_tracker.utils.ObjectsUtils
 import kamilmilik.gps_tracker.utils.Tools
 import kamilmilik.gps_tracker.utils.ValidDataUtils
 
@@ -38,14 +39,16 @@ class RegistrationActivity : ApplicationActivity() {
 
 
     private fun registrationButtonAction() {
-        registrationButton.setOnClickListener({
-            email = emailLoginEditText!!.text.toString().replace("\\s".toRegex(), "")
-            password = passwordLoginEditText!!.text.toString()
-            name = nameEditText!!.text.toString()
-            if (ValidDataUtils.checkIfUserEnterValidData(this, email!!, password!!, name!!)) {
-                registerNewUser(email!!, password!!, name!!, this)
+        registrationButton.setOnClickListener {
+            email = emailLoginEditText?.text.toString().replace("\\s".toRegex(), "")
+            password = passwordLoginEditText?.text.toString()
+            name = nameEditText?.text.toString()
+            ObjectsUtils.safeLet(email, password, name) { userEmail, userPassword, userName ->
+                if (ValidDataUtils.checkIfUserEnterValidData(this, userEmail, userPassword, userName)) {
+                    registerNewUser(userEmail, userPassword, userName, this)
+                }
             }
-        })
+        }
     }
 
     private fun registerNewUser(email: String, password: String, name: String, activity: Activity) {
@@ -53,7 +56,7 @@ class RegistrationActivity : ApplicationActivity() {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     progressDialog.dismiss()
-                    if (task.isSuccessful) {//user successfull registrered and logged in
+                    if (task.isSuccessful) {//user successfully registered and logged in
                         sendEmailVerification(activity, name)
                     } else {
                         FirebaseAuthExceptions.translate(this, task)
@@ -63,16 +66,17 @@ class RegistrationActivity : ApplicationActivity() {
 
 
     private fun sendEmailVerification(activity: Activity, name: String) {
-        val user = FirebaseAuth.getInstance().currentUser
         FirebaseAuth.getInstance().useAppLanguage()
-        user!!.sendEmailVerification()
-                .addOnCompleteListener(activity, OnCompleteListener<Void> { task ->
-                    if (task.isSuccessful) {
-                        Toast.makeText(this, getString(R.string.verificationEmailSentInformation) + user.email!!, Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, getString(R.string.failedVerificationEmailSend), Toast.LENGTH_SHORT).show()
+        FirebaseAuth.getInstance().currentUser?.let { user ->
+            user.sendEmailVerification()
+                    .addOnCompleteListener(activity) { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this, getString(R.string.verificationEmailSentInformation) + user.email, Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, getString(R.string.failedVerificationEmailSend), Toast.LENGTH_SHORT).show()
+                        }
+                        Tools.updateProfileName(this, user, name, OnCompleteListener { activity.finish() })
                     }
-                    Tools.updateProfileName(this, user, name, OnCompleteListener { activity.finish() })
-                })
+        }
     }
 }

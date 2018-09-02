@@ -26,67 +26,50 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/toolbarRegistrationActivity"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:padding="20dp">
+
+            <EditText
+                android:id="@+id/nameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_name"
+                android:drawableStart="@drawable/ic_name"
+                android:hint="@string/yourName"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/emailLoginEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_email"
+                android:drawableStart="@drawable/ic_email"
+                android:hint="@string/validEmail"
+                android:inputType="textEmailAddress"
+                android:paddingTop="25dp" />
+
+
+            <EditText
+                android:id="@+id/passwordLoginEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_lock"
+                android:drawableStart="@drawable/ic_lock"
+                android:ems="10"
+                android:hint="@string/yourPassword"
+                android:inputType="textPassword"
+                android:paddingTop="25dp" />
 
             <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/toolbarRegistrationActivity"
-                android:padding="10dp">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp">
 
-                <EditText
-                    android:id="@+id/nameEditText"
+                <Button
+                    android:id="@+id/registrationButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentStart="true"
-                    android:drawableLeft="@drawable/ic_name"
-                    android:drawableStart="@drawable/ic_name"
-                    android:hint="@string/yourName" />
-
-                <EditText
-                    android:id="@+id/emailLoginEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/nameEditText"
-                    android:drawableLeft="@drawable/ic_email"
-                    android:drawableStart="@drawable/ic_email"
-                    android:hint="@string/validEmail"
-                    android:inputType="textEmailAddress"
-                    android:paddingTop="25dp" />
-
-
-                <EditText
-                    android:id="@+id/passwordLoginEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignEnd="@+id/emailLoginEditText"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignRight="@+id/emailLoginEditText"
-                    android:layout_below="@+id/emailLoginEditText"
-                    android:drawableLeft="@drawable/ic_lock"
-                    android:drawableStart="@drawable/ic_lock"
-                    android:ems="10"
-                    android:hint="@string/yourPassword"
-                    android:inputType="textPassword"
-                    android:paddingTop="25dp" />
-
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/passwordLoginEditText"
-                    android:paddingTop="10dp">
-
-                    <Button
-                        android:id="@+id/registrationButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:text="@string/registration" />
-                </RelativeLayout>
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/registration" />
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>

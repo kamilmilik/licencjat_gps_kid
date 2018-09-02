@@ -9,8 +9,9 @@ import com.google.firebase.database.*
 import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.models.User
 import kamilmilik.gps_tracker.utils.listeners.IRecyclerViewListener
-import kamilmilik.gps_tracker.models.UserMarkerInformationModel
+import kamilmilik.gps_tracker.models.UserBasicInfo
 import kamilmilik.gps_tracker.utils.Constants
+import kamilmilik.gps_tracker.utils.ObjectsUtils
 import kamilmilik.gps_tracker.utils.Tools
 
 /**
@@ -24,29 +25,67 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
 
     private lateinit var recyclerView: RecyclerView
 
-    private lateinit var valueSet: HashSet<UserMarkerInformationModel>
+    private lateinit var valueSet: HashSet<UserBasicInfo>
 
     fun setupRecyclerView() {
-        val currentUser = FirebaseAuth.getInstance().currentUser!!
+        val currentUser = FirebaseAuth.getInstance().currentUser
         recyclerView = mapActivity.getActivity().findViewById(R.id.listOnline)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(mapActivity.getActivity(), LinearLayoutManager.HORIZONTAL, false)
 
-        // Add current user and other users are added in FinderUserConnection.
+        // Add current user and other users are added in NotifyOtherUsersChanges.
         valueSet = HashSet()
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            valueSet.add(UserMarkerInformationModel(currentUser.email!!, currentUser.displayName!!, currentUser.uid))
-            val valueList = ArrayList(valueSet)
-            adapter = RecyclerViewAdapter(mapActivity.getActivity(), valueList)
-            recyclerView.adapter = adapter
-            adapter.setClickListener(this)
+        FirebaseAuth.getInstance().currentUser?.let {
+            // Get current user again and do it if isn't null.
+            ObjectsUtils.safeLetFirebaseUser(currentUser) { currentUserUid, currentUserEmail, currentUserName ->
+                valueSet.add(UserBasicInfo(currentUserUid, currentUserEmail, currentUserName))
+                val valueList = ArrayList(valueSet)
+                println("value list in recycler setup")
+                for (value in valueList) {
+                    println(value.userId + " " + value.email + " " + value.userName)
+                }
+                adapter = RecyclerViewAdapter(mapActivity.getActivity(), valueList)
+                recyclerView.adapter = adapter
+                adapter.setClickListener(this)
+
+            }
         }
     }
 
     fun updateRecyclerView() {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        valueSet.add(UserMarkerInformationModel(currentUser!!.email!!, currentUser.displayName!!, currentUser.uid))
+        ObjectsUtils.safeLetFirebaseUser(currentUser) { currentUserUid, currentUserEmail, currentUserName ->
+            valueSet.add(UserBasicInfo(currentUserUid, currentUserEmail, currentUserName))
+            notifyDataSetChanged()
+        }
+    }
+
+    fun changeUserNameAndNotifyDataSetChanged(userMarkerInformation: UserBasicInfo) {
+        updateChangeUserNameInRecycler(userMarkerInformation)
+        notifyDataSetChanged()
+    }
+
+    fun removeUserFromRecyclerAndNotifyDataSetChanged(userIdToRemove: String) {
+        removeUserFromRecycler(userIdToRemove)
+        notifyDataSetChanged()
+    }
+
+    private fun removeUserFromRecycler(userIdToRemove: String) {
+        val iterator = valueSet.iterator()
+        while (iterator.hasNext()) {
+            val value = iterator.next()
+            if (value.userId == userIdToRemove) run {
+                iterator.remove()
+            }
+        }
+    }
+
+    private fun notifyDataSetChanged() {
         val valueList = ArrayList(valueSet)
+        println("value list in recycler update")
+        for (value in valueList) {
+            println(value.userId + " " + value.email + " " + value.userName)
+        }
         adapter = RecyclerViewAdapter(mapActivity.getActivity(), valueList)
         recyclerView.adapter = adapter
         adapter.setClickListener(this)
@@ -54,7 +93,8 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
         adapter.notifyDataSetChanged()
     }
 
-    fun updateChangeUserNameInRecycler(userInformation: UserMarkerInformationModel) {
+
+    fun updateChangeUserNameInRecycler(userInformation: UserBasicInfo) {
         val iterator = valueSet.iterator()
         while (iterator.hasNext()) {
             val value = iterator.next()
@@ -81,28 +121,29 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
         return true
     }
 
-    private fun unfollowUser(position: Int){
+    private fun unfollowUser(position: Int) {
         val valueList = ArrayList(valueSet)
         val clickedUser = valueList[position]
 
-        if(clickedUser.userId == FirebaseAuth.getInstance().currentUser!!.uid){
+        if (clickedUser.userId == FirebaseAuth.getInstance().currentUser?.uid) {
             Toast.makeText(mapActivity.getActivity(), mapActivity.getActivity().getString(R.string.unfollowYourselfInformation), Toast.LENGTH_LONG).show()
-        }else{
+        } else {
             val reference = FirebaseDatabase.getInstance().reference
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWERS, Constants.DATABASE_FOLLOWING)
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWING, Constants.DATABASE_FOLLOWERS)
+//            mapActivity.removeOldListeners() // Prevent to observe deleted user
         }
     }
 
-    private fun removeUserFromFollowers(userToUnfollowId: String, reference: DatabaseReference, nodeTable : String, nodeTable2 : String) {
+    private fun removeUserFromFollowers(userToUnfollowId: String, reference: DatabaseReference, nodeTable: String, nodeTable2: String) {
         val query = reference.child(nodeTable)
                 .orderByKey()
                 .equalTo(userToUnfollowId)
         removeUser(query, reference, userToUnfollowId, nodeTable2)
     }
 
-    private fun removeUser(query : Query, reference: DatabaseReference, userToUnfollowId: String, nodeTable2: String ){
-        val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+    private fun removeUser(query: Query, reference: DatabaseReference, userToUnfollowId: String, nodeTable2: String) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
@@ -122,17 +163,20 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
                                         }
                                     }
                                 }
-                                if(user?.user_id.equals(currentUserId)){ // Delete me.
+                                if (user?.user_id.equals(currentUserId)) { // Delete me.
                                     childSingleSnapshot.ref.removeValue()
                                 }
                             }
+
                             override fun onCancelled(databaseError: DatabaseError?) {}
                         })
                     }
                 }
             }
+
             override fun onCancelled(databaseError: DatabaseError?) {}
         })
     }
+
 
 }

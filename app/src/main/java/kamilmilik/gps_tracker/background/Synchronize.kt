@@ -1,8 +1,9 @@
 package kamilmilik.gps_tracker.background
 
 import android.util.Log
-import com.google.firebase.database.DataSnapshot
 import kamilmilik.gps_tracker.utils.Constants
+import kamilmilik.gps_tracker.utils.LogUtils
+import kamilmilik.gps_tracker.utils.ObjectsUtils
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -23,12 +24,15 @@ class Synchronize(private var foregroundService: ForegroundService) {
 
     var howManyTimesActionRunConnectedUser: AtomicInteger = AtomicInteger(0)
 
-    fun setSynchronizeCounter(databaseNode: String, dataSnapshot: DataSnapshot) {
+    fun setSynchronizeCounter(databaseNode: String, size: Long) {
         if (databaseNode == Constants.DATABASE_FOLLOWING) {
-            countOfFollowingUser = dataSnapshot.childrenCount
+            countOfFollowingUser = size
         }
         if (databaseNode == Constants.DATABASE_FOLLOWERS) {
-            countOfFollowersUser = dataSnapshot.childrenCount
+            countOfFollowersUser = size
+        }
+        ObjectsUtils.safeLet(countOfFollowersUser, countOfFollowingUser) { countOfFollowersUser, countOfFollowingUser ->
+            LogUtils(foregroundService).appendLog(TAG, "setSynchronizeCounter() countOfFollowingUser ${countOfFollowingUser} countOfFollowersUser $countOfFollowersUser")
         }
     }
 
@@ -36,7 +40,7 @@ class Synchronize(private var foregroundService: ForegroundService) {
     fun doOnlyOneAction() {
         // sytuacja gdy w dwa razy findConnectionUsers nic nie znajduje plus serwis skonczyl prace czyli zincrementowal
         doOnlyOneTaskDoneCounter.incrementAndGet()
-        Log.i(TAG, "doOnlyOneAction() doOnlyOneTaskDoneCounter = " + doOnlyOneTaskDoneCounter)
+        LogUtils(foregroundService).appendLog(TAG, "doOnlyOneAction() doOnlyOneTaskDoneCounter = " + doOnlyOneTaskDoneCounter)
         if (doOnlyOneTaskDoneCounter.compareAndSet(3, 0)) {
             finishServiceIfServiceIsNotNullAndOtherTaskFinished()
         }
@@ -46,7 +50,7 @@ class Synchronize(private var foregroundService: ForegroundService) {
 
     fun endOfPolygonIterateAction(listSize: Int) {
         polygonActionCounter.incrementAndGet()
-        Log.i(TAG, "endOfPolygonIterateAction() polygonActionCounter = " + polygonActionCounter + " list size " + listSize)
+        LogUtils(foregroundService).appendLog(TAG, "endOfPolygonIterateAction() polygonActionCounter = " + polygonActionCounter + " list size " + listSize)
         if (polygonActionCounter.compareAndSet(listSize, 0)) {
             //koncz zadanie
             //ok zarowno findFollowing and findFollowers moge inkrementowac polygonActionCounter ale to nic bo i tak na koncu patrzymy czy howManyTimesAction.. sie wykonalo countFollowers i countFollowing razy
@@ -55,27 +59,28 @@ class Synchronize(private var foregroundService: ForegroundService) {
         }
     }
 
-    fun oneUserEndPolygonAction() {
+    private fun oneUserEndPolygonAction() {
         howManyTimesActionRunConnectedUser.incrementAndGet()
-        if (countOfFollowersUser != null || countOfFollowingUser != null) {
-            Log.i(TAG, "oneUserEndPolygonAction() howManyTimesActionRunConnectedUser = " + howManyTimesActionRunConnectedUser)
-            if (howManyTimesActionRunConnectedUser.compareAndSet((countOfFollowersUser!! + countOfFollowingUser!!).toInt(), 0)) {
-                Log.i(TAG, "oneUserEndPolygonAction() if z dwoma countami wszedl")
+        ObjectsUtils.safeLet(countOfFollowersUser, countOfFollowingUser) { countOfFollowersUser, countOfFollowingUser ->
+            LogUtils(foregroundService).appendLog(TAG, "oneUserEndPolygonAction() howManyTimesActionRunConnectedUser = " + howManyTimesActionRunConnectedUser)
+            if (howManyTimesActionRunConnectedUser.compareAndSet((countOfFollowersUser + countOfFollowingUser).toInt(), 0)) {
+                LogUtils(foregroundService).appendLog(TAG, "oneUserEndPolygonAction() if z dwoma countami wszedl")
                 allTaskDoneAction()
             }
         }
+
     }
 
-    private fun allTaskDoneAction() {
+    fun allTaskDoneAction() {
         allTaskDoneCounter.incrementAndGet()
-        Log.i(TAG,"allTaskDoneAction() allTaskDoneCounter = " + allTaskDoneCounter)
+        LogUtils(foregroundService).appendLog(TAG, "allTaskDoneAction() allTaskDoneCounter = " + allTaskDoneCounter)
         if (allTaskDoneCounter.compareAndSet(2, 0)) {// 2 bo findConnectionUsers wywoluje i tam sprawdzam czy oba findConnections sie wywolaly i raz inkrementowac ma serwis
             finishServiceIfServiceIsNotNullAndOtherTaskFinished()
         }
     }
 
     private fun finishServiceIfServiceIsNotNullAndOtherTaskFinished() {
-        Log.i(TAG,"finishServiceIfServiceIsNotNullAndOtherTaskFinished()")
+        Log.i(TAG, "finishServiceIfServiceIsNotNullAndOtherTaskFinished()")
         foregroundService.finishServiceAction()
     }
 }

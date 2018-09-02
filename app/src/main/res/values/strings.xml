@@ -35,9 +35,9 @@
     <string name="passwordChanged">Password changed</string>
     <string name="emailOrPasswordIncorrect">Your email or password is incorrect. Try again.</string>
     <string name="deleteUser">Delete user</string>
-    <string name="deleteUserConfirmation">Are you sure to delete your account?</string>
+    <string name="deleteUserConfirmation">Are you sure you want to delete your account?</string>
     <string name="deletedAccountInformation">Your account has been deleted</string>
-    <string name="getlocationInformation">Get location</string>
+    <string name="getLocationInformation">Get location</string>
     <string name="generateCode">generate code</string>
     <string name="drawArea">Draw area</string>
     <string name="editArea">Edit area</string>
@@ -46,7 +46,7 @@
     <string name="enterInviteCode">Enter invite code</string>
     <string name="submit">Submit</string>
     <string name="enterCodeHere">Enter code here</string>
-    <string name="enterVavlidEmailInformation">Enter valid email to reset your password</string>
+    <string name="enterValidEmailInformation">Enter valid email to reset your password</string>
     <string name="emailAddress">Email address</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
@@ -65,7 +65,7 @@
     <string name="loginInOtherDevice">You are currently logged in other device. Please sign out in other device and then logging in this device.</string>
     <string name="unfollowYourselfInformation">You cannot unfollow yourself</string>
     <string name="unfollowUserTitle">Unfollow user</string>
-    <string name="unfollowUser">Are you sure to unfollow this user?</string>
+    <string name="unfollowUser">Are you sure you want to stop following this user?</string>
     <string name="enterEmail">Please enter email</string>
     <string name="enterPassword">Please enter password</string>
     <string name="enterName">Please enter name</string>
@@ -73,10 +73,10 @@
     <string name="acceptLocationPermission">This app needs the location permission, please accept to use location functionality</string>
     <string name="locationSettings">Location settings</string>
     <string name="deleteAreaPolygon">Delete area</string>
-    <string name="deleteAreaPolygonMessage">Are you want to delete clicked area?</string>
+    <string name="deleteAreaPolygonMessage">Do you want to delete the clicked area?</string>
     <string name="no_account_information">Don\'t have an account?</string>
     <string name="logoutMessage">Are you sure you want to log out?</string>
-    <string name="notificationAreaDestription">Gps Tracker area notification</string>
+    <string name="notificationAreaDescription">Gps Tracker area notification</string>
     <string name="locationUnavailable">The location is unavailable. You have turned off the GPS or you do not have a GPS signal</string>
     <string name="errorInvalidCustomToken">The custom token format is incorrect. Please check the documentation.</string>
     <string name="errorCustomTokenMismatch">The custom token corresponds to a different audience.</string>
@@ -84,14 +84,23 @@
     <string name="errorInvalidEmail">The email address is badly formatted.</string>
     <string name="errorWrongPassword">The password is invalid.</string>
     <string name="errorUserMismatch">The supplied credentials do not correspond to the previously signed in user.</string>
-    <string name="errorRequresRecentLogin">This operation is sensitive and requires recent authentication. Log in again before retrying this request.</string>
+    <string name="errorRequestRecentLogin">This operation is sensitive and requires recent authentication. Log in again before retrying this request.</string>
     <string name="errorAccountExistsWithDifferentCredential">An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.</string>
-    <string name="errorEmailArleadyInUse">The email address is already in use by another account.</string>
-    <string name="errorCredentialArleadyInUse">This credential is already associated with a different user account.</string>
+    <string name="errorEmailAlreadyInUse">The email address is already in use by another account.</string>
+    <string name="errorCredentialAlreadyInUse">This credential is already associated with a different user account.</string>
     <string name="errorUserDisabled">The user account has been disabled by an administrator.</string>
     <string name="errorUserTokenExpired">The user\'s credential is no longer valid. The user must sign in again.</string>
     <string name="errorUserNotFound">There is no user record corresponding to this identifier. The user may have been deleted.</string>
     <string name="errorInvalidUserToken">The user\'s credential is no longer valid. The user must sign in again.</string>
     <string name="errorOperationNotAllowed">This operation is not allowed. You must enable this service in the console.</string>
     <string name="errorWeakPassword">The given password is invalid.</string>
+    <string name="changeMapLayer">Change map layer</string>
+    <string name="dataLoadingInformation">Data loading. Try again!</string>
+    <string name="xiaomiBatteryOptimizationInformation">Select from the list %1$s, then select the option \"No restrictions\". This will allow the application to run in the background, which is necessary for the proper operation of the application.</string>
+    <string name="applicationPerformance">Application performance</string>
+    <string name="applicationGoodPerformanceMessage">The number of users or areas observed now is optimal for the correct application performance</string>
+    <string name="applicationBadPerformanceMessage">Too many users or areas being watched. Remove areas or stop observing users differently to increase the performance of the application, actions checking areas will be performed every three minutes</string>
+    <string name="user">User</string>
+    <string name="code">Code</string>
+
 </resources>

@@ -29,18 +29,18 @@ open class PolygonContent(open var mapActivity: MapActivity) {
     var markerList: ArrayList<Marker> = ArrayList()
 
     fun makeMarkerWithTag(position: LatLng): Marker {
-        var marker: Marker = createMarker(position)
+        val marker: Marker = createMarker(position)
         marker.tag = polygon.toString().replace(".", "")
         return marker
     }
 
     fun createMarker(position: LatLng, polygonTag: String): Marker {
-        var marker: Marker = createMarker(position)
+        val marker: Marker = createMarker(position)
         marker.tag = polygonTag
         return marker
     }
 
-    private fun createMarker(position: LatLng) : Marker {
+    private fun createMarker(position: LatLng): Marker {
         val markerIcon = getMarkerIconFromDrawable(mapActivity.getActivity().resources.getDrawable(R.drawable.round_icon))
         return mapActivity.getMap().addMarker(MarkerOptions()
                 .position(position).draggable(true).icon(markerIcon).anchor(0.5f, 0.5f))
@@ -55,13 +55,14 @@ open class PolygonContent(open var mapActivity: MapActivity) {
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 
-    fun removePolygon(polygonTag: String){
-        markersMap!!.forEach { (markerList, polygonValue) ->
-            if (polygonValue.tag != null) {//prevent nullpointer it could happen when i do polygon.remove and if i not remove from map this polygon, then in map i have null as previous polygon
-                if (polygonValue.tag!! == polygonTag) {
-                    markerList.forEach({ marker ->
+    fun removePolygon(polygonTag: String) {
+        markersMap?.forEach { (markerList, polygonValue) ->
+            polygonValue.tag?.let {
+                //prevent nullpointer it could happen when i do polygon.remove and if i not remove from map this polygon, then in map i have null as previous polygon
+                if (polygonValue.tag == polygonTag) {
+                    markerList.forEach { marker ->
                         marker.remove()
-                    })
+                    }
                     polygonValue.remove()
                 }
             }

@@ -23,44 +23,47 @@ open class ApplicationActivity : AppCompatActivity() {
 
     private val TAG = ApplicationActivity::class.java.simpleName
 
-    private var toolbar : Toolbar? = null
+    private var toolbar: Toolbar? = null
 
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
 
         toolbar = Tools.setupToolbar(this, true)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         deleteUserFromFirebaseAuth()
     }
-    private fun deleteUserFromFirebaseAuth(){
+
+    private fun deleteUserFromFirebaseAuth() {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        if(currentUser != null){
-            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(currentUser.uid).
-                    addChildEventListener(object : ChildEventListener {
-                        override fun onCancelled(databaseError: DatabaseError?) {}
-                        override fun onChildAdded(dataSnapshot: DataSnapshot?, previousKey: String?) {}
-                        override fun onChildChanged(dataSnapshot: DataSnapshot?, s: String?) {}
-                        override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
-                            Log.i(TAG,"onChildRemoved()")
-                            if(FirebaseDatabase.getInstance() != null && FirebaseAuth.getInstance().currentUser != null){
-                                currentUser.delete()
-                                        .addOnCompleteListener({ task ->
-                                            if (task.isSuccessful) {
-                                                Toast.makeText(this@ApplicationActivity, getString(R.string.deletedAccountInformation), Toast.LENGTH_LONG).show()
-                                                Tools.startNewActivityWithoutPrevious(this@ApplicationActivity, LoginActivity::class.java)
-                                            }
-                                        })
-                            }
-                        }
-                        override fun onChildMoved(dataSnapshot: DataSnapshot?, s: String?) {}
-                    })
+        if (currentUser != null) {
+            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(currentUser.uid).addChildEventListener(object : ChildEventListener {
+                override fun onCancelled(databaseError: DatabaseError?) {}
+                override fun onChildAdded(dataSnapshot: DataSnapshot?, previousKey: String?) {}
+                override fun onChildChanged(dataSnapshot: DataSnapshot?, s: String?) {}
+                override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
+                    Log.i(TAG, "onChildRemoved()")
+                    if (FirebaseDatabase.getInstance() != null && FirebaseAuth.getInstance().currentUser != null) {
+                        currentUser.delete()
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        Toast.makeText(this@ApplicationActivity, getString(R.string.deletedAccountInformation), Toast.LENGTH_LONG).show()
+                                        Tools.startNewActivityWithoutPrevious(this@ApplicationActivity, LoginActivity::class.java)
+                                    }
+                                }
+                    }
+                }
+
+                override fun onChildMoved(dataSnapshot: DataSnapshot?, s: String?) {}
+            })
         }
     }
 
     override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed()")
         NavUtils.navigateUpFromSameTask(this)
         super.onBackPressed()
     }

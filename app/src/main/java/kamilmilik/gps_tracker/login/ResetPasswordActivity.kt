@@ -23,7 +23,7 @@ class ResetPasswordActivity : ApplicationActivity() {
     }
 
     private fun sendNewPasswordToEmail() {
-        sendChangePasswordButton.setOnClickListener({
+        sendChangePasswordButton.setOnClickListener {
             val emailAddress = changeUserPasswordEditText.text.toString().replace("\\s".toRegex(), "")
             if (!emailAddress.isEmpty()) {
                 FirebaseAuth.getInstance().useAppLanguage()
@@ -39,7 +39,7 @@ class ResetPasswordActivity : ApplicationActivity() {
             } else {
                 Toast.makeText(this@ResetPasswordActivity, getString(R.string.emptyFieldInformation), Toast.LENGTH_LONG).show()
             }
-        })
+        }
     }
 
 }

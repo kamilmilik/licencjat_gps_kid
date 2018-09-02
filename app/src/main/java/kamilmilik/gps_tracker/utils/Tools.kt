@@ -21,7 +21,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 
 
-
 /**
  * Created by kamil on 22.04.2018.
  */
@@ -65,8 +64,8 @@ object Tools {
 
     fun setupToolbar(activity: AppCompatActivity, isBackButtonEnabled: Boolean): Toolbar {
         activity.setSupportActionBar(activity.toolbar)
-        activity.supportActionBar!!.setDisplayHomeAsUpEnabled(isBackButtonEnabled)
-        activity.supportActionBar!!.setDisplayShowHomeEnabled(isBackButtonEnabled)
+        activity.supportActionBar?.setDisplayHomeAsUpEnabled(isBackButtonEnabled)
+        activity.supportActionBar?.setDisplayShowHomeEnabled(isBackButtonEnabled)
         return activity.toolbar
     }
 
@@ -78,20 +77,26 @@ object Tools {
     }
 
     fun addDeviceTokenToDatabase() {
-        val currentUser = FirebaseAuth.getInstance()!!.currentUser
+        val currentUser = FirebaseAuth.getInstance()?.currentUser
         if (currentUser != null) {
             val userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
             val currentUserId = currentUser.uid
             val deviceTokenId = FirebaseInstanceId.getInstance().token
-            userDatabase!!.child(currentUserId).child(Constants.DATABASE_DEVICE_TOKEN_FIELD).setValue(deviceTokenId)
+            if (deviceTokenId != null) {
+                userDatabase?.child(currentUserId)?.child(Constants.DATABASE_DEVICE_TOKEN_FIELD)?.setValue(deviceTokenId)
+            }
         }
     }
 
     fun <T> addDeviceTokenToDatabaseAndStartNewActivity(activity: Activity, classType: Class<T>) {
         val userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
-        val currentUserId = FirebaseAuth.getInstance()!!.currentUser!!.uid
+        val currentUserId = FirebaseAuth.getInstance()?.currentUser?.uid
         val deviceTokenId = FirebaseInstanceId.getInstance().token
-        userDatabase!!.child(currentUserId).child(Constants.DATABASE_DEVICE_TOKEN_FIELD).setValue(deviceTokenId).addOnSuccessListener {
+        if (deviceTokenId != null) { // If deviceTokenId is null then onTokenRefresh is called and send new token to database.
+            userDatabase?.child(currentUserId)?.child(Constants.DATABASE_DEVICE_TOKEN_FIELD)?.setValue(deviceTokenId)?.addOnSuccessListener {
+                startNewActivityWithoutPrevious(activity, classType)
+            }
+        } else {
             startNewActivityWithoutPrevious(activity, classType)
         }
     }

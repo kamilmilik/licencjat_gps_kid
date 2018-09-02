@@ -10,6 +10,7 @@ import android.content.Intent
 import android.app.PendingIntent
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import kamilmilik.gps_tracker.utils.LogUtils
 
 
 /**
@@ -23,7 +24,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
-        Log.i(TAG, "onMessageReceived()")
+        LogUtils(this).appendLog(TAG, "onMessageReceived()")
         authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
@@ -32,7 +33,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 Log.i(TAG, "onMessageReceived() user not log in")
             }
         }
-        FirebaseAuth.getInstance().addAuthStateListener(authListener!!)
+
+        authListener?.let {
+            FirebaseAuth.getInstance().addAuthStateListener(it)
+        }
     }
 
     private fun setupAlarmManager() {
@@ -47,8 +51,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        if(authListener != null){
-            FirebaseAuth.getInstance().removeAuthStateListener(authListener!!)
+        authListener?.let {
+            FirebaseAuth.getInstance().removeAuthStateListener(it)
         }
     }
 

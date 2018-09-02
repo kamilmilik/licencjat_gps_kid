@@ -44,16 +44,16 @@ object PermissionsUtils {
         AlertDialog.Builder(activity)
                 .setTitle(permission.title)
                 .setMessage(permission.message)
-                .setPositiveButton(permission.positiveButton, DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
+                .setPositiveButton(permission.positiveButton) { paramDialogInterface, paramInt ->
                     ActivityCompat.requestPermissions(activity,
                             arrayOf(permission.permission),
                             permission.requestCode)
-                })
-                .setNegativeButton(activity.getString(R.string.cancel), DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
+                }
+                .setNegativeButton(activity.getString(R.string.cancel)) { paramDialogInterface, paramInt ->
                     paramDialogInterface.cancel()
                     FirebaseAuth.getInstance().signOut()
                     Tools.startNewActivityWithoutPrevious(activity, LoginActivity::class.java)
-                }).create().show()
+                }.create().show()
     }
 
     private fun requestPermission(activity: Activity, permission: String, permissionRequestCode: Int) {

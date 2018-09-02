@@ -14,13 +14,14 @@ exports.three_minutest_tick =
 				console.log(deviceToken);
 				const message = {
 					data: {
-						title: "titlea",
+						title: "title",
 						body: `body`,
 						icon: "default"
 					}
 				};
 				const options = {
-					priority: `high`
+					priority: `high`,
+					collapseKey: 'collapse'
 				};
 				admin.messaging().sendToDevice(deviceToken, message, options)
 					.then(response => {

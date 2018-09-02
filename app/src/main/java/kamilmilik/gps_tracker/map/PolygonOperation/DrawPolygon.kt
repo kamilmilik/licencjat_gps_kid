@@ -11,7 +11,9 @@ import com.google.android.gms.maps.model.LatLng
 import kamilmilik.gps_tracker.R
 import android.widget.FrameLayout
 import kamilmilik.gps_tracker.map.MapActivity
+import kamilmilik.gps_tracker.utils.ObjectsUtils
 import kamilmilik.gps_tracker.utils.Tools
+import kamilmilik.gps_tracker.utils.listeners.OnGetDataListener
 
 
 /**
@@ -23,59 +25,66 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
 
     private var polygonDatabaseOperation: PolygonDatabaseOperation = PolygonDatabaseOperation(mapActivity, this)
 
-    /**
-     * listener for getting markersMap from database from PolygonDatabaseOperation class
-     */
+    var onMarkerDragListener: MarkerListener? = null
+
     override fun setOnMarkerDragListenerAfterAddPolygon(markersMap: HashMap<ArrayList<Marker>, Polygon>) {
         Log.i(TAG, "setOnMarkerDragListenerAfterAddPolygon()")
         this.markersMap = markersMap
-        mapActivity.getMap().setOnMarkerDragListener(MarkerListener(polygonsGeoLatLngMap,markersMap, polygonDatabaseOperation))
+        this.onMarkerDragListener = MarkerListener(polygonsGeoLatLngMap, markersMap, polygonDatabaseOperation)
+        mapActivity.getMap().setOnMarkerDragListener(onMarkerDragListener)
     }
 
     fun onTouchAction(motionEvent: MotionEvent?, draggable: FrameLayout) {
-        val position = mapActivity.getMap().projection.fromScreenLocation(
-                Point(motionEvent!!.x.toInt(), motionEvent.y.toInt()));
-        when (motionEvent.action) {
-            MotionEvent.ACTION_DOWN -> {
-                if (polygon != null) {
-                    polygonGeoLatLngPoints = ArrayList()
-                    polygonLatLngPoints = ArrayList()
-                }
-                polygonGeoLatLngPoints.add(GeoLatLng(position.latitude, position.longitude))
-                polygonLatLngPoints.add(position)
+        ObjectsUtils.safeLet(motionEvent?.x?.toInt(), motionEvent?.y?.toInt()) { x, y ->
 
-                polygon = mapActivity.getMap().addPolygon(PolygonOptions().addAll(polygonLatLngPoints))
-                polygon!!.tag = polygon.toString().replace(".", "")
-                polygon!!.isClickable = true
+            mapActivity.getMap().projection?.fromScreenLocation(Point(x, y))?.let { position ->
 
-                addMarker(position)
-            }
-            MotionEvent.ACTION_MOVE -> {
-                polygonGeoLatLngPoints.add(GeoLatLng(position.latitude, position.longitude));
-                polygonLatLngPoints.add(position);
+                when (motionEvent?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        if (polygon != null) {
+                            polygonGeoLatLngPoints = ArrayList()
+                            polygonLatLngPoints = ArrayList()
+                        }
+                        polygonGeoLatLngPoints.add(GeoLatLng(position.latitude, position.longitude))
+                        polygonLatLngPoints.add(position)
 
-                polygon!!.points = polygonLatLngPoints
-                addMarker(position)
-            }
-            MotionEvent.ACTION_UP -> {
-                // It is called when user ended drawing polygon
-                removePolygonAction()
-                if (!isAddedOnePointPolygon()) {
-                    polygonsGeoLatLngMap.put(polygon!!.tag.toString(), polygonGeoLatLngPoints)
-                    polygonsLatLngMap.put(polygon!!.tag.toString(), polygonLatLngPoints)
-                    markersMap!!.put(markerList, polygon!!)
-                    markerList = ArrayList()
+                        polygon = mapActivity.getMap().addPolygon(PolygonOptions().addAll(polygonLatLngPoints))
+                        polygon?.tag = polygon.toString().replace(".", "")
+                        polygon?.isClickable = true
 
-                    for (polygon in polygonsGeoLatLngMap) {
-                        polygonDatabaseOperation.savePolygonToDatabase(PolygonModel(polygon.key, polygon.value))
+                        addMarker(position)
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        polygonGeoLatLngPoints.add(GeoLatLng(position.latitude, position.longitude));
+                        polygonLatLngPoints.add(position);
+
+                        polygon?.points = polygonLatLngPoints
+                        addMarker(position)
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        // It is called when user ended drawing polygon.
+                        removePolygonAction()
+                        if (!isAddedOnePointPolygon()) {
+                            polygonsGeoLatLngMap.put(polygon?.tag.toString(), polygonGeoLatLngPoints)
+                            polygonsLatLngMap.put(polygon?.tag.toString(), polygonLatLngPoints)
+                            polygon?.let { polygon ->
+                                markersMap?.put(markerList, polygon)
+
+                            }
+                            markerList = ArrayList()
+
+                            for (polygon in polygonsGeoLatLngMap) {
+                                polygonDatabaseOperation.savePolygonToDatabase(PolygonModel(polygon.key, polygon.value))
+                            }
+                        }
+                        draggable.setOnTouchListener(null)
                     }
                 }
-                draggable.setOnTouchListener(null)
             }
         }
     }
 
-    private fun addMarker(position: LatLng){
+    private fun addMarker(position: LatLng) {
         if (!isAddedOnePointPolygon()) {
             val marker = makeMarkerWithTag(position)
             marker.isVisible = false
@@ -87,30 +96,34 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
         mapActivity.getMap().setOnPolygonClickListener { polygon ->
             val alert = Tools.makeAlertDialogBuilder(mapActivity.getActivity(), mapActivity.getString(R.string.deleteAreaPolygon), mapActivity.getString(R.string.deleteAreaPolygonMessage))
             alert.setPositiveButton(R.string.ok) { dialog, whichButton ->
-                polygonsGeoLatLngMap.remove(polygon!!.tag.toString())
+                polygonsGeoLatLngMap.remove(polygon?.tag.toString())
                 polygonsLatLngMap.remove(polygon.tag.toString())
                 polygonDatabaseOperation.removePolygonFromDatabase(polygon.tag.toString())
                 removePolygon(polygon.tag.toString())
-            }.setNegativeButton(R.string.cancel) { dialog, wchichButton -> }.create().show()
+            }.setNegativeButton(R.string.cancel) { dialog, whichButton -> }.create().show()
         }
     }
 
     private fun isAddedOnePointPolygon(): Boolean = !(polygonGeoLatLngPoints.size > 1 && polygonLatLngPoints.size > 1)
 
     fun showAllMarkers() {
-        for ((markerList, polygon) in markersMap!!) {
-            for (marker in markerList) {
-                marker.isVisible = true
-                Log.i(TAG, "marker " + marker + " " + marker.isVisible)
+        markersMap?.let { markersMap ->
+            for ((markerList, polygon) in markersMap) {
+                for (marker in markerList) {
+                    marker.isVisible = true
+                    Log.i(TAG, "marker " + marker + " " + marker.isVisible)
+                }
             }
+
         }
     }
 
     fun hideAllMarkers() {
-        for ((markerList, polygon) in markersMap!!) {
-            for (marker in markerList) {
-                marker.isVisible = false
-                Log.i(TAG, "marker " + marker + " " + marker.isVisible)
+        markersMap?.let { markersMap ->
+            for ((markerList, polygon) in markersMap) {
+                for (marker in markerList) {
+                    marker.isVisible = false
+                }
             }
         }
     }

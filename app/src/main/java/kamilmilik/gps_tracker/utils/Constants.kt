@@ -1,13 +1,11 @@
 package kamilmilik.gps_tracker.utils
 
 import com.google.android.gms.location.LocationRequest
-import com.google.firebase.auth.FirebaseAuth
-import java.io.File
 
 /**
  * Created by kamil on 19.03.2018.
  */
-object Constants{
+object Constants {
     val SHARED_KEY = "shared"
 
     val MAP_CAMERA_ZOOM = 12.0f
@@ -30,13 +28,25 @@ object Constants{
     val RANGE_RANDOM = 36
 
     //Location
-    val LOCATION_INTERVAL = 1000L * 10 // 1000 * 10 = 10 seconds.
+    val LOCATION_ONE_SECOND_DELAY = 1000L
 
-    val LOCATION_FASTEST_INTERVAL = 2000L // 2 seconds.
+    val LOCATION_NO_DELAY = 0L
 
-    val LOCATION_SMALLEST_DISPLACEMENT = 1f
+    val LOCATION_INTERVAL_SLOW = LOCATION_ONE_SECOND_DELAY * 60 // 60 seconds = 1 minute
+
+    val LOCATION_FASTEST_INTERVAL_SLOW = LOCATION_ONE_SECOND_DELAY * 30 // 30 seconds
+
+    val LOCATION_SMALLEST_DISPLACEMENT = 10f // 10 meters
+
+    val LOCATION_INTERVAL_FAST = LOCATION_ONE_SECOND_DELAY * 30 * 1  // 30 seconds
+
+    val LOCATION_FASTEST_INTERVAL_FAST = LOCATION_ONE_SECOND_DELAY * 20 * 1 // 20 seconds
 
     val LOCATION_PRIORITY = LocationRequest.PRIORITY_HIGH_ACCURACY
+
+    val LOCATION_MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters // The minimum distance to change Updates
+
+    val LOCATION_MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong() // 1 minute // The minimum time between updates
 
     val LAST_LOCATION_LATITUDE = "locationLat"
 
@@ -48,8 +58,15 @@ object Constants{
 
     val LAST_LOCATION_PROVIDER = "locationProvider"
 
+    val IS_FIRST_RUN = "isFirstRun"
+
+    val CHANGE_NAME_ACTIVITY_RESULT = "changeNameActivityResultRequest"
+
+    val CHANGE_NAME_ACTIVITY_RESULT_REQUEST = 1
+
     val GOOGLE_PLAY_SERVICES_VERSION = 1200000 // Means version 12.0
 
+    val GOOGLE_MAP_TYPE = "googleMapType"
     // Database
     val DATABASE_WHO_IS_CONNECTED = ".info/connected"
 
@@ -81,8 +98,10 @@ object Constants{
 
     val DATABASE_TIME_FIELD = "time"
 
+    val WORK_ON_UI_ITEMS_LIMIT = 16
 
-    enum class EPolygonAreaState(val idOfState : Int){
+
+    enum class PolygonAreaState(val idOfState: Int) {
         STILL_OUTSIDE_OR_INSIDE(0), ENTER(1), EXIT(2)
     }
 

@@ -11,7 +11,7 @@
     <string name="emailNotVerified">Email jest nie zweryfikowany, sprawdź swoją szkrzynkę pocztową</string>
     <string name="loginSuccess">Zalogowano</string>
     <string name="waitInformation">Proszę czekać..</string>
-    <string name="waitMessage">Przetwarzanie...</string>
+    <string name="waitMessage">Przetwarzanie…</string>
     <string name="verificationEmailSentInformation">"Email weryfikacyjny wysłany do "</string>
     <string name="failedVerificationEmailSend">Błąd podczas wysłania emailu weryfikacyjnego</string>
     <string name="changePasswordSent">"Link do zmiany hasła wysłano na email "</string>
@@ -37,7 +37,7 @@
     <string name="deleteUser">Usuń użytkownika</string>
     <string name="deleteUserConfirmation">Czy na pewno chcesz usunąc użytkownika?</string>
     <string name="deletedAccountInformation">Twoje konto zostało usunięte</string>
-    <string name="getlocationInformation">Pobieram lokalizacje</string>
+    <string name="getLocationInformation">Pobieram lokalizacje</string>
     <string name="generateCode">Generuj kod</string>
     <string name="enterCode">Wpisz kod</string>
     <string name="drawArea">Rysuj obszar</string>
@@ -46,7 +46,7 @@
     <string name="enterInviteCode">Wpisz kod zaproszenie</string>
     <string name="submit">Zatwierdź</string>
     <string name="enterCodeHere">Wpisz kod tutaj</string>
-    <string name="enterVavlidEmailInformation">Wpisz ważny email, aby zresetować twoje hasło</string>
+    <string name="enterValidEmailInformation">Wpisz ważny email, aby zresetować twoje hasło</string>
     <string name="emailAddress">Adres email</string>
     <string name="password">Hasło</string>
     <string name="login">Login</string>
@@ -58,7 +58,7 @@
     <string name="deleteAccount">Usuń konto</string>
     <string name="name">Imię</string>
     <string name="shareInviteCodeInformation">"Udostępnij kod zaproszenie "</string>
-    <string name="loading">Ładowanie...</string>
+    <string name="loading">Ładowanie…</string>
     <string name="yourPassword">Twoje hasło</string>
     <string name="yourValidEmail">Twój email</string>
     <string name="yourName">Twoję imię</string>
@@ -76,7 +76,7 @@
     <string name="deleteAreaPolygonMessage">Czy chcesz usunąc kliknięty obszar?</string>
     <string name="no_account_information">Nie masz konta?</string>
     <string name="logoutMessage">Czy na pewno chcesz się wylogować?</string>
-    <string name="notificationAreaDestription">Gps Tracker powiadomienie obszaru</string>
+    <string name="notificationAreaDescription">Gps Tracker powiadomienie obszaru</string>
     <string name="locationUnavailable">Lokalizacja jest niedostępna. Wyłączyłeś GPS lub nie masz sygnału GPS</string>
     <string name="errorInvalidCustomToken">Niestandardowy format tokenu jest niepoprawny. Sprawdź dokumentację.</string>
     <string name="errorCustomTokenMismatch">Token niestandardowy odpowiada różnym odbiorcom.</string>
@@ -84,15 +84,23 @@
     <string name="errorInvalidEmail">Adres e-mail jest źle sformatowany.</string>
     <string name="errorWrongPassword">Hasło jest nieprawidłowe.</string>
     <string name="errorUserMismatch">"Podane poświadczenia nie odpowiadają wcześniej zarejestrowanemu użytkownikowi. "</string>
-    <string name="errorRequresRecentLogin">Ta operacja jest czuła i wymaga najnowszego uwierzytelnienia. Zaloguj się ponownie przed ponowieniem tego żądania.</string>
+    <string name="errorRequestRecentLogin">Ta operacja jest czuła i wymaga najnowszego uwierzytelnienia. Zaloguj się ponownie przed ponowieniem tego żądania.</string>
     <string name="errorAccountExistsWithDifferentCredential">Konto już istnieje z tym samym adresem e-mail, ale z innymi danymi logowania. Zaloguj się przy użyciu dostawcy powiązanego z tym adresem e-mail.</string>
-    <string name="errorEmailArleadyInUse">Adres e-mail jest już używany przez inne konto.</string>
-    <string name="errorCredentialArleadyInUse">To poświadczenie jest już powiązane z innym kontem użytkownika.</string>
+    <string name="errorEmailAlreadyInUse">Adres e-mail jest już używany przez inne konto.</string>
+    <string name="errorCredentialAlreadyInUse">To poświadczenie jest już powiązane z innym kontem użytkownika.</string>
     <string name="errorUserDisabled">Konto użytkownika zostało wyłączone przez administratora.</string>
     <string name="errorUserTokenExpired">Dane uwierzytelniające użytkownika nie są już ważne. Użytkownik musi się ponownie zalogować.</string>
     <string name="errorUserNotFound">Nie ma rekordu użytkownika odpowiadającego temu identyfikatorowi. Użytkownik mógł zostać usunięty.</string>
     <string name="errorInvalidUserToken">"Dane uwierzytelniające użytkownika nie są już ważne. Użytkownik musi się ponownie zalogować. "</string>
     <string name="errorOperationNotAllowed">"Ta operacja jest niedozwolona. Musisz włączyć tę usługę w konsoli. "</string>
     <string name="errorWeakPassword">Podane hasło jest nieprawidłowe.</string>
+    <string name="changeMapLayer">Zmiana typu mapy</string>
+    <string name="dataLoadingInformation">Ładowanie danych. Spróbuj ponownie!</string>
+    <string name="xiaomiBatteryOptimizationInformation">Wybierz z listy %1$s, a nastepnie wybierz opcje \"Bez ograniczeń\". Pozwoli to na działanie aplikacji w tle, co jest niezbędne do poprawnego działania aplikacji.</string>
+    <string name="applicationPerformance">Wydajność aplikacji</string>
+    <string name="applicationGoodPerformanceMessage">Liczba obserwowanych użytkowników lub obszarów teraz jest optymalna dla poprawnej wydajności aplikacji</string>
+    <string name="applicationBadPerformanceMessage">Za dużo obserwowanych użytkowników lub obszarów. Usuń obszary lub przestań obserwować użytkowników, inaczej dla zwiększenia wydajności aplikacji czynności sprawdząjące obszary będą wykonywane co trzy minuty</string>
+    <string name="user">Użytkownik</string>
+    <string name="code">Kod</string>
 
 </resources>

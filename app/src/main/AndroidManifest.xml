@@ -4,14 +4,9 @@
     package="kamilmilik.gps_tracker">
 
 
-    <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
-
     <uses-permission
         android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
         android:protectionLevel="signature" />
-    <uses-permission android:name="android.permission.BIND_JOB_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
@@ -27,11 +22,16 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/gps_tracker_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/gps_tracker_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity
             android:name="kamilmilik.gps_tracker.login.LoginActivity"
@@ -50,6 +50,7 @@
         <activity
             android:name="kamilmilik.gps_tracker.map.MapActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="kamilmilik.licencjat_kps_kid_TARGET_NOTIFICATION" />
@@ -88,7 +89,6 @@
             android:parentActivityName="kamilmilik.gps_tracker.map.MapActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-
 
         <service
             android:name="kamilmilik.gps_tracker.background.FirebaseMessagingService"

@@ -14,7 +14,7 @@ import kamilmilik.gps_tracker.models.NotificationModel
 /**
  * Created by kamil on 07.08.2018.
  */
-object NotificationUtils{
+object NotificationUtils {
     fun <T> createPendingIntent(context: Context, classType: Class<T>, isClearTaskIntent: Boolean): PendingIntent {
         val notificationIntent = Intent(context, classType)
         if (isClearTaskIntent) {
@@ -38,7 +38,7 @@ object NotificationUtils{
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val channel = NotificationChannel(notificationModel.notificationChanelId, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH)
-            channel.description = context.getString(R.string.notificationAreaDestription)
+            channel.description = context.getString(R.string.notificationAreaDescription)
             if (notificationModel.isVibrate) {
                 channel.enableLights(true)
                 channel.lightColor = Color.RED

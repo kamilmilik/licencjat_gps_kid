@@ -19,7 +19,7 @@ import java.util.*
 class LogUtils(var context: Context) {
     private val TAG = LogUtils::class.java.simpleName
 
-    val LOG_FILE_NAME = "log_gps_tracker_${FirebaseAuth.getInstance().currentUser!!.uid}.txt"
+    val LOG_FILE_NAME = "log_gps_tracker_${FirebaseAuth.getInstance().currentUser?.uid}.txt"
     val LOG_FILE_ROOT = File(context.filesDir, "Logs")
     val LOG_FILE = File(LOG_FILE_ROOT, LOG_FILE_NAME)
     val PHP_UPLOAD_ACTION_NAME = "bill"
@@ -27,7 +27,7 @@ class LogUtils(var context: Context) {
     val UPLOAD_FILE_TO_SERVER_URL = "https://grapexs.000webhostapp.com/log_upload/file_upload.php"
 
     fun appendLog(tag: String, text: String) {
-        Log.i(TAG, "save log to file at: ${LOG_FILE_ROOT.path}")
+//        Log.i(TAG, "save log to file at: ${LOG_FILE_ROOT.path}")
         if (!LOG_FILE_ROOT.exists()) {
             try {
                 LOG_FILE_ROOT.mkdirs()
@@ -38,7 +38,7 @@ class LogUtils(var context: Context) {
         }
         try {
             val buf = BufferedWriter(FileWriter(LOG_FILE, true))
-            val currentDate = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.ENGLISH).format(Date())
+            val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date())
             buf.append("$currentDate $tag: $text")
             Log.i(tag, text)
             buf.newLine()
@@ -48,18 +48,13 @@ class LogUtils(var context: Context) {
         }
     }
 
-    // TODO zrobić junit testy do tej metody
     fun deleteLogFileAtTimeBetweenGivenHours(startHour: Int, endHour: Int) {
         val cal = Calendar.getInstance()
         cal.time = Date()
         val hour = cal.get(Calendar.HOUR_OF_DAY)
         Log.i(TAG, "deleteLogFileAtTimeBetweenGivenHours() przed if " + hour)
         if (hour in startHour..endHour) {
-            if (LOG_FILE.exists()) {
-                val isFileDeleted = LOG_FILE.deleteRecursively()
-                Log.i(TAG, "deleteLogFileAtTimeBetweenGivenHours() delete file at " + LOG_FILE.absolutePath)
-                Log.i(TAG, "deleteLogFileAtTimeBetweenGivenHours() is success? " + isFileDeleted)
-            }
+            deleteFile()
             Log.i(TAG, "deleteLogFileAtTimeBetweenGivenHours()")
         }
     }
@@ -90,6 +85,7 @@ class LogUtils(var context: Context) {
 
     fun writeLogToServerSync() {
         try {
+            Log.i(TAG, "writeLogToServerSync() start")
             val sourceFileUri = LOG_FILE.path
             val lineEnd = "\r\n"
             val twoHyphens = "--"
@@ -117,7 +113,7 @@ class LogUtils(var context: Context) {
                     dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd)
                     dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" + PHP_UPLOAD_ACTION_NAME + "\";filename=\"" + sourceFileUri + "\"" + lineEnd)
                     dataOutputStream.writeBytes(lineEnd)
-
+                    Log.i(TAG, "writeLogToServerSync() data output stream write bites line end")
                     // create a buffer of maximum size
                     var bytesAvailable = fileInputStream.available()
 
@@ -136,7 +132,7 @@ class LogUtils(var context: Context) {
                     }
                     dataOutputStream.writeBytes(lineEnd)
                     dataOutputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd)
-
+                    Log.i(TAG, "writeLogToServerSync() dataOutputStream writeBytes end")
                     getJsonEchoResult(conn)
 
                     fileInputStream.close()
@@ -156,6 +152,7 @@ class LogUtils(var context: Context) {
     private fun getJsonEchoResult(conn: HttpURLConnection) {
         var inputStream: InputStream? = null
         inputStream = if (conn.responseCode in 401..599) {
+            Log.i(TAG, "getJsonEchoResult() error: ${conn.responseCode}")
             BufferedInputStream(conn.errorStream)
         } else {
             BufferedInputStream(conn.inputStream)
@@ -163,8 +160,26 @@ class LogUtils(var context: Context) {
 
         val result = StringBuffer()
         result.append(inputStream.bufferedReader().use(BufferedReader::readText))
+        Log.i(TAG, "getJsonEchoResult() $result")
         val responseJSON = JSONObject(result.toString())
         val echoMessage = responseJSON.getString(ECHO_JSON_FILE_RESPONSE_CODE)
         appendLog(TAG, "writeLogToServerSync() mess " + echoMessage)
+    }
+
+    fun deleteTooBigfile() {
+        val TWO_MEGA_BYTES_IN_BYTES = 2097152
+        val fileSizeInBytes = LOG_FILE.length()
+        Log.i(TAG, "deleteTooBigfile() fileSizeInMb " + fileSizeInBytes)
+        if (fileSizeInBytes >= TWO_MEGA_BYTES_IN_BYTES) {
+            deleteFile()
+        }
+    }
+
+    private fun deleteFile() {
+        if (LOG_FILE.exists()) {
+            val isFileDeleted = LOG_FILE.deleteRecursively()
+            Log.i(TAG, "deleteLogFileAtTimeBetweenGivenHours() delete file at " + LOG_FILE.absolutePath)
+            Log.i(TAG, "deleteLogFileAtTimeBetweenGivenHours() is success? " + isFileDeleted)
+        }
     }
 }

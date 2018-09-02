@@ -21,6 +21,7 @@ import com.google.firebase.database.*
 import kamilmilik.gps_tracker.ApplicationActivity
 import kamilmilik.gps_tracker.utils.Constants
 import kamilmilik.gps_tracker.models.User
+import kamilmilik.gps_tracker.utils.Constants.CHANGE_NAME_ACTIVITY_RESULT
 
 
 class ProfileActivity : ApplicationActivity() {
@@ -36,13 +37,14 @@ class ProfileActivity : ApplicationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        FirebaseAuth.getInstance().currentUser?.let { currentUser ->
+            changeUserNameAction(currentUser)
 
-        changeUserNameAction(currentUser!!)
+            changePasswordAction(currentUser)
 
-        changePasswordAction(currentUser)
+            deleteAccountAction(currentUser)
+        }
 
-        deleteAccountAction(currentUser)
 
     }
 
@@ -60,6 +62,7 @@ class ProfileActivity : ApplicationActivity() {
                 } else {
                     Tools.updateProfileName(this, currentUser, newName, OnCompleteListener {
                         sendNewNameToDatabase(this, currentUser, newName)
+                        setToTriggerChangeNameInPreviousActivity()
                     })
                 }
             }
@@ -68,7 +71,12 @@ class ProfileActivity : ApplicationActivity() {
         })
     }
 
-    private fun sendNewNameToDatabase(activity : Activity, currentUser: FirebaseUser, newName : String) {
+    private fun setToTriggerChangeNameInPreviousActivity() {
+        intent.putExtra(CHANGE_NAME_ACTIVITY_RESULT, true)
+        setResult(RESULT_OK, intent);
+    }
+
+    private fun sendNewNameToDatabase(activity: Activity, currentUser: FirebaseUser, newName: String) {
         val map = HashMap<String, Any>() as MutableMap<String, Any>
         map.put(Constants.DATABASE_USER_NAME_FIELD, newName)
         FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS).child(currentUser.uid).updateChildren(map)
@@ -102,13 +110,13 @@ class ProfileActivity : ApplicationActivity() {
                                             Toast.makeText(this@ProfileActivity, getString(R.string.emptyFieldInformation), Toast.LENGTH_LONG).show()
                                         } else {
                                             currentUser.updatePassword(newPassword)
-                                                    .addOnCompleteListener({ task ->
+                                                    .addOnCompleteListener { task ->
                                                         if (task.isSuccessful) {
                                                             Toast.makeText(this@ProfileActivity, getString(R.string.passwordChanged), Toast.LENGTH_LONG).show()
                                                             DatabaseOnlineUserAction().logoutUser()
                                                             Tools.startNewActivityWithoutPrevious(this, LoginActivity::class.java)
                                                         }
-                                                    })
+                                                    }
                                         }
                                     }
                                     alert.setNegativeButton(getString(R.string.cancel)) { dialog, whichButton -> }
@@ -125,7 +133,7 @@ class ProfileActivity : ApplicationActivity() {
     }
 
     private fun deleteAccountAction(currentUser: FirebaseUser) {
-        deleteAccountRelative.setOnClickListener({
+        deleteAccountRelative.setOnClickListener {
             val alert2 = Tools.makeAlertDialogBuilder(this, getString(R.string.reauthenticate), getString(R.string.reauthenticateInformation))
             val inflate = layoutInflater.inflate(R.layout.login_dialog, null)
             alert2.setView(inflate)
@@ -142,7 +150,6 @@ class ProfileActivity : ApplicationActivity() {
                                 if (task.isSuccessful) {
                                     val alert = Tools.makeAlertDialogBuilder(this, getString(R.string.deleteUser), getString(R.string.deleteUserConfirmation))
                                     alert.setPositiveButton(getString(R.string.ok)) { dialog, whichButton ->
-                                        //TODO przy 3 userach za duzo usuwa
                                         removeUserFromDatabase(currentUser)
                                     }
                                     alert.setNegativeButton(getString(R.string.cancel)) { dialog, whichButton -> }
@@ -155,7 +162,7 @@ class ProfileActivity : ApplicationActivity() {
             }
             alert2.setNegativeButton(getString(R.string.cancel)) { dialog, whichButton -> }
             alert2.show()
-        })
+        }
     }
 
     private fun removeUserFromDatabase(currentUser: FirebaseUser) {
@@ -171,8 +178,8 @@ class ProfileActivity : ApplicationActivity() {
         removeUsersFromConnection(currentUser, reference, Constants.DATABASE_FOLLOWING, Constants.DATABASE_FOLLOWERS)
     }
 
-    private fun removeUsersFromConnection(currentUser: FirebaseUser, reference: DatabaseReference, databaseNode : String, databaseNode2: String) {
-        Log.i(TAG,"removeUsersFromConnection() current user " + currentUser.uid)
+    private fun removeUsersFromConnection(currentUser: FirebaseUser, reference: DatabaseReference, databaseNode: String, databaseNode2: String) {
+        Log.i(TAG, "removeUsersFromConnection() current user " + currentUser.uid)
         val query = reference.child(databaseNode)
                 .orderByKey()
                 .equalTo(currentUser.uid)
@@ -180,30 +187,34 @@ class ProfileActivity : ApplicationActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
+                        // User class since other class similar has hashcode and equals
                         val userFollowers = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                        Log.i(TAG,"onDataChange()")
+                        Log.i(TAG, "onDataChange()")
                         val query2 = reference.child(databaseNode2)
                                 .orderByKey()
-                                .equalTo(userFollowers!!.user_id)
+                                .equalTo(userFollowers?.user_id)
                         query2.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
                                 for (singleSnapshot2 in dataSnapshot.children) {
                                     for (childSingleSnapshot2 in singleSnapshot2.children) {
                                         val userFollowing = childSingleSnapshot2.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                                         // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow.
-                                        if (userFollowing!!.user_id.equals(currentUser.uid)) {
+                                        if (userFollowing?.user_id.equals(currentUser.uid)) {
                                             childSingleSnapshot2.ref.removeValue()
                                             FirebaseDatabase.getInstance().getReference(databaseNode).child(currentUser.uid).removeValue()
                                         }
                                     }
                                 }
                             }
+
                             override fun onCancelled(databaseError: DatabaseError?) {}
                         })
                     }
                 }
             }
+
             override fun onCancelled(databaseError: DatabaseError?) {}
         })
     }
+
 }

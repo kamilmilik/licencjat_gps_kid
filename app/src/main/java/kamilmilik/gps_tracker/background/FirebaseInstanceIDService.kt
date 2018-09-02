@@ -7,7 +7,7 @@ import kamilmilik.gps_tracker.utils.Tools
  * Created by kamil on 14.06.2018.
  */
 /**
-* Class that refreshes the Token ID when it changes.
+ * Class that refreshes the Token ID when it changes.
  */
 class FirebaseInstanceIDService : FirebaseInstanceIdService() {
 

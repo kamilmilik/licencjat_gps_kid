@@ -19,6 +19,7 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("kamilmilik.licencjat_gps_kid", appContext.packageName)
+        assertEquals("kamilmilik.gps_tracker", appContext.packageName)
     }
+
 }

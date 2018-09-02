@@ -1,5 +1,6 @@
 package kamilmilik.gps_tracker.invite
 
+import android.location.Location
 import android.os.Bundle
 import android.text.TextUtils
 import com.google.firebase.auth.FirebaseAuth
@@ -11,13 +12,16 @@ import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.models.UserUniqueKey
 import kotlinx.android.synthetic.main.activity_enter_invite.*
 import android.text.InputFilter
+import android.util.Log
+import android.view.View
 import android.widget.Toast
-import com.google.firebase.iid.FirebaseInstanceId
 import kamilmilik.gps_tracker.ApplicationActivity
 import kamilmilik.gps_tracker.map.MapActivity
+import kamilmilik.gps_tracker.models.ConnectionUser
 import kamilmilik.gps_tracker.utils.Tools
-import kamilmilik.gps_tracker.models.User
 import kamilmilik.gps_tracker.utils.Constants
+import kamilmilik.gps_tracker.utils.ObjectsUtils
+import kotlinx.android.synthetic.main.progress_bar.*
 
 
 class EnterInviteActivity : ApplicationActivity() {
@@ -39,20 +43,22 @@ class EnterInviteActivity : ApplicationActivity() {
 
     private fun submitEnteredInviteCodeButtonAction() {
         editTextEnterInviteCode.filters = arrayOf<InputFilter>(InputFilter.AllCaps())
-        buttonSubmitInvite.setOnClickListener({
+        buttonSubmitInvite.setOnClickListener {
             var enteredInviteCode = editTextEnterInviteCode.text.toString().toUpperCase()
             enteredInviteCode = Tools.removeWhiteSpaceFromString(enteredInviteCode)
+            Log.i(TAG, "submitEnteredInviteCodeButtonAction()")
             if (!TextUtils.isEmpty(enteredInviteCode)) {
                 findUserWhichGeneratedInviteCode(enteredInviteCode)
             }
-        })
+        }
     }
 
     /**
-     * Find in firebase database given invite code and return user uid who generated this invite code
+     * Find in firebase database given invite code and return user uid who generated this invite code.
      * @param enteredInviteCode
      */
     private fun findUserWhichGeneratedInviteCode(enteredInviteCode: String) {
+        progressBarRelative.visibility = View.VISIBLE
         val reference = FirebaseDatabase.getInstance().reference
         val query = reference.child(Constants.DATABASE_USER_KEYS)
                 .orderByChild(Constants.DATABASE_UNIQUE_KEY_FIELD)
@@ -60,22 +66,27 @@ class EnterInviteActivity : ApplicationActivity() {
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
+                    Log.i(TAG, "onDataChange() w enter invite")
                     userUniqueKeyModel = singleSnapshot.getValue(UserUniqueKey::class.java)
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    if (!checkIfGivenUsersAreDifferent(userUniqueKeyModel!!.user_id, currentUser!!.uid)) {// Prevent add user self.
-                        addConnectedUserToDatabase(userUniqueKeyModel!!)
+                    userUniqueKeyModel?.let { userUniqueKeyModel ->
+                        val currentUser = FirebaseAuth.getInstance().currentUser
+                        if (!checkIfGivenUsersAreDifferent(userUniqueKeyModel.user_id, currentUser?.uid)) {// Prevent add user self.
+                            addConnectedUserToDatabase(userUniqueKeyModel)
+                        }
+                        finish()
                     }
-                    Tools.startNewActivityWithoutPrevious(this@EnterInviteActivity, MapActivity::class.java)
                 }
                 if (dataSnapshot.value == null) {
                     Toast.makeText(this@EnterInviteActivity, getString(R.string.invalidCode), Toast.LENGTH_LONG).show()
+                    progressBarRelative.visibility = View.GONE
                 }
             }
+
             override fun onCancelled(databaseError: DatabaseError) {}
         })
     }
 
-    private fun checkIfGivenUsersAreDifferent(user1Id: String?, user2Id: String): Boolean {
+    private fun checkIfGivenUsersAreDifferent(user1Id: String?, user2Id: String?): Boolean {
         return if (user1Id.equals(user2Id)) {
             Toast.makeText(this, getString(R.string.yourselfInviteCode), Toast.LENGTH_LONG).show()
             true
@@ -89,22 +100,29 @@ class EnterInviteActivity : ApplicationActivity() {
      * @param userUniqueKeyModel
      */
     private fun addConnectedUserToDatabase(userUniqueKeyModel: UserUniqueKey) {
-        var currentFirebaseUser = FirebaseAuth.getInstance().currentUser!!
-        var currentUser = User(currentFirebaseUser.uid, currentFirebaseUser.email!!, FirebaseInstanceId.getInstance().token!!, currentFirebaseUser.displayName!!)
-        var followedUser = User(userUniqueKeyModel.user_id!!, userUniqueKeyModel.user_email!!, userUniqueKeyModel.device_token!!, userUniqueKeyModel.user_name!!)
+        FirebaseAuth.getInstance().currentUser?.let { currentFirebaseUser ->
+            ObjectsUtils.safeLetFirebaseUser(currentFirebaseUser) { currentUserUid, currentUserEmail, currentUserName ->
+                ObjectsUtils.safeLetUserUniqueKey(userUniqueKeyModel) { followedUserUid, followedUserEmail, followedUserName ->
+                    val currentUser = ConnectionUser(currentUserUid, currentUserEmail, currentUserName)
+                    val followedUser = ConnectionUser(followedUserUid, followedUserEmail, followedUserName)
 
-        FirebaseDatabase.getInstance().reference
-                .child(Constants.DATABASE_FOLLOWING)
-                .child(currentUser.user_id)
-                .child(followedUser.user_id)
-                .child(Constants.DATABASE_USER_FIELD)
-                .setValue(followedUser);
+                    FirebaseDatabase.getInstance().reference
+                            .child(Constants.DATABASE_FOLLOWING)
+                            .child(currentUser.user_id)
+                            .child(followedUser.user_id)
+                            .child(Constants.DATABASE_USER_FIELD)
+                            .setValue(followedUser);
 
-        FirebaseDatabase.getInstance().reference
-                .child(Constants.DATABASE_FOLLOWERS)
-                .child(userUniqueKeyModel.user_id)
-                .child(currentUser.user_id)
-                .child(Constants.DATABASE_USER_FIELD)
-                .setValue(currentUser)
+                    FirebaseDatabase.getInstance().reference
+                            .child(Constants.DATABASE_FOLLOWERS)
+                            .child(userUniqueKeyModel.user_id)
+                            .child(currentUser.user_id)
+                            .child(Constants.DATABASE_USER_FIELD)
+                            .setValue(currentUser)
+
+                    progressBarRelative.visibility = View.GONE
+                }
+            }
+        }
     }
 }

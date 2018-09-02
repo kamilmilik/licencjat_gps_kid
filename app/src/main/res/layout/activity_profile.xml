@@ -12,6 +12,7 @@
             android:id="@+id/toolbarProfileActivity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
             <include layout="@layout/toolbar" />
         </RelativeLayout>
 
@@ -24,16 +25,16 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="10dp">
 
                 <RelativeLayout
                     android:id="@+id/userNameRelative"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
                     android:clickable="true"
-                    android:padding="10dp">
+                    android:padding="10dp"
+                    android:focusable="true">
 
                     <ImageView
                         android:id="@+id/userIcon"
@@ -52,7 +53,7 @@
                         android:layout_marginStart="10dp"
                         android:layout_toEndOf="@id/userIcon"
                         android:layout_toRightOf="@id/userIcon"
-                        android:text="User"
+                        android:text="@string/user"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="#212121" />
 
@@ -68,6 +69,7 @@
                         android:text="@string/userName"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textColor="#727272" />
+
                     <Button
                         android:id="@+id/editUserNameButton"
                         android:layout_width="24dp"
@@ -89,9 +91,9 @@
                     android:id="@+id/userPasswordRelative"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
                     android:clickable="true"
-                    android:padding="10dp">
+                    android:padding="10dp"
+                    android:focusable="true">
 
                     <ImageView
                         android:id="@+id/userPasswordIcon"
@@ -107,10 +109,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:inputType="textPassword"
                         android:layout_marginStart="10dp"
                         android:layout_toEndOf="@id/userPasswordIcon"
                         android:layout_toRightOf="@id/userPasswordIcon"
+                        android:inputType="textPassword"
                         android:text="password"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="#212121" />
@@ -127,6 +129,7 @@
                         android:text="@string/userPassword"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textColor="#727272" />
+
                     <Button
                         android:id="@+id/editPasswordButton"
                         android:layout_width="24dp"
@@ -148,9 +151,9 @@
                     android:id="@+id/deleteAccountRelative"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
                     android:clickable="true"
-                    android:padding="10dp">
+                    android:padding="10dp"
+                    android:focusable="true">
 
                     <ImageView
                         android:id="@+id/deleteAccountIcon"
