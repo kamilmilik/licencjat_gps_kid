@@ -34,14 +34,12 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
             val tag = polygonTag.substring(polygonTag.lastIndexOf('@') + 1)
             val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
             val currentUser = FirebaseAuth.getInstance().currentUser
-            Log.i(TAG, "Polygon tag : " + tag + " polygon " + polygonMap.toString())
             databaseReference.child(currentUser?.uid).child(tag)
                     .setValue(polygonMap)
         }
     }
 
     fun removePolygonFromDatabase(polygonTagToRemove: String) {
-        Log.i(TAG, "removePolygonFromDatabase " + polygonTagToRemove)
         val polygonTagToRemove = polygonTagToRemove.substring(polygonTagToRemove.lastIndexOf('@') + 1)
         val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -50,7 +48,6 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
     }
 
     private fun getPolygonFromDatabase(onGetDataListener: OnGetDataListener) {
-        //TODO sprawdzic czy to ma sens, czy bedzie sytuacja ze progress bar zniknal a nie zaladowano jeszcze polygonow
         val progressBarClickable = mapActivity.getActivity().findViewById<RelativeLayout>(R.id.progressBarClickableRelative)
         val progressBar = mapActivity.getActivity().findViewById<RelativeLayout>(R.id.progressBarRelative)
         if (progressBar.visibility == View.GONE) {
@@ -58,7 +55,6 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
         }
         val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
-            //let prevent if user click logout
             databaseReference
                     .orderByKey()
                     .equalTo(currentUser.uid)
@@ -68,7 +64,6 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
                                 for (singleSnapshot in dataSnapshot.children) {
                                     for (child in singleSnapshot.children) {
                                         val polygonsFromDbMap = child.getValue(PolygonModel::class.java)
-                                        //Log.i(TAG,polygonsFromDbMap?.tag + " " + polygonsFromDbMap?.polygonLatLngList)
                                         ObjectsUtils.safeLet(polygonsFromDbMap, polygonsFromDbMap?.tag) { polygonsFromDb, polygonTag ->
                                             polygonsMap[polygonTag] = polygonsFromDb.polygonLatLngList
 
@@ -97,7 +92,6 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
      * @param polygonList ArrayList with LatLng of polygon
      */
     private fun drawPolygonFromDatabase(polygonTag: String, polygonList: ArrayList<LatLng>) {
-        Log.i(TAG, "drawPolygonFromDatabase()")
         polygon = mapActivity.getMap().addPolygon(PolygonOptions().addAll(polygonList))
         polygon?.isClickable = true
         polygon?.tag = polygonTag
@@ -110,12 +104,10 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
         polygon?.let { polygon ->
             markersMap?.put(markerList, polygon)
         }
-        Log.i(TAG, "markersMap size: " + markersMap?.size + " markerList size: " + markerList.size)
         markerList = ArrayList()
 
         mapActivity.getMap().setOnPolygonClickListener { polygon ->
             // This is run before user draw some polygon.
-            Log.i(TAG, "clicked in drawPolygon" + polygon?.tag.toString())
             val alert = Tools.makeAlertDialogBuilder(mapActivity.getActivity(), mapActivity.getString(R.string.deleteAreaPolygon), mapActivity.getString(R.string.deleteAreaPolygonMessage))
             alert.setPositiveButton(R.string.ok) { dialog, whichButton ->
                 polygonsMap.remove(polygon.tag.toString())

@@ -57,12 +57,6 @@ object BatteryOptimizationUtils {
                         })
                         showOptimizationToast(activity, activity.getString(R.string.xiaomiBatteryOptimizationInformation, activity.applicationInfo.loadLabel(activity.packageManager)))
                     }
-                    "samsung" -> {
-                        activity.startActivity(Intent().apply {
-                            component = ComponentName("com.samsung.android.sm", "com.samsung.android.sm.ui.battery.BatteryActivity")
-                        })
-//                         showOptimizationToast(activity, activity.getString(R.string.xiaomiBatteryOptimizationInformation, activity.applicationInfo.loadLabel(activity.packageManager)))
-                    }
                 }
             }
         } catch (ex: ExceptionInInitializerError) {

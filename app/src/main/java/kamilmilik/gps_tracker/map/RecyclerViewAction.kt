@@ -33,21 +33,14 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(mapActivity.getActivity(), LinearLayoutManager.HORIZONTAL, false)
 
-        // Add current user and other users are added in NotifyOtherUsersChanges.
         valueSet = HashSet()
         FirebaseAuth.getInstance().currentUser?.let {
-            // Get current user again and do it if isn't null.
             ObjectsUtils.safeLetFirebaseUser(currentUser) { currentUserUid, currentUserEmail, currentUserName ->
                 valueSet.add(UserBasicInfo(currentUserUid, currentUserEmail, currentUserName))
                 val valueList = ArrayList(valueSet)
-                println("value list in recycler setup")
-                for (value in valueList) {
-                    println(value.userId + " " + value.email + " " + value.userName)
-                }
                 adapter = RecyclerViewAdapter(mapActivity.getActivity(), valueList)
                 recyclerView.adapter = adapter
                 adapter.setClickListener(this)
-
             }
         }
     }
@@ -82,14 +75,9 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
 
     private fun notifyDataSetChanged() {
         val valueList = ArrayList(valueSet)
-        println("value list in recycler update")
-        for (value in valueList) {
-            println(value.userId + " " + value.email + " " + value.userName)
-        }
         adapter = RecyclerViewAdapter(mapActivity.getActivity(), valueList)
         recyclerView.adapter = adapter
         adapter.setClickListener(this)
-
         adapter.notifyDataSetChanged()
     }
 
@@ -131,7 +119,6 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
             val reference = FirebaseDatabase.getInstance().reference
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWERS, Constants.DATABASE_FOLLOWING)
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWING, Constants.DATABASE_FOLLOWERS)
-//            mapActivity.removeOldListeners() // Prevent to observe deleted user
         }
     }
 
@@ -157,13 +144,12 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
                                 for (singleSnapshot2 in dataSnapshot.children) {
                                     for (childSingleSnapshot2 in singleSnapshot2.children) {
                                         val user2 = childSingleSnapshot2.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                                        // It prevent for remove user which we not delete, we must delete only currentUser, userFollowing could have other user which he follow.
                                         if (user2?.user_id.equals(userToUnfollowId)) {
                                             childSingleSnapshot2.ref.removeValue()
                                         }
                                     }
                                 }
-                                if (user?.user_id.equals(currentUserId)) { // Delete me.
+                                if (user?.user_id.equals(currentUserId)) {
                                     childSingleSnapshot.ref.removeValue()
                                 }
                             }

@@ -12,7 +12,6 @@ object ValidDataUtils {
     private val TAG = ValidDataUtils::class.java.simpleName
 
     fun checkIfUserEnterValidData(context: Context?, email: String, password: String, name: String): Boolean {
-        Log.i(TAG, "checkIfUserEnterValidData: check if is valid data in user login/register")
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(context, context?.getString(kamilmilik.gps_tracker.R.string.enterEmail), Toast.LENGTH_SHORT).show()
             return false
@@ -29,7 +28,6 @@ object ValidDataUtils {
     }
 
     fun checkIfUserEnterValidData(context: Context?, email: String, password: String): Boolean {
-        Log.i(TAG, "checkIfUserEnterValidData: check if is valid data in user login/register")
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(context, context?.getString(kamilmilik.gps_tracker.R.string.enterEmail), Toast.LENGTH_SHORT).show()
             return false

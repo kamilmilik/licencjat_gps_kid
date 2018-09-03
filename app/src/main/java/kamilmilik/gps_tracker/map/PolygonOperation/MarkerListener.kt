@@ -16,12 +16,9 @@ class MarkerListener(private var polygonsGeoLatLngMap: HashMap<String, ArrayList
 
     private var editedPolygonModelList: ArrayList<PolygonModel>? = null
 
-    override fun onMarkerDragEnd(marker: Marker?) {
-        Log.i(TAG, "onMarkerDragEnd()")
-    }
+    override fun onMarkerDragEnd(marker: Marker?) {}
 
     override fun onMarkerDragStart(marker: Marker?) {
-        Log.i(TAG, "onMarkerDragStart()")
         editPolygonAction(marker)
     }
 
@@ -33,14 +30,11 @@ class MarkerListener(private var polygonsGeoLatLngMap: HashMap<String, ArrayList
         editedPolygonModelList = ArrayList()
         markersMap?.let { markersMap ->
             for ((markerList, polygon) in markersMap) {
-                Log.i(TAG, "tag " + polygon.tag.toString() + " only polygon " + polygon.toString() + " " + marker?.tag.toString())
                 polygon.tag?.let { polygonTag ->
                     if (polygonTag == marker?.tag) {
                         polygon.points = markersToLatLng(markerList)
                         val myOwnLatLngList = changeLatLngListToMyLatLngList(polygon.points)
-                        // I must add to this map, since then it update latlng in DrawPolygon class, since we iterate through this map and add to database in this class and we want update points there.
                         polygonsGeoLatLngMap.put((polygon.tag as String), myOwnLatLngList)
-                        // Add polygon model to list to save to database when user unclick edit area button.
                         editedPolygonModelList?.add(PolygonModel(polygonTag.toString(), myOwnLatLngList))
                     }
                 }

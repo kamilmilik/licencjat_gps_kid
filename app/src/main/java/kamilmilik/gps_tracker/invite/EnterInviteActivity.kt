@@ -46,7 +46,6 @@ class EnterInviteActivity : ApplicationActivity() {
         buttonSubmitInvite.setOnClickListener {
             var enteredInviteCode = editTextEnterInviteCode.text.toString().toUpperCase()
             enteredInviteCode = Tools.removeWhiteSpaceFromString(enteredInviteCode)
-            Log.i(TAG, "submitEnteredInviteCodeButtonAction()")
             if (!TextUtils.isEmpty(enteredInviteCode)) {
                 findUserWhichGeneratedInviteCode(enteredInviteCode)
             }
@@ -66,7 +65,6 @@ class EnterInviteActivity : ApplicationActivity() {
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
-                    Log.i(TAG, "onDataChange() w enter invite")
                     userUniqueKeyModel = singleSnapshot.getValue(UserUniqueKey::class.java)
                     userUniqueKeyModel?.let { userUniqueKeyModel ->
                         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -111,7 +109,7 @@ class EnterInviteActivity : ApplicationActivity() {
                             .child(currentUser.user_id)
                             .child(followedUser.user_id)
                             .child(Constants.DATABASE_USER_FIELD)
-                            .setValue(followedUser);
+                            .setValue(followedUser)
 
                     FirebaseDatabase.getInstance().reference
                             .child(Constants.DATABASE_FOLLOWERS)

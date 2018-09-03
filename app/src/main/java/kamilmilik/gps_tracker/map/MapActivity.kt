@@ -85,7 +85,6 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
         this.googleMap = googleMap
         googleMap.uiSettings.isCompassEnabled = false
 
-        Log.i(TAG, "onMapReady() device toke" + FirebaseAuth.getInstance().currentUser)
         mapTypeAction()
         initialize()
         switchMapTypeAction()
@@ -122,7 +121,6 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
             override fun run() {
                 FirebaseApp.initializeApp(applicationContext)
                 notificationMethods = Notification(this@MapActivity)
-                // It must be called multiple times to notify when user add new user connection.
                 notificationMethods?.notificationAction(false)
             }
         }.start()
@@ -256,7 +254,6 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     private fun setupAddOnlineUserToDatabaseHelper() {
         if (FirebaseDatabase.getInstance().reference != null && FirebaseAuth.getInstance().currentUser != null) {
             databaseOnlineUserAction = DatabaseOnlineUserAction()
-            databaseOnlineUserAction?.addOnlineUserToDatabase()
         }
     }
 
@@ -292,7 +289,6 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     }
 
     override fun onDestroy() {
-        Log.i(TAG, "onDestroy()")
         removeOldListeners()
         super.onDestroy()
     }
@@ -375,7 +371,6 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
     }
 
     fun userLocationAction(user: User) {
-        println("user location action user " + user.email + " " + user.user_id + " " + user.user_name)
         ObjectsUtils.safeLet(user.user_id, recyclerViewAction, progressBarRelative) { userId, recyclerView, progressBar ->
             locationFirebaseMarkerAction?.userLocationAction(userId, recyclerView, progressBar)
         }

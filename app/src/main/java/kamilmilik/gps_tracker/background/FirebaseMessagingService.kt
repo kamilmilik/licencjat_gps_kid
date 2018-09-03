@@ -1,6 +1,5 @@
 package kamilmilik.gps_tracker.background
 
-import android.annotation.SuppressLint
 import android.app.AlarmManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -8,9 +7,7 @@ import android.content.Context
 import android.os.Build
 import android.content.Intent
 import android.app.PendingIntent
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import kamilmilik.gps_tracker.utils.LogUtils
 
 
 /**
@@ -24,13 +21,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
-        LogUtils(this).appendLog(TAG, "onMessageReceived()")
         authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
                 setupAlarmManager()
-            } else {
-                Log.i(TAG, "onMessageReceived() user not log in")
             }
         }
 

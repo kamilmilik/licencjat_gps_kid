@@ -108,7 +108,7 @@ class LocationUtilTest {
 
         val location = mock(Location::class.java)
         `when`(location.provider).thenReturn("fused")
-        `when`(location.accuracy).thenReturn(1100.11F) // higher than 100 so it is SignificantlyLessAccurate
+        `when`(location.accuracy).thenReturn(1100.11F)
         `when`(location.latitude).thenReturn(50.3824531)
         `when`(location.longitude).thenReturn(21.3464593)
         `when`(location.time).thenReturn(50)
@@ -153,30 +153,6 @@ class LocationUtilTest {
         Assert.assertEquals("km", measure)
     }
 
-//    @Test
-//    fun locationFilterTest_WrongAccuracyHighDistance(){
-//        val currentBestLocation = mock(Location::class.java)
-//        `when`(currentBestLocation.latitude).thenReturn(50.5521167)
-//        `when`(currentBestLocation.longitude).thenReturn(21.6476724)
-//        `when`(currentBestLocation.provider).thenReturn("fused")
-//        `when`(currentBestLocation.accuracy).thenReturn(790.665F)
-//        `when`(currentBestLocation.time).thenReturn(20)
-//
-//        val location = mock(Location::class.java)
-//        `when`(location.provider).thenReturn("fused")
-//        `when`(location.accuracy).thenReturn(87.6F) // Strange behavior of location api.
-//        `when`(location.latitude).thenReturn(50.6625457)
-//        `when`(location.longitude).thenReturn(21.7485975)
-//        `when`(location.time).thenReturn(10)
-//
-//        val distanceBetweenTwoLocations = distanceTo(currentBestLocation, location)// ~ 13966.111m too high in this short time.
-//        `when`(currentBestLocation.distanceTo(location)).thenReturn(distanceBetweenTwoLocations)
-//
-//        // Ja byłem w tarnobrzegu a nagle pokazało że w sandomierzu z accuracy niska a to calkowicie nie prawda
-//        Assert.assertEquals(false, LocationUtils.isBetterLocation(null, location, currentBestLocation))
-//    }
-
-
     @Test
     fun locationFilterTest_WrongAccuracyHighDistance(){
         val currentBestLocation = mock(Location::class.java)
@@ -206,14 +182,14 @@ class LocationUtilTest {
 
         val locationToLatitude = locationTo.latitude
         val locationToLongitude = locationTo.longitude
-        val radius = 6371 // Radius of the earth
+        val radius = 6371 // Radius of the earth.
 
         val latDistance = Math.toRadians(locationToLatitude - locationFromLatitude)
         val lonDistance = Math.toRadians(locationToLongitude - locationFromLongitude)
         val a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) + (Math.cos(Math.toRadians(locationFromLatitude)) * Math.cos(Math.toRadians(locationToLatitude))
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2))
         val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        var distance = radius.toDouble() * c * 1000.0 // convert to meters
+        var distance = radius.toDouble() * c * 1000.0 // Convert to meters.
 
 
         distance = Math.pow(distance, 2.0)

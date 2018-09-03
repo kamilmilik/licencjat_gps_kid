@@ -43,12 +43,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
     private var isUsersLocationsAdded = false
 
-    init {
-        Log.i(TAG, "init() location firebase marker acc")
-    }
-
     fun addCurrentUserMarkerAndRemoveOld(lastLocation: Location, recyclerViewAction: RecyclerViewAction, progressBar: RelativeLayout) {
-        Log.i(TAG, "addCurrentUserMarkerAndRemoveOld")
         val currentUser = FirebaseAuth.getInstance().currentUser
         val reference = FirebaseDatabase.getInstance().reference
         val locationsDatabaseReference = reference.child(Constants.DATABASE_LOCATIONS)
@@ -105,8 +100,6 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 dataSnapshot?.let {
                     if (!dataSnapshot.exists()) {
-                        Log.i(TAG, "onDataChange() no friends")
-                        Log.i(TAG, "onDataChange() increment workCounterForNoFirendsUser")
                         workCounterForNoFriendsUser?.incrementAndGet()
                         dismissProgressBar(progressBar)
                     }
@@ -117,8 +110,6 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
     }
 
     fun userLocationAction(userId: String, recyclerViewAction: RecyclerViewAction, progressBar: RelativeLayout) {
-        Log.i(TAG, "userLocationAction")
-
         val reference = FirebaseDatabase.getInstance().reference
         val query = reference.child(Constants.DATABASE_LOCATIONS)
                 .orderByChild(Constants.DATABASE_USER_ID_FIELD)
@@ -126,14 +117,12 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 dataSnapshot?.let {
-                    Log.i(TAG, "onDataChange in Locations listener " + dataSnapshot.toString() + " for user " + userId)
                     for (singleSnapshot in dataSnapshot.children) {
                         userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
 
                         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
                             ObjectsUtils.safeLetTrackingModel(userWhoChangeLocation) { id, email, name, userWhoChangeLocationLatitude, userWhoChangeLocationLongitude ->
                                 val userMarkerInformation = UserBasicInfo(id, email, name)
-                                println("update change user name " + userMarkerInformation.userId + " " + userMarkerInformation.email + " " + userMarkerInformation.userName)
                                 recyclerViewAction.updateChangeUserNameInRecycler(userMarkerInformation)
 
                                 updateUserNameIfChange(reference)
@@ -155,8 +144,6 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
                                 recyclerViewAction.updateRecyclerView()
 
-                                Log.i(TAG, "onDataChange() increment workCounter")
-
                                 // The method was used instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter.
                                 onGetUsersLocationSuccess()
                                 onSuccessGetLocations(progressBar)
@@ -169,7 +156,6 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
                     }
                 }
-                Log.i(TAG, "onDataChange() put to map query " + query + " hashcode " + query.hashCode() + " user " + userId)
                 putValueEventListenersToMap(QueryUserModel(userId, query), this)
             }
 
@@ -201,11 +187,9 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
     private fun dismissProgressBar(progressBar: RelativeLayout) {
         workCounterForNoFriendsUser?.let { workCounterForNoFriendsUser ->
-            Log.i(TAG, "dismissProgressBar() workCounterForNoFriendsUser = " + workCounterForNoFriendsUser)
             if (workCounterForNoFriendsUser.compareAndSet(2, 0)) {
                 progressBar.visibility = View.GONE
             }
-
         }
     }
 
@@ -235,7 +219,6 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
                         for (childSingleSnapshot in singleSnapshot.children) {
                             val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
                             if (user?.user_id == userId) {
-                                Log.i(TAG, "onDataChange() update name" + childSingleSnapshot)
                                 val map = HashMap<String, Any>() as MutableMap<String, Any>
                                 map.put(Constants.DATABASE_USER_NAME_FIELD, userName)
                                 childSingleSnapshot?.ref?.child(Constants.DATABASE_USER_FIELD)?.updateChildren(map)
@@ -260,7 +243,6 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
     }
 
     fun goToThisMarker(clickedUserMarkerInformation: UserBasicInfo) {
-        Log.i(TAG, "goToThisMarker() clicked user email " + clickedUserMarkerInformation)
         try {
             val searchedMarker = findMarker(clickedUserMarkerInformation)
             mapActivity.getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(searchedMarker?.position, Constants.MAP_CAMERA_ZOOM))
@@ -272,16 +254,6 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
     // Hash code and equals in UserBasicInfo is important here.
     fun findMarker(searchedUserMarkerInformationKey: UserBasicInfo): Marker? = markersMap.getValue(searchedUserMarkerInformationKey)
-
-    fun findMarkerByUserId(userId: String): Marker? {
-        for ((user, marker) in markersMap) {
-            if (user.userId == userId) {
-                Log.i(TAG, "findMarkerByUserId() usun marker")
-                return marker
-            }
-        }
-        return null
-    }
 
     private fun onGetMyLocationSuccess() {
         isMyLocationAdded = true

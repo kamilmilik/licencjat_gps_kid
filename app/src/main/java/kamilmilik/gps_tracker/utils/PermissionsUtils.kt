@@ -19,7 +19,6 @@ import kamilmilik.gps_tracker.models.PermissionMessageExplanation
 object PermissionsUtils {
     fun checkApkVersion(): Boolean = (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
 
-
     fun checkPermissionGranted(context: Context, permission: String): Boolean = (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED)
 
     fun checkLocationPermission(activity: Activity, permission: String) {

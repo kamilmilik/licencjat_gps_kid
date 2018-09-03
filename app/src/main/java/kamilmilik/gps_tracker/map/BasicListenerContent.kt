@@ -15,17 +15,8 @@ open class BasicListenerContent {
 
     private val firebaseDatabaseChildEventListenersMap: HashMap<QueryUserModel, ChildEventListener> = HashMap()
 
-    init {
-        Log.i("BasicListenerContent", "init() BasicListenerContent")
-    }
-
     fun putValueEventListenersToMap(queryUserModel: QueryUserModel, valueEventListener: ValueEventListener) {
         firebaseDatabaseValueEventListenersMap.put(queryUserModel, valueEventListener)
-//            Log.i("BasicListener","putValueEventListenersToMap() mapa " + firebaseDatabaseValueEventListenersMap + " hash " + firebaseDatabaseValueEventListenersMap.hashCode())
-//            for ((key, value) in firebaseDatabaseValueEventListenersMap) {
-//                Log.i("basicListener", "spradzam mape listenerow key " + key + " hash " + key.hashCode())
-//
-//            }
     }
 
     fun putChildEventListenersToMap(queryUserModel: QueryUserModel, childEventListener: ChildEventListener) {
@@ -34,7 +25,6 @@ open class BasicListenerContent {
 
     fun removeValueEventListeners() {
         for ((key, value) in firebaseDatabaseValueEventListenersMap) {
-//                Log.i("basicListener","removeValueEventListeners() key " + key + " hash " + key.hashCode())
             key.query.removeEventListener(value)
         }
     }

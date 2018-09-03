@@ -58,7 +58,6 @@ open class PolygonContent(open var mapActivity: MapActivity) {
     fun removePolygon(polygonTag: String) {
         markersMap?.forEach { (markerList, polygonValue) ->
             polygonValue.tag?.let {
-                //prevent nullpointer it could happen when i do polygon.remove and if i not remove from map this polygon, then in map i have null as previous polygon
                 if (polygonValue.tag == polygonTag) {
                     markerList.forEach { marker ->
                         marker.remove()

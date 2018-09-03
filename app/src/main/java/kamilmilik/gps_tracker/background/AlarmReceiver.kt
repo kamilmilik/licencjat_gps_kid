@@ -17,9 +17,9 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val newIntent = Intent(context, ForegroundService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context?.startForegroundService(newIntent);
+            context?.startForegroundService(newIntent)
         } else {
-            context?.startService(newIntent);
+            context?.startService(newIntent)
         }
     }
 }

@@ -45,7 +45,6 @@ open class ApplicationActivity : AppCompatActivity() {
                 override fun onChildAdded(dataSnapshot: DataSnapshot?, previousKey: String?) {}
                 override fun onChildChanged(dataSnapshot: DataSnapshot?, s: String?) {}
                 override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
-                    Log.i(TAG, "onChildRemoved()")
                     if (FirebaseDatabase.getInstance() != null && FirebaseAuth.getInstance().currentUser != null) {
                         currentUser.delete()
                                 .addOnCompleteListener { task ->
@@ -63,7 +62,6 @@ open class ApplicationActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Log.i(TAG, "onBackPressed()")
         NavUtils.navigateUpFromSameTask(this)
         super.onBackPressed()
     }

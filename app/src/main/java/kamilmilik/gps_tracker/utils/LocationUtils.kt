@@ -55,32 +55,17 @@ object LocationUtils {
         if (currentBestLocation == null) {
             return true
         }
-        // Check whether the new location fix is newer or older
         val timeDelta = location.time - currentBestLocation.time
-        val isSignificantlyNewer = timeDelta > THREE_MINUTES
-        val isSignificantlyOlder = timeDelta < -THREE_MINUTES
         val isNewer = timeDelta > 0
-//
-//        // If it's been more than three minutes since the current location, use the new location
-//        // because the user has likely moved
-//        LogUtils(context).appendLog(TAG, "timeDelta: $timeDelta isSignificantlyNewer $isSignificantlyNewer isSignificantlyOlder $isSignificantlyOlder")
-//        if (isSignificantlyNewer) {
-//            return true
-//            // If the new location is more than three minutes older, it must be worse
-//        } else if (isSignificantlyOlder) {
-//            return false
-//        }
 
         // Check whether the new location fix is more or less accurate
         val accuracyDelta = (location.accuracy - currentBestLocation.accuracy).toInt()
         val isLessAccurate = accuracyDelta > 0
         val isMoreAccurate = accuracyDelta < 0
         val isLowAccuracy = location.accuracy > 1000
-        val isWrong = (accuracyDelta == 0) // Sometimes last location gives wrong location and then accuracy is the same as previous
+        val isWrong = (accuracyDelta == 0) // Sometimes last location gives wrong location and then accuracy is the same as previous.
         val distanceBetweenLocations = currentBestLocation.distanceTo(location)
 
-        // Jeśli accuracyDelta jest większa od 50 czyli jest mało accurate sprawdź czy odleglość większa od 50 i czy nowa lokalizacja ma wieksza dokladność jak 1000
-        // Jeśli accuracy jest małe ale wtedy może być taka sytuacja currentAccuracy = 2200 nowa lokalizacja accuracy 2100 ale distance jest 8000 np
         val isSignificantlyLessAccurate = if (accuracyDelta > 50) {
             (distanceBetweenLocations > 50 && location.accuracy > 800)
         } else {
@@ -91,16 +76,6 @@ object LocationUtils {
             }
         }
 
-
-        // Check if the old and new location are from the same provider
-//        val isFromSameProvider = isSameProvider(location.provider, currentBestLocation.provider)
-
-        // Determine location quality using a combination of timeliness and accuracy
-        if (context != null) { // If statement only for junit tests.
-            LogUtils(context).appendLog(TAG, "location provider " + location.provider + " " + " currentLocation provider " + currentBestLocation.provider)
-            LogUtils(context).appendLog(TAG, "locationAccuracy " + location.accuracy + " currentLocation accuracy " + currentBestLocation.accuracy)
-            LogUtils(context).appendLog(TAG, "accuracyDelta $accuracyDelta isMoreAccurate " + isMoreAccurate + " isNewer " + isNewer + " curr location time " + currentBestLocation.time + " location time " + location.time + " !isLessAccurate " + (!isLessAccurate) + " isSignificantlyLessAccurate " + isSignificantlyLessAccurate + " distance between locations " + distanceBetweenLocations + " speed location " + location.speed/*+ " isFromSameProvider " + isFromSameProvider*/)
-        }
         if (isWrong) {
             return false
         } else if (isNewer && isMoreAccurate && !isLowAccuracy) {
@@ -110,17 +85,7 @@ object LocationUtils {
         } else if (isNewer && !isSignificantlyLessAccurate/* && isFromSameProvider*/) {
             return true
         }
-//        else if(!isSignificantlyLessAccurate /*&& isFromSameProvider*/){
-//            return true
-//        }
         return false
-    }
-
-    /** Checks whether two providers are the same  */
-    private fun isSameProvider(provider1: String?, provider2: String?): Boolean {
-        return if (provider1 == null) {
-            provider2 == null
-        } else provider1 == provider2
     }
 
     fun saveLocationToSharedPref(context: Context, location: Location) {
@@ -158,7 +123,6 @@ object LocationUtils {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(context) ?: return
         with(sharedPref.edit()) {
             putInt(Constants.GOOGLE_MAP_TYPE, mapType)
-            Log.i(TAG, "saveMapTypeToSharedPref() mapType " + mapType)
             apply()
         }
     }
@@ -168,17 +132,8 @@ object LocationUtils {
         return sharedPref.getInt(Constants.GOOGLE_MAP_TYPE, -1)
     }
 
-
-    /**
-     * convert given polygon map object (PolygonModel) with GeoLatLng to polygon map object with LatLng
-     * @param polygonsFromDbMap given polygon map model (model with tag and arrayList<GeoLatLng)
-     */
     fun changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap: PolygonModel): ArrayList<LatLng> {
         val newList: ArrayList<LatLng> = ArrayList(polygonsFromDbMap.polygonLatLngList.size)
-//        polygonsFromDbMap.polygonLatLngList
-//                .mapTo(newList) { geoLatLng ->
-//            LatLng(geoLatLng.latitude!!, geoLatLng.longitude!!)
-//        }
         for (geoLatLng in polygonsFromDbMap.polygonLatLngList) {
             ObjectsUtils.safeLet(geoLatLng.latitude, geoLatLng.longitude) { lat, lng ->
                 newList.add(LatLng(lat, lng))

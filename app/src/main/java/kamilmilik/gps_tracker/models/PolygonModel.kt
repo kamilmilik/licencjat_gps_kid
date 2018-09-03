@@ -13,7 +13,7 @@ class PolygonModel {
 
     constructor() {}
     constructor(tag: String, polygonLatLngList: ArrayList<GeoLatLng>) {
-        this.tag = tag;
+        this.tag = tag
         this.polygonLatLngList = polygonLatLngList
     }
 }

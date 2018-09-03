@@ -48,7 +48,7 @@ object NotificationUtils {
             } else {
                 channel.enableVibration(false)
                 channel.setSound(null, null)
-                channel.importance = NotificationManager.IMPORTANCE_LOW // Disable notification sound.
+                channel.importance = NotificationManager.IMPORTANCE_LOW
             }
             notificationManager.createNotificationChannel(channel)
         }

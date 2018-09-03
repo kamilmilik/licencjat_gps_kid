@@ -29,7 +29,6 @@ class LocationOperations(private var mapActivity: MapActivity) {
 
     @SuppressLint("MissingPermission")
     fun getLocation() {
-        Log.i(TAG, "getLocation() action ")
         if (PermissionsUtils.checkPermissionGranted(mapActivity.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
             if (Tools.isGooglePlayServicesAvailable(mapActivity.getActivity())) {
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(mapActivity.getActivity())
@@ -38,7 +37,6 @@ class LocationOperations(private var mapActivity: MapActivity) {
                     override fun onLocationResult(locationResult: LocationResult?) {
                         locationResult?.let {
                             for (location in locationResult.locations) {
-                                Log.i(TAG, "onLocationResult() w callbacku")
                                 if (FirebaseAuth.getInstance().currentUser != null) {
                                     lastLocation = location
                                     mapActivity.addCurrentUserMarkerAndRemoveOld(location)

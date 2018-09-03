@@ -20,7 +20,6 @@ class NotifyOtherUsersChanges(private var mapActivity: MapActivity) : BasicListe
     private val TAG = NotifyOtherUsersChanges::class.java.simpleName
 
     fun findUsersConnectionUpdateRecyclerViewOrDeleteRemovedUserData() {
-        Log.i(TAG, "findUsersConnectionUpdateRecyclerViewOrDeleteRemovedUserData, current user id : " + FirebaseAuth.getInstance().currentUser?.uid)
         val reference = FirebaseDatabase.getInstance().reference
         FirebaseAuth.getInstance().currentUser?.uid?.let { currentUserId ->
             connectedUserAction(reference, DATABASE_FOLLOWERS, currentUserId)
@@ -36,11 +35,9 @@ class NotifyOtherUsersChanges(private var mapActivity: MapActivity) : BasicListe
                     for (childSingleSnapshot in singleSnapshot.children) {
                         childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)?.let { user ->
                             ObjectsUtils.safeLet(user.user_id, user.email, user.user_name) { userId, userEmail, userName ->
-                                Log.i(TAG, "value connectedUserAction : " + userId + " " + userEmail + " " + userName)
                                 val userInformation = UserBasicInfo(userId, userEmail, userName)
 
                                 mapActivity.updateChangeOthersUserNameInRecycler(userInformation)
-                                Log.i(TAG, "userInFollowingSystemAction() startuje userLocationAction")
                                 mapActivity.userLocationAction(user)
 
                                 notifyWhenChildIsRemovedAndThenDeleteHisData(reference, userId, databaseNode, userIdQuery)
@@ -56,7 +53,6 @@ class NotifyOtherUsersChanges(private var mapActivity: MapActivity) : BasicListe
     }
 
     fun notifyWhenChildIsRemovedAndThenDeleteHisData(reference: DatabaseReference, childId: String, databaseNode: String, currentUserId: String) {
-        Log.i(TAG, "notifyWhenChildIsRemovedAndThenDeleteHisData() na user " + childId + " node " + databaseNode)
         val query = reference.child(databaseNode).child(currentUserId).orderByKey().equalTo(childId)
         this.onChildRemovedAction(childId, query)
     }
@@ -73,9 +69,6 @@ class NotifyOtherUsersChanges(private var mapActivity: MapActivity) : BasicListe
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
                 dataSnapshot?.let {
-                    val removedUserId = dataSnapshot.key
-                    Log.i(TAG, "onChildRemovedAction() dataSnap " + dataSnapshot)
-                    Log.i(TAG, "onChildRemovedAction() removed user id " + removedUserId)
                     removeUserFromAppAction(dataSnapshot)
                 }
                 putChildEventListenersToMap(QueryUserModel(queryUserId, query), this)
@@ -85,7 +78,6 @@ class NotifyOtherUsersChanges(private var mapActivity: MapActivity) : BasicListe
 
     private fun removeUserFromAppAction(dataSnapshot: DataSnapshot?) {
         dataSnapshot?.let {
-            Log.i(TAG, "removeUserFromAppAction() dataSnap " + dataSnapshot)
             val removedUser = dataSnapshot.child(DATABASE_USER_FIELD).getValue(User::class.java)
             ObjectsUtils.safeLet(removedUser?.user_id, removedUser?.email, removedUser?.user_name) { id, email, name ->
                 val removedUserInfo = UserBasicInfo(id, email, name)
@@ -97,7 +89,7 @@ class NotifyOtherUsersChanges(private var mapActivity: MapActivity) : BasicListe
     private fun clearUserDataFromApp(userBasicInfo: UserBasicInfo) {
         val userIdToRemove = userBasicInfo.userId
         mapActivity.removeAllEventListenersForGivenUserId(userIdToRemove)
-        mapActivity.removeMarkerFromMapForGivenUser(userBasicInfo) // Remember to first delete user from map next from recycler
+        mapActivity.removeMarkerFromMapForGivenUser(userBasicInfo)
         mapActivity.removeUserFromRecycler(userIdToRemove)
     }
 }

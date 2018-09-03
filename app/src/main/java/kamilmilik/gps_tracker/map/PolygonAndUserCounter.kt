@@ -41,7 +41,6 @@ class PolygonAndUserCounter(private val mapActivity: MapActivity) : BasicListene
                     dataSnapshot?.let {
                         for (singleSnapshot in dataSnapshot.children) {
                             polygonsCount = singleSnapshot.childrenCount
-                            Log.i(TAG, "onDataChange() polygons count " + polygonsCount)
                             counterUsersAndPolygon()
                         }
 
@@ -74,7 +73,6 @@ class PolygonAndUserCounter(private val mapActivity: MapActivity) : BasicListene
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 dataSnapshot?.let {
                     for (singleSnapshot in dataSnapshot.children) {
-                        Log.i(TAG, "getCountForGivenNode() size " + singleSnapshot.childrenCount)
                         chooseWhichCounter(databaseNode, singleSnapshot.childrenCount)
                         counterUsersAndPolygon()
                     }
@@ -101,13 +99,11 @@ class PolygonAndUserCounter(private val mapActivity: MapActivity) : BasicListene
     }
 
     private fun counterUsersAndPolygon() {
-        Log.i(TAG, "counterUsersAndPolygon() items $polygonsCount $userFollowersCount $userFollowingCount")
         ObjectsUtils.safeLet(polygonsCount, userFollowersCount, userFollowingCount) { polygonsCount, userFollowersCount, userFollowingCount ->
             val usersCount = userFollowersCount + userFollowingCount
             val itemsToCheckCount = polygonsCount * usersCount
             val workUiDifference = itemsToCheckCount - WORK_ON_UI_ITEMS_LIMIT
             val isTooMuchWorkOnUi = (workUiDifference > 0)
-            Log.i(TAG, "counterUsersAndPolygon() userscount $usersCount user followers $userFollowersCount userfollowing $userFollowingCount items $itemsToCheckCount")
             if (isTooMuchWorkOnUi) {
                 tooMuchWorkOnUiAction()
             } else {
@@ -117,7 +113,6 @@ class PolygonAndUserCounter(private val mapActivity: MapActivity) : BasicListene
     }
 
     private fun tooMuchWorkOnUiAction() {
-        Log.i(TAG, "tooMuchWorkOnUiAction()")
         mapActivity.setTooMuchWorkOnUi(true)
         if (!isTooMuchWorkOnUiDialogShown) {
             showTooMuchWorkOnUiDialog()
@@ -125,7 +120,6 @@ class PolygonAndUserCounter(private val mapActivity: MapActivity) : BasicListene
     }
 
     private fun notTooMuchWorkOnUiAction() {
-        Log.i(TAG, "notTooMuchWorkOnUiAction()")
         mapActivity.setTooMuchWorkOnUi(false)
         if (isTooMuchWorkOnUiDialogShown && !isNotTooMuchWorkOnUiDialogShown) {
             showNotTooMuchWorkOnUiDialog()

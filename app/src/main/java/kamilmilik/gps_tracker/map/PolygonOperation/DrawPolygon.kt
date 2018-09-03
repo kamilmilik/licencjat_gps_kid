@@ -28,7 +28,6 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
     var onMarkerDragListener: MarkerListener? = null
 
     override fun setOnMarkerDragListenerAfterAddPolygon(markersMap: HashMap<ArrayList<Marker>, Polygon>) {
-        Log.i(TAG, "setOnMarkerDragListenerAfterAddPolygon()")
         this.markersMap = markersMap
         this.onMarkerDragListener = MarkerListener(polygonsGeoLatLngMap, markersMap, polygonDatabaseOperation)
         mapActivity.getMap().setOnMarkerDragListener(onMarkerDragListener)
@@ -55,8 +54,8 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
                         addMarker(position)
                     }
                     MotionEvent.ACTION_MOVE -> {
-                        polygonGeoLatLngPoints.add(GeoLatLng(position.latitude, position.longitude));
-                        polygonLatLngPoints.add(position);
+                        polygonGeoLatLngPoints.add(GeoLatLng(position.latitude, position.longitude))
+                        polygonLatLngPoints.add(position)
 
                         polygon?.points = polygonLatLngPoints
                         addMarker(position)
@@ -111,7 +110,6 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
             for ((markerList, polygon) in markersMap) {
                 for (marker in markerList) {
                     marker.isVisible = true
-                    Log.i(TAG, "marker " + marker + " " + marker.isVisible)
                 }
             }
 

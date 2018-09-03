@@ -11,7 +11,7 @@ object Constants {
     val MAP_CAMERA_ZOOM = 12.0f
 
     val SHARED_POLYGON_KEY = "map-polygon"
-    //permission
+    // Permission
     val LOCATION_PERMISSION_REQUEST_CODE: Int = 99
 
     val NOTIFICATION_ID_GET_LOCATION = 1102
@@ -22,12 +22,12 @@ object Constants {
 
     val NOTIFICATION_VIBRATION_PATTERN = longArrayOf(100, 400, 100, 400, 100)
 
-    //Random key
+    // Random key
     val LENGTH_RANDOM_CHARACTERS = 8
 
     val RANGE_RANDOM = 36
 
-    //Location
+    // Location
     val LOCATION_ONE_SECOND_DELAY = 1000L
 
     val LOCATION_NO_DELAY = 0L
@@ -44,9 +44,9 @@ object Constants {
 
     val LOCATION_PRIORITY = LocationRequest.PRIORITY_HIGH_ACCURACY
 
-    val LOCATION_MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters // The minimum distance to change Updates
+    val LOCATION_MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters // The minimum distance to change updates.
 
-    val LOCATION_MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong() // 1 minute // The minimum time between updates
+    val LOCATION_MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong() // 1 minute // The minimum time between updates.
 
     val LAST_LOCATION_LATITUDE = "locationLat"
 

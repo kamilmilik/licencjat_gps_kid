@@ -32,9 +32,7 @@ object Tools {
         val googleApiAvailability = GoogleApiAvailability.getInstance()
         val status = googleApiAvailability.isGooglePlayServicesAvailable(activity)
         val version = GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE
-        Log.i(TAG, "isGooglePlayServicesAvailable() przed ifem status " + status + " version " + version)
         if (status != ConnectionResult.SUCCESS || version <= Constants.GOOGLE_PLAY_SERVICES_VERSION) {
-            Log.i(TAG, "isGooglePlayServicesAvailable()")
             if (googleApiAvailability.isUserResolvableError(status)) {
                 googleApiAvailability.getErrorDialog(activity as Activity?, status, 2404).show()
             }
@@ -92,7 +90,7 @@ object Tools {
         val userDatabase = FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS)
         val currentUserId = FirebaseAuth.getInstance()?.currentUser?.uid
         val deviceTokenId = FirebaseInstanceId.getInstance().token
-        if (deviceTokenId != null) { // If deviceTokenId is null then onTokenRefresh is called and send new token to database.
+        if (deviceTokenId != null) {
             userDatabase?.child(currentUserId)?.child(Constants.DATABASE_DEVICE_TOKEN_FIELD)?.setValue(deviceTokenId)?.addOnSuccessListener {
                 startNewActivityWithoutPrevious(activity, classType)
             }

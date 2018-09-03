@@ -9,8 +9,8 @@
     <string name="Profile">Profile</string>
     <string name="emailNotVerified">Email is not verified, check your email box</string>
     <string name="loginSuccess">Login successful</string>
-    <string name="waitInformation">Please wait...</string>
-    <string name="waitMessage">Processing...</string>
+    <string name="waitInformation">Please wait…</string>
+    <string name="waitMessage">Processing…</string>
     <string name="verificationEmailSentInformation">"Verification email sent to "</string>
     <string name="failedVerificationEmailSend">Failed to send verification email</string>
     <string name="changePasswordSent">"Change password link sent to email "</string>
@@ -58,7 +58,7 @@
     <string name="deleteAccount">Delete account</string>
     <string name="name">Name</string>
     <string name="shareInviteCodeInformation">Share invite code</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="yourPassword">Your password</string>
     <string name="yourValidEmail">Your email address</string>
     <string name="yourName">Your name</string>
