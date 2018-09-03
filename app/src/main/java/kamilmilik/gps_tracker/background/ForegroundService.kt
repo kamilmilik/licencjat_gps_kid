@@ -108,7 +108,7 @@ open class ForegroundService : Service()/*, LocationListener */ {
                             val lastLocation = LocationUtils.getLocationFromSharedPref(this@ForegroundService)
                             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                                 if (location != null) {
-                                    if (LocationUtils.isBetterLocation(this@ForegroundService, location, lastLocation)) {
+                                    if (LocationUtils.isBetterLocation(location, lastLocation)) {
                                         addCurrentUserLocationToFirebase(location)
                                     } else {
                                         isWaitingForOnLocationResult.set(true)
@@ -130,7 +130,7 @@ open class ForegroundService : Service()/*, LocationListener */ {
                     if (isWaitingForOnLocationResult.get()) {
                         val lastLocation = LocationUtils.getLocationFromSharedPref(this@ForegroundService)
                         for (location in locationResult.locations) {
-                            if (LocationUtils.isBetterLocation(this@ForegroundService, location, lastLocation)) {
+                            if (LocationUtils.isBetterLocation(location, lastLocation)) {
                                 addCurrentUserLocationToFirebase(location)
                             }
                         }

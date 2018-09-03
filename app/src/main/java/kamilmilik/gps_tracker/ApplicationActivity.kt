@@ -14,6 +14,10 @@ import com.google.firebase.database.DatabaseError
 import kamilmilik.gps_tracker.login.LoginActivity
 import kamilmilik.gps_tracker.utils.Constants
 import kamilmilik.gps_tracker.utils.Tools
+import io.fabric.sdk.android.Fabric
+import com.crashlytics.android.Crashlytics
+
+
 
 
 /**
@@ -34,7 +38,16 @@ open class ApplicationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        initCrashReporting()
         deleteUserFromFirebaseAuth()
+    }
+
+    private fun initCrashReporting(){
+        val fabric = Fabric.Builder(this)
+                .kits(Crashlytics())
+                .debuggable(true)
+                .build()
+        Fabric.with(fabric)
     }
 
     private fun deleteUserFromFirebaseAuth() {

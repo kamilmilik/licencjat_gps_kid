@@ -36,6 +36,10 @@ object RestFirebaseUtils {
             bufferedWriter.write(jsonParam.toString())
             bufferedWriter.flush()
             bufferedWriter.close()
+            val status = conn.responseCode
+            val message = conn.responseMessage
+            Log.i("STATUS", status.toString())
+            Log.i("MSG", message)
             conn.disconnect()
         } catch (e: Exception) {
             e.printStackTrace()

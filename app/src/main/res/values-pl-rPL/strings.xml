@@ -5,7 +5,7 @@
     <string name="loginActivityName">Login</string>
     <string name="resetPasswordActivityName">Resetuj hasło</string>
     <string name="registrationActivityName">Rejestracja</string>
-    <string name="EnterInviteCodeActivityName">"Wpisz Kod "</string>
+    <string name="EnterInviteCodeActivityName">Wpisz Kod</string>
     <string name="sendInviteCodeActivity">Wyślij Kod</string>
     <string name="Profile">Profil</string>
     <string name="emailNotVerified">Email jest nie zweryfikowany, sprawdź swoją szkrzynkę pocztową</string>
@@ -49,7 +49,7 @@
     <string name="enterValidEmailInformation">Wpisz ważny email, aby zresetować twoje hasło</string>
     <string name="emailAddress">Adres email</string>
     <string name="password">Hasło</string>
-    <string name="login">Login</string>
+    <string name="login">Zaloguj się</string>
     <string name="registration">Zarejestruj się!</string>
     <string name="resetPassword">Zapomniałeś hasła?</string>
     <string name="userName">Nazwa użytkownika</string>

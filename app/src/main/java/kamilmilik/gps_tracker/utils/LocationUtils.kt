@@ -50,15 +50,14 @@ object LocationUtils {
      * @param location  The new Location that you want to evaluate
      * @param currentBestLocation  The current Location fix, to which you want to compare the new one
      */
-    fun isBetterLocation(context: Context?, location: Location, currentBestLocation: Location?): Boolean {
-        val THREE_MINUTES = 1000 * 60 * 3
+    fun isBetterLocation(location: Location, currentBestLocation: Location?): Boolean {
         if (currentBestLocation == null) {
             return true
         }
         val timeDelta = location.time - currentBestLocation.time
         val isNewer = timeDelta > 0
 
-        // Check whether the new location fix is more or less accurate
+        // Check whether the new location fix is more or less accurate.
         val accuracyDelta = (location.accuracy - currentBestLocation.accuracy).toInt()
         val isLessAccurate = accuracyDelta > 0
         val isMoreAccurate = accuracyDelta < 0
@@ -82,7 +81,7 @@ object LocationUtils {
             return true
         } else if (isNewer && !isLessAccurate && !isLowAccuracy) {
             return true
-        } else if (isNewer && !isSignificantlyLessAccurate/* && isFromSameProvider*/) {
+        } else if (isNewer && !isSignificantlyLessAccurate) {
             return true
         }
         return false
