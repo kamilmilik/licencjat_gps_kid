@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.LatLng
 import kamilmilik.gps_tracker.R
 import android.widget.FrameLayout
+import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.gps_tracker.map.MapActivity
 import kamilmilik.gps_tracker.utils.ObjectsUtils
 import kamilmilik.gps_tracker.utils.Tools
@@ -71,7 +72,6 @@ class DrawPolygon(override var mapActivity: MapActivity) : PolygonContent(mapAct
 
                             }
                             markerList = ArrayList()
-
                             for (polygon in polygonsGeoLatLngMap) {
                                 polygonDatabaseOperation.savePolygonToDatabase(PolygonModel(polygon.key, polygon.value))
                             }

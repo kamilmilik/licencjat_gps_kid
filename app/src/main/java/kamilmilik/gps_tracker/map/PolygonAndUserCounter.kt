@@ -33,16 +33,12 @@ class PolygonAndUserCounter(private val mapActivity: MapActivity) : BasicListene
 
     private fun countPolygons() {
         FirebaseAuth.getInstance().currentUser?.uid?.let { currentUserId ->
-            val query = FirebaseDatabase.getInstance().reference.child(DATABASE_USER_POLYGONS)
-                    .orderByKey()
-                    .equalTo(currentUserId)
+            val query = FirebaseDatabase.getInstance().reference.child(DATABASE_USER_POLYGONS).child(currentUserId)
             query.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot?) {
                     dataSnapshot?.let {
-                        for (singleSnapshot in dataSnapshot.children) {
-                            polygonsCount = singleSnapshot.childrenCount
-                            counterUsersAndPolygon()
-                        }
+                        polygonsCount = dataSnapshot.childrenCount
+                        counterUsersAndPolygon()
 
                         if (!dataSnapshot.exists()) {
                             polygonsCount = 0

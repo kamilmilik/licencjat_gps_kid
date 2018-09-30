@@ -22,6 +22,8 @@ import kamilmilik.gps_tracker.ApplicationActivity
 import kamilmilik.gps_tracker.utils.Constants
 import kamilmilik.gps_tracker.models.User
 import kamilmilik.gps_tracker.utils.Constants.CHANGE_NAME_ACTIVITY_RESULT
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_DATA_FIELD
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_USER_FIELD
 
 
 class ProfileActivity : ApplicationActivity() {
@@ -78,7 +80,7 @@ class ProfileActivity : ApplicationActivity() {
         val map = HashMap<String, Any>() as MutableMap<String, Any>
         map.put(Constants.DATABASE_USER_NAME_FIELD, newName)
         FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_USER_ACCOUNT_SETTINGS).child(currentUser.uid).updateChildren(map)
-        FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_LOCATIONS).child(currentUser.uid).updateChildren(map)
+        FirebaseDatabase.getInstance().reference.child(Constants.DATABASE_LOCATIONS).child(currentUser.uid).child(DATABASE_DATA_FIELD).updateChildren(map)
         activity.userNameTextView.text = currentUser.displayName
     }
 
@@ -169,7 +171,6 @@ class ProfileActivity : ApplicationActivity() {
         FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LOCATIONS).child(currentUser.uid).removeValue()
         FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LAST_ONLINE).child(currentUser.uid).removeValue()
         FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_LOGGED).child(Constants.DATABASE_USER_FIELD).child(currentUser.uid).removeValue()
-
 
         val reference = FirebaseDatabase.getInstance().reference
         removeUsersFromConnection(currentUser, reference, Constants.DATABASE_FOLLOWERS, Constants.DATABASE_FOLLOWING)

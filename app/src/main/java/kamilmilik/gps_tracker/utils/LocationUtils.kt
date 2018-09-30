@@ -3,7 +3,6 @@ package kamilmilik.gps_tracker.utils
 import android.content.Context
 import android.location.Location
 import android.preference.PreferenceManager
-import android.util.Log
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.maps.model.LatLng
 import kamilmilik.gps_tracker.models.DistanceMeasureModel
@@ -132,8 +131,8 @@ object LocationUtils {
     }
 
     fun changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDbMap: PolygonModel): ArrayList<LatLng> {
-        val newList: ArrayList<LatLng> = ArrayList(polygonsFromDbMap.polygonLatLngList.size)
-        for (geoLatLng in polygonsFromDbMap.polygonLatLngList) {
+        val newList: ArrayList<LatLng> = ArrayList(polygonsFromDbMap.polygon_lat_lng_list.size)
+        for (geoLatLng in polygonsFromDbMap.polygon_lat_lng_list) {
             ObjectsUtils.safeLet(geoLatLng.latitude, geoLatLng.longitude) { lat, lng ->
                 newList.add(LatLng(lat, lng))
             }

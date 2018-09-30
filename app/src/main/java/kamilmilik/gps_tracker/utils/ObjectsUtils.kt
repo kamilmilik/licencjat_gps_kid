@@ -35,15 +35,15 @@ object ObjectsUtils {
         }
     }
 
-    fun <R : Any> safeLetTrackingModel(user: FirebaseUser?, location: Location?, block: (String, String, String, String, String) -> R) {
+    fun <R : Any> safeLetTrackingModel(user: FirebaseUser?, location: Location?, block: (String, String, String, Double, Double) -> R) {
         location?.let { loc ->
             safeLetFirebaseUser(user) { uid, email, name ->
-                block(uid, email, name, loc.latitude.toString(), loc.longitude.toString())
+                block(uid, email, name, loc.latitude, loc.longitude)
             }
         }
     }
 
-    fun <R : Any> safeLetTrackingModel(trackingModel: TrackingModel?, block: (String, String, String, String, String) -> R) {
+    fun <R : Any> safeLetTrackingModel(trackingModel: TrackingModel?, block: (String, String, String, Double, Double) -> R) {
         trackingModel?.let { user ->
             safeLet(user.user_id, user.email, user.lat, user.lng, user.user_name) { id, email, lat, lng, name ->
                 block(id, email, name, lat, lng)
@@ -51,20 +51,12 @@ object ObjectsUtils {
         }
     }
 
-    fun <R : Any> safeLetRestFirebase(user: FirebaseUser?, location: Location?, tokenId: String?, block: (String, String, String, String, String, String) -> R) {
+    fun <R : Any> safeLetRestFirebase(user: FirebaseUser?, location: Location?, tokenId: String?, block: (String, String, String, Double, Double, String) -> R) {
         safeLet(location, tokenId) { loc, token ->
             safeLetFirebaseUser(user) { uid, email, name ->
-                block(uid, email, name, loc.latitude.toString(), loc.longitude.toString(), token)
+                block(uid, email, name, loc.latitude, loc.longitude, token)
             }
         }
     }
 
-    fun <R : Any> safeLetUserUniqueKey(userUniqueKey: UserUniqueKey?, block: (String, String, String) -> R) {
-        userUniqueKey?.let {
-            safeLet(userUniqueKey.user_id, userUniqueKey.user_email, userUniqueKey.user_name) { id, email, name ->
-                block(id, email, name)
-            }
-
-        }
-    }
 }

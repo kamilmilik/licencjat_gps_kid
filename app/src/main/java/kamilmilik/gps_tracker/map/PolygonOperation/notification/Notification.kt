@@ -11,6 +11,11 @@ import android.support.v4.app.NotificationManagerCompat
 import kamilmilik.gps_tracker.background.Synchronize
 import kamilmilik.gps_tracker.map.BasicListenerContent
 import kamilmilik.gps_tracker.utils.*
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_DATA_FIELD
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_FOLLOWERS
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_FOLLOWING
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_USER_ACCOUNT_SETTINGS
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_USER_FIELD
 import kamilmilik.gps_tracker.utils.Constants.NOTIFICATION_CHANNEL_AREA
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -36,20 +41,17 @@ class Notification(var context: Context) : BasicListenerContent() {
         val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
             val userIdQuery = currentUser.uid
-            val query: Query = databaseReference.orderByKey().equalTo(userIdQuery)
+            val query: Query = databaseReference.child(userIdQuery)
             query.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot?) {
                     if (!isTooMuchWorkOnUi.get()) {
                         polygonsFromDbMap = ArrayList()
                         dataSnapshot?.let {
                             for (singleSnapshot in dataSnapshot.children) {
-                                for (child in singleSnapshot.children) {
-                                    child.getValue(PolygonModel::class.java)?.let { polygonModel ->
-                                        polygonsFromDbMap.add(polygonModel)
-                                    }
+                                singleSnapshot.getValue(PolygonModel::class.java)?.let { polygonModel ->
+                                    polygonsFromDbMap.add(polygonModel)
                                 }
                             }
-
                             if (dataSnapshot.value == null) {//nothing found
                                 synchronizeAction?.allTaskDoneAction()
                             } else {
@@ -76,7 +78,6 @@ class Notification(var context: Context) : BasicListenerContent() {
         val currentUser = FirebaseAuth.getInstance()?.currentUser
         val reference = FirebaseDatabase.getInstance().reference
         currentUser?.uid?.let { userIdQuery ->
-
             val query = reference.child(databaseNode).orderByKey().equalTo(userIdQuery)
             query.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -84,7 +85,7 @@ class Notification(var context: Context) : BasicListenerContent() {
                         for (singleSnapshot in dataSnapshot.children) {
                             synchronizeAction?.setSynchronizeCounter(databaseNode, singleSnapshot.childrenCount)
                             for (childSingleSnapshot in singleSnapshot.children) {
-                                val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                                val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(ConnectionUser::class.java)
                                 user?.user_id?.let { userId ->
                                     loadLocationsFromDatabaseForGivenUserId(userId, isRunOnlyOnce)
                                 }
@@ -112,13 +113,12 @@ class Notification(var context: Context) : BasicListenerContent() {
 
     private fun loadLocationsFromDatabaseForGivenUserId(userId: String, isRunOnlyOnce: Boolean) {
         val locations = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_LOCATIONS)
-        val query: Query = locations.orderByChild(Constants.DATABASE_USER_ID_FIELD).equalTo(userId)
+        val query: Query = locations.child(userId).child(DATABASE_DATA_FIELD)/*orderByChild(Constants.DATABASE_USER_ID_FIELD).equalTo(userId)*/
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 if (!isTooMuchWorkOnUi.get()) {
                     dataSnapshot?.let {
-                        for (singleSnapshot in dataSnapshot.children) {
-                            val userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
+                        dataSnapshot.getValue(TrackingModel::class.java)?.let { userWhoChangeLocation ->
                             ObjectsUtils.safeLetTrackingModel(userWhoChangeLocation) { userIdWhoChangeLocation, email, name, lat, lng ->
                                 val locationOfUserWhoChangeIt = LocationUtils.createLocationVariable(LatLng(lat.toDouble(), lng.toDouble()))
                                 val currentUser = FirebaseAuth.getInstance().currentUser
@@ -135,7 +135,7 @@ class Notification(var context: Context) : BasicListenerContent() {
                                     val listOfIsInArea = insideOrOutsideArea.isPointInsidePolygon(polygonsLatLngMap)
                                     for (state in listOfIsInArea) {
                                         if (state == Constants.PolygonAreaState.ENTER.idOfState || state == Constants.PolygonAreaState.EXIT.idOfState) {
-                                            notification(state, userIdWhoChangeLocation, listOfIsInArea.size)
+                                            notification(state, userWhoChangeLocation, listOfIsInArea.size)
                                         } else {
                                             if (synchronizeAction != null) {
                                                 synchronizeAction?.endOfPolygonIterateAction(listOfIsInArea.size)
@@ -159,17 +159,17 @@ class Notification(var context: Context) : BasicListenerContent() {
         })
     }
 
-    private fun notification(transition: Int, userIdWhoChangeLocation: String, listSize: Int) {
+    private fun notification(transition: Int, userWhoChangeLocation: TrackingModel, listSize: Int) {
         val NOTIFICATION_ID_ENTER = java.lang.System.currentTimeMillis().toInt()
         val NOTIFICATION_ID_EXIT = java.lang.System.currentTimeMillis().toInt()
         if (transition == Constants.PolygonAreaState.ENTER.idOfState) {
-            userNotifyAction(userIdWhoChangeLocation,
+            userNotifyAction(userWhoChangeLocation,
                     context.getString(kamilmilik.gps_tracker.R.string.inPolygonInformation),
                     NOTIFICATION_CHANNEL_AREA,
                     NOTIFICATION_ID_ENTER,
                     listSize)
         } else if (transition == Constants.PolygonAreaState.EXIT.idOfState) {
-            userNotifyAction(userIdWhoChangeLocation,
+            userNotifyAction(userWhoChangeLocation,
                     context.getString(kamilmilik.gps_tracker.R.string.exitPolygonInformation),
                     NOTIFICATION_CHANNEL_AREA,
                     NOTIFICATION_ID_EXIT,
@@ -177,31 +177,19 @@ class Notification(var context: Context) : BasicListenerContent() {
         }
     }
 
-    private fun userNotifyAction(userIdWhoChangeLocation: String, contentText: String, notificationChanelId: String, notificationId: Int, listSize: Int) {
-        FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(userIdWhoChangeLocation)
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError?) {}
-
-                    override fun onDataChange(dataSnapshot: DataSnapshot?) {
-                        dataSnapshot?.let {
-                            for (singleSnapshot in dataSnapshot.children) {
-                                val user = singleSnapshot?.getValue(User::class.java)
-                                buildNotificationForInsideOrOutsideArea(NotificationModel(context.getString(kamilmilik.gps_tracker.R.string.app_name),
-                                        "${user?.user_name} $contentText",
-                                        notificationChanelId,
-                                        notificationId,
-                                        true)
-                                )
-                            }
-                            if (synchronizeAction != null) {
-                                synchronizeAction?.endOfPolygonIterateAction(listSize)
-                            }
-                        }
-                    }
-                })
+    private fun userNotifyAction(userWhoChangeLocation: TrackingModel, contentText: String, notificationChanelId: String, notificationId: Int, listSize: Int) {
+        buildNotificationForInsideOrOutsideArea(NotificationModel(context.getString(kamilmilik.gps_tracker.R.string.app_name),
+                "${userWhoChangeLocation.user_name} $contentText",
+                notificationChanelId,
+                notificationId,
+                true)
+        )
+        if (synchronizeAction != null) {
+            synchronizeAction?.endOfPolygonIterateAction(listSize)
+        }
     }
 
-    fun buildNotificationForInsideOrOutsideArea(notificationModel: NotificationModel) {
+    private fun buildNotificationForInsideOrOutsideArea(notificationModel: NotificationModel) {
         val pendingIntent = NotificationUtils.createPendingIntent(context, MapActivity::class.java, true)
 
         val notificationBuilder = NotificationUtils.createNotification(context, notificationModel)

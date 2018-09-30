@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.toolbar.*
 import java.util.*
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.iid.FirebaseInstanceId
 
 
@@ -113,5 +114,10 @@ object Tools {
         return givenString.replace("\\s".toRegex(), "")
     }
 
+    fun removeUserPermission(reference: DatabaseReference, userIdToRemove: String) {
+        FirebaseAuth.getInstance().currentUser?.uid?.let { currentUserUid ->
+            reference.child(Constants.DATABASE_LOCATIONS).child(currentUserUid).child(Constants.DATABASE_PERMISSIONS_FIELD).child(userIdToRemove).removeValue()
+        }
+    }
 
 }

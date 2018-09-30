@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Gps Tracker</string>
+    <string name="app_name">GPS Tracker</string>
     <string name="mapActivityName">Map</string>
     <string name="loginActivityName">Login</string>
     <string name="resetPasswordActivityName">Reset password</string>
@@ -98,9 +98,12 @@
     <string name="dataLoadingInformation">Data loading. Try again!</string>
     <string name="xiaomiBatteryOptimizationInformation">Select from the list %1$s, then select the option \"No restrictions\". This will allow the application to run in the background, which is necessary for the proper operation of the application.</string>
     <string name="applicationPerformance">Application performance</string>
-    <string name="applicationGoodPerformanceMessage">The number of users or areas observed now is optimal for the correct application performance</string>
-    <string name="applicationBadPerformanceMessage">Too many users or areas being watched. Remove areas or stop observing users differently to increase the performance of the application, actions checking areas will be performed every three minutes</string>
+    <string name="applicationGoodPerformanceMessage">The number of users or areas observed now is optimal for the correct application performance.</string>
+    <string name="applicationBadPerformanceMessage">Too many users or areas being watched. Remove areas or stop observing users differently to increase the performance of the application, actions checking areas will be performed every three minutes.</string>
     <string name="user">User</string>
     <string name="code">Code</string>
+    <string name="inviteUserInformation">The user will appear on the map when he accepts the desire to follow you.</string>
+    <string name="followingTitle">Connections</string>
+    <string name="followingAttemptMessage">Do you want to follow and be followed by %1$s %2$s?</string>
 
 </resources>

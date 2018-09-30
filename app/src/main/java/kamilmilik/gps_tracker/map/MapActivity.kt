@@ -20,7 +20,6 @@ import com.google.firebase.FirebaseApp
 import android.content.ComponentCallbacks2
 import android.graphics.Color
 import android.location.Location
-import android.util.Log
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.database.*
@@ -28,7 +27,7 @@ import kamilmilik.gps_tracker.ApplicationActivity
 import kamilmilik.gps_tracker.R
 import kamilmilik.gps_tracker.login.LoginActivity
 import kamilmilik.gps_tracker.map.PolygonOperation.notification.Notification
-import kamilmilik.gps_tracker.models.User
+import kamilmilik.gps_tracker.models.ConnectionUser
 import kamilmilik.gps_tracker.models.UserBasicInfo
 import kamilmilik.gps_tracker.profile.ProfileActivity
 import kamilmilik.gps_tracker.utils.*
@@ -72,13 +71,13 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
 
         (supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment).getMapAsync(this)
 
-        BatteryOptimizationUtils.ignoreBatteryOptimizationSettings(this)
+        BatteryOptimizationUtils.optimizationAction(this)
 
         generateCodeButtonAction()
         enterCodeButtonAction()
         profileActivityAction()
 
-        setupAddOnlineUserToDatabaseHelper()
+        setupAddOnlineUserToDatabase()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -90,7 +89,7 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
         switchMapTypeAction()
 
         recyclerViewAction?.setupRecyclerView()
-        notifyOtherUsersChanges?.findUsersConnectionUpdateRecyclerViewOrDeleteRemovedUserData()
+        notifyOtherUsersChanges?.notifyOtherUserChangesAction()
 
 
         drawPolygonButtonAction()
@@ -251,7 +250,7 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun setupAddOnlineUserToDatabaseHelper() {
+    private fun setupAddOnlineUserToDatabase() {
         if (FirebaseDatabase.getInstance().reference != null && FirebaseAuth.getInstance().currentUser != null) {
             databaseOnlineUserAction = DatabaseOnlineUserAction()
         }
@@ -370,8 +369,8 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
         }
     }
 
-    fun userLocationAction(user: User) {
-        ObjectsUtils.safeLet(user.user_id, recyclerViewAction, progressBarRelative) { userId, recyclerView, progressBar ->
+    fun userLocationAction(userId: String) {
+        ObjectsUtils.safeLet(recyclerViewAction, progressBarRelative) { recyclerView, progressBar ->
             locationFirebaseMarkerAction?.userLocationAction(userId, recyclerView, progressBar)
         }
     }
@@ -380,9 +379,9 @@ class MapActivity : ApplicationActivity(), OnMapReadyCallback {
         locationFirebaseMarkerAction?.goToThisMarker(clickedUser)
     }
 
-    fun removeMarkerFromMapForGivenUser(userBasicInfo: UserBasicInfo) {
+    fun removeMarkerFromMapForGivenUser(userIdToRemove: String) {
         try {
-            locationFirebaseMarkerAction?.findMarker(userBasicInfo)?.remove()
+            locationFirebaseMarkerAction?.findMarker(userIdToRemove)?.remove()
         } catch (ex: Exception) {
             ex.printStackTrace()
         }

@@ -17,6 +17,8 @@ import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import com.google.firebase.database.ValueEventListener
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_DATA_FIELD
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_USER_FIELD
 import kamilmilik.gps_tracker.utils.LocationUtils
 import kamilmilik.gps_tracker.utils.ObjectsUtils
 
@@ -29,7 +31,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
     private var currentMarkerPosition: LatLng? = null
 
-    private var markersMap = HashMap<UserBasicInfo, Marker>()
+    private var markersMap = HashMap<String, Marker>()
 
     private var currentUserLocation = Location("")
 
@@ -59,10 +61,10 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
                 createMarker(currentUser, lastLocation)?.let { currentMarker ->
 
-                    markersMap.put(userMarkerInformation, currentMarker)
+                    markersMap.put(uid, currentMarker)
                     currentUserLocation = LocationUtils.createLocationVariable(currentMarker.position)
 
-                    updateMarkerSnippetDistance(userMarkerInformation, currentUserLocation)
+                    updateMarkerSnippetDistance(uid, currentUserLocation)
 
                     currentMarkerPosition = currentMarker.position
                 }
@@ -81,7 +83,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
     private fun saveLocationToDatabase(currentUser: FirebaseUser, locationsDatabaseReference: DatabaseReference, lastLocation: Location) {
         ObjectsUtils.safeLetTrackingModel(currentUser, lastLocation) { userUid, userEmail, userName, lat, lng ->
-            locationsDatabaseReference.child(userUid)
+            locationsDatabaseReference.child(userUid).child(DATABASE_DATA_FIELD)
                     .setValue(TrackingModel(userUid, userEmail, lat, lng, userName))
         }
     }
@@ -111,46 +113,41 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
     fun userLocationAction(userId: String, recyclerViewAction: RecyclerViewAction, progressBar: RelativeLayout) {
         val reference = FirebaseDatabase.getInstance().reference
-        val query = reference.child(Constants.DATABASE_LOCATIONS)
-                .orderByChild(Constants.DATABASE_USER_ID_FIELD)
-                .equalTo(userId)
+        val query = reference.child(Constants.DATABASE_LOCATIONS).child(userId).child(DATABASE_DATA_FIELD)
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot?) {
                 dataSnapshot?.let {
-                    for (singleSnapshot in dataSnapshot.children) {
-                        userWhoChangeLocation = singleSnapshot.getValue(TrackingModel::class.java)
+                    userWhoChangeLocation = dataSnapshot.getValue(TrackingModel::class.java)
 
-                        FirebaseAuth.getInstance().currentUser?.let { currentUser ->
-                            ObjectsUtils.safeLetTrackingModel(userWhoChangeLocation) { id, email, name, userWhoChangeLocationLatitude, userWhoChangeLocationLongitude ->
-                                val userMarkerInformation = UserBasicInfo(id, email, name)
-                                recyclerViewAction.updateChangeUserNameInRecycler(userMarkerInformation)
+                    FirebaseAuth.getInstance().currentUser?.let { currentUser ->
+                        ObjectsUtils.safeLetTrackingModel(userWhoChangeLocation) { id, email, name, userWhoChangeLocationLatitude, userWhoChangeLocationLongitude ->
+                            val userMarkerInformation = UserBasicInfo(id, email, name)
+                            recyclerViewAction.updateChangeUserNameInRecycler(userMarkerInformation)
 
-                                updateUserNameIfChange(reference)
+//                                updateUserNameIfChange(reference)
 
-                                val locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocationLatitude.toDouble(), userWhoChangeLocationLongitude.toDouble())
+                            val locationOfTheUserWhoChangeLocation = LatLng(userWhoChangeLocationLatitude.toDouble(), userWhoChangeLocationLongitude.toDouble())
 
-                                deletePreviousMarker(userMarkerInformation)
+                            deletePreviousMarker(userMarkerInformation)
 
-                                val distanceMeasure = LocationUtils.calculateDistanceBetweenTwoPoints(currentUserLocation, LocationUtils.createLocationVariable(locationOfTheUserWhoChangeLocation))
-                                mapActivity.getMap().addMarker(MarkerOptions()
-                                        .position(locationOfTheUserWhoChangeLocation)
-                                        .title(name)
-                                        .snippet(mapActivity.getActivity().getString(R.string.distance) + " " + DecimalFormat("#.#").format(distanceMeasure.distance) + distanceMeasure.measure)
-                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))?.let { markerFollowingUser ->
+                            val distanceMeasure = LocationUtils.calculateDistanceBetweenTwoPoints(currentUserLocation, LocationUtils.createLocationVariable(locationOfTheUserWhoChangeLocation))
+                            mapActivity.getMap().addMarker(MarkerOptions()
+                                    .position(locationOfTheUserWhoChangeLocation)
+                                    .title(name)
+                                    .snippet(mapActivity.getActivity().getString(R.string.distance) + " " + DecimalFormat("#.#").format(distanceMeasure.distance) + distanceMeasure.measure)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))?.let { markerFollowingUser ->
 
-                                    markersMap.put(userMarkerInformation, markerFollowingUser)
-                                }
-                                previousUserMarkerInformation = userMarkerInformation
-
-                                recyclerViewAction.updateRecyclerView()
-
-                                // The method was used instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter.
-                                onGetUsersLocationSuccess()
-                                onSuccessGetLocations(progressBar)
-
-                                dismissProgressBar(progressBar)
-
+                                markersMap.put(id, markerFollowingUser)
                             }
+                            previousUserMarkerInformation = userMarkerInformation
+
+                            recyclerViewAction.updateRecyclerView()
+
+                            // The method was used instead AtomicInteger to dismiss dialog since, onDataChange could run multiple times and then could unnecessarily increment counter.
+                            onGetUsersLocationSuccess()
+                            onSuccessGetLocations(progressBar)
+
+                            dismissProgressBar(progressBar)
 
                         }
 
@@ -164,9 +161,9 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
     }
 
     private fun deletePreviousMarker(userMarkerInformation: UserBasicInfo) {
-        for ((key, value) in markersMap) {
-            if (key.email == userMarkerInformation.email) {
-                markersMap[key]?.remove()
+        for ((userUid, value) in markersMap) {
+            if (userUid == userMarkerInformation.userId) {
+                markersMap[userUid]?.remove()
             }
         }
     }
@@ -193,47 +190,47 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
         }
     }
 
-    private fun updateUserNameIfChange(reference: DatabaseReference) {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        ObjectsUtils.safeLetTrackingModel(userWhoChangeLocation) { userWhoChangeLocationId, userWhoChangeLocationEmail, userWhoChangeLocationName, userWhoChangeLocationLat, userWhoChangeLocationLng ->
-            ObjectsUtils.safeLetFirebaseUser(currentUser) { userUid, userEmail, userName ->
-                var query = reference.child(Constants.DATABASE_FOLLOWERS).orderByKey()
-                        .equalTo(userWhoChangeLocationId)
-                updateName(query, userUid, userName)
+//    private fun updateUserNameIfChange(reference: DatabaseReference) {
+//        val currentUser = FirebaseAuth.getInstance().currentUser
+//        ObjectsUtils.safeLetTrackingModel(userWhoChangeLocation) { userWhoChangeLocationId, userWhoChangeLocationEmail, userWhoChangeLocationName, userWhoChangeLocationLat, userWhoChangeLocationLng ->
+//            ObjectsUtils.safeLetFirebaseUser(currentUser) { userUid, userEmail, userName ->
+//                var query = reference.child(Constants.DATABASE_FOLLOWERS).orderByKey()
+//                        .equalTo(userWhoChangeLocationId)
+//                updateName(query, userUid, userName)
+//
+//                query = reference.child(Constants.DATABASE_FOLLOWING).orderByKey()
+//                        .equalTo(FirebaseAuth.getInstance().currentUser?.uid)
+//                updateName(query, userWhoChangeLocationId, userWhoChangeLocationName)
+//
+//            }
+//        }
+//
+//    }
+//
+//    private fun updateName(query: Query, userId: String, userName: String) {
+//        query.addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onCancelled(p0: DatabaseError?) {}
+//            override fun onDataChange(dataSnapshot: DataSnapshot?) {
+//                dataSnapshot?.let {
+//                    for (singleSnapshot in dataSnapshot.children) {
+//                        for (childSingleSnapshot in singleSnapshot.children) {
+//                            val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+//                            if (user?.user_id == userId) {
+//                                val map = HashMap<String, Any>() as MutableMap<String, Any>
+//                                map.put(Constants.DATABASE_USER_NAME_FIELD, userName)
+//                                childSingleSnapshot?.ref?.child(Constants.DATABASE_USER_FIELD)?.updateChildren(map)
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            }
+//        })
+//    }
 
-                query = reference.child(Constants.DATABASE_FOLLOWING).orderByKey()
-                        .equalTo(FirebaseAuth.getInstance().currentUser?.uid)
-                updateName(query, userWhoChangeLocationId, userWhoChangeLocationName)
-
-            }
-        }
-
-    }
-
-    private fun updateName(query: Query, userId: String, userName: String) {
-        query.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError?) {}
-            override fun onDataChange(dataSnapshot: DataSnapshot?) {
-                dataSnapshot?.let {
-                    for (singleSnapshot in dataSnapshot.children) {
-                        for (childSingleSnapshot in singleSnapshot.children) {
-                            val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
-                            if (user?.user_id == userId) {
-                                val map = HashMap<String, Any>() as MutableMap<String, Any>
-                                map.put(Constants.DATABASE_USER_NAME_FIELD, userName)
-                                childSingleSnapshot?.ref?.child(Constants.DATABASE_USER_FIELD)?.updateChildren(map)
-                            }
-                        }
-                    }
-
-                }
-            }
-        })
-    }
-
-    private fun updateMarkerSnippetDistance(userToAvoidUpdate: UserBasicInfo, currentUserLocation: Location) {
+    private fun updateMarkerSnippetDistance(userUidToAvoidUpdate: String, currentUserLocation: Location) {
         for ((key, value) in markersMap) {
-            if (key != userToAvoidUpdate) {
+            if (key != userUidToAvoidUpdate) {
                 val location = LocationUtils.createLocationVariable(value.position)
                 val distanceMeasure = LocationUtils.calculateDistanceBetweenTwoPoints(currentUserLocation, location)
                 value.hideInfoWindow()
@@ -244,7 +241,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
 
     fun goToThisMarker(clickedUserMarkerInformation: UserBasicInfo) {
         try {
-            val searchedMarker = findMarker(clickedUserMarkerInformation)
+            val searchedMarker = findMarker(clickedUserMarkerInformation.userId)
             mapActivity.getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(searchedMarker?.position, Constants.MAP_CAMERA_ZOOM))
             searchedMarker?.showInfoWindow()
         } catch (ex: Exception) {
@@ -253,7 +250,7 @@ class LocationFirebaseMarkerAction(private var mapActivity: MapActivity) : Basic
     }
 
     // Hash code and equals in UserBasicInfo is important here.
-    fun findMarker(searchedUserMarkerInformationKey: UserBasicInfo): Marker? = markersMap.getValue(searchedUserMarkerInformationKey)
+    fun findMarker(searchedUserMarkerInformationKey: String): Marker? = markersMap.getValue(searchedUserMarkerInformationKey)
 
     private fun onGetMyLocationSuccess() {
         isMyLocationAdded = true

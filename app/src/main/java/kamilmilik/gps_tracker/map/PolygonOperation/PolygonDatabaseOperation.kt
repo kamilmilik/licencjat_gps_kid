@@ -1,6 +1,5 @@
 package kamilmilik.gps_tracker.map.PolygonOperation
 
-import android.util.Log
 import android.view.View
 import android.widget.RelativeLayout
 import com.google.android.gms.maps.model.*
@@ -55,23 +54,18 @@ class PolygonDatabaseOperation(override var mapActivity: MapActivity, var onGetD
         }
         val databaseReference = FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_POLYGONS)
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
-            databaseReference
-                    .orderByKey()
-                    .equalTo(currentUser.uid)
+            databaseReference.child(currentUser.uid)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot?) {
                             dataSnapshot?.let {
                                 for (singleSnapshot in dataSnapshot.children) {
-                                    for (child in singleSnapshot.children) {
-                                        val polygonsFromDbMap = child.getValue(PolygonModel::class.java)
-                                        ObjectsUtils.safeLet(polygonsFromDbMap, polygonsFromDbMap?.tag) { polygonsFromDb, polygonTag ->
-                                            polygonsMap[polygonTag] = polygonsFromDb.polygonLatLngList
+                                    val polygonsFromDbMap = singleSnapshot.getValue(PolygonModel::class.java)
+                                    ObjectsUtils.safeLet(polygonsFromDbMap, polygonsFromDbMap?.tag) { polygonsFromDb, polygonTag ->
+                                        polygonsMap[polygonTag] = polygonsFromDb.polygon_lat_lng_list
 
-                                            val newList: ArrayList<LatLng> = LocationUtils.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDb)
+                                        val newList: ArrayList<LatLng> = LocationUtils.changePolygonModelWithMyOwnLatLngListToLatLngList(polygonsFromDb)
 
-                                            drawPolygonFromDatabase(polygonTag, newList)
-
-                                        }
+                                        drawPolygonFromDatabase(polygonTag, newList)
                                     }
                                 }
                                 markersMap?.let { markers ->

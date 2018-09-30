@@ -19,34 +19,34 @@ import android.content.ComponentName
  * Created by kamil on 07.08.2018.
  */
 object BatteryOptimizationUtils {
-    fun addAppToWhiteList(activity: Activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val intent = Intent()
-            val packageName = activity.packageName
-            val pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:" + packageName)
-                activity.startActivity(intent)
-            }
-        }
-    }
+//    fun addAppToWhiteList(activity: Activity) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            val intent = Intent()
+//            val packageName = activity.packageName
+//            val pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
+//            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+//                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+//                intent.data = Uri.parse("package:" + packageName)
+//                activity.startActivity(intent)
+//            }
+//        }
+//    }
+//
+//    fun ignoreBatteryOptimizationSettings(activity: Activity) {
+//        optimizationAction(activity)
+//        val intent = Intent()
+//        val packageName = activity.packageName
+//        val pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+//                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+//                intent.data = Uri.parse("package:" + packageName)
+//                activity.startActivity(intent)
+//            }
+//        }
+//    }
 
-    fun ignoreBatteryOptimizationSettings(activity: Activity) {
-        optimizationAction(activity)
-        val intent = Intent()
-        val packageName = activity.packageName
-        val pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:" + packageName)
-                activity.startActivity(intent)
-            }
-        }
-    }
-
-    private fun optimizationAction(activity: Activity) {
+    fun optimizationAction(activity: Activity) {
         try {
             if (!getIsFirstRunFromShared(activity)) {
                 saveIsFirstRunToShared(activity)

@@ -2,11 +2,13 @@ package kamilmilik.gps_tracker.map
 
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kamilmilik.gps_tracker.R
+import kamilmilik.gps_tracker.models.ConnectionUser
 import kamilmilik.gps_tracker.models.User
 import kamilmilik.gps_tracker.utils.listeners.IRecyclerViewListener
 import kamilmilik.gps_tracker.models.UserBasicInfo
@@ -119,6 +121,7 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
             val reference = FirebaseDatabase.getInstance().reference
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWERS, Constants.DATABASE_FOLLOWING)
             removeUserFromFollowers(clickedUser.userId, reference, Constants.DATABASE_FOLLOWING, Constants.DATABASE_FOLLOWERS)
+            Tools.removeUserPermission(reference, clickedUser.userId)
         }
     }
 
@@ -135,7 +138,7 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (singleSnapshot in dataSnapshot.children) {
                     for (childSingleSnapshot in singleSnapshot.children) {
-                        val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                        val user = childSingleSnapshot.child(Constants.DATABASE_USER_FIELD).getValue(ConnectionUser::class.java)
                         val query2 = reference.child(nodeTable2)
                                 .orderByKey()
                                 .equalTo(currentUserId)
@@ -143,7 +146,7 @@ class RecyclerViewAction(private var mapActivity: MapActivity) : IRecyclerViewLi
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
                                 for (singleSnapshot2 in dataSnapshot.children) {
                                     for (childSingleSnapshot2 in singleSnapshot2.children) {
-                                        val user2 = childSingleSnapshot2.child(Constants.DATABASE_USER_FIELD).getValue(User::class.java)
+                                        val user2 = childSingleSnapshot2.child(Constants.DATABASE_USER_FIELD).getValue(ConnectionUser::class.java)
                                         if (user2?.user_id.equals(userToUnfollowId)) {
                                             childSingleSnapshot2.ref.removeValue()
                                         }

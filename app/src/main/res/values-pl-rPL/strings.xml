@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Gps Tracker</string>
+    <string name="app_name">GPS Tracker</string>
     <string name="mapActivityName">Mapa</string>
     <string name="loginActivityName">Login</string>
     <string name="resetPasswordActivityName">Resetuj hasło</string>
@@ -98,9 +98,12 @@
     <string name="dataLoadingInformation">Ładowanie danych. Spróbuj ponownie!</string>
     <string name="xiaomiBatteryOptimizationInformation">Wybierz z listy %1$s, a nastepnie wybierz opcje \"Bez ograniczeń\". Pozwoli to na działanie aplikacji w tle, co jest niezbędne do poprawnego działania aplikacji.</string>
     <string name="applicationPerformance">Wydajność aplikacji</string>
-    <string name="applicationGoodPerformanceMessage">Liczba obserwowanych użytkowników lub obszarów teraz jest optymalna dla poprawnej wydajności aplikacji</string>
-    <string name="applicationBadPerformanceMessage">Za dużo obserwowanych użytkowników lub obszarów. Usuń obszary lub przestań obserwować użytkowników, inaczej dla zwiększenia wydajności aplikacji czynności sprawdząjące obszary będą wykonywane co trzy minuty</string>
+    <string name="applicationGoodPerformanceMessage">Liczba obserwowanych użytkowników lub obszarów teraz jest optymalna dla poprawnej wydajności aplikacji.</string>
+    <string name="applicationBadPerformanceMessage">Za dużo obserwowanych użytkowników lub obszarów. Usuń obszary lub przestań obserwować użytkowników, inaczej dla zwiększenia wydajności aplikacji czynności sprawdząjące obszary będą wykonywane co trzy minuty.</string>
     <string name="user">Użytkownik</string>
     <string name="code">Kod</string>
+    <string name="inviteUserInformation">Użytkownik pojawi się na mapie, gdy zaakceptuje chęć Twojej obserwacji.</string>
+    <string name="followingTitle">Obserwowanie</string>
+    <string name="followingAttemptMessage">Czy chcesz obserwować i być obserwowwanym przez %1$s %2$s?</string>
 
 </resources>

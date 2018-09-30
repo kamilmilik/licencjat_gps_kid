@@ -9,11 +9,11 @@ import kamilmilik.gps_tracker.map.adapter.GeoLatLng
 // Class representing the firebase node.
 class PolygonModel {
     var tag: String? = null
-    var polygonLatLngList: ArrayList<GeoLatLng> = ArrayList()
+    var polygon_lat_lng_list: ArrayList<GeoLatLng> = ArrayList()
 
     constructor() {}
     constructor(tag: String, polygonLatLngList: ArrayList<GeoLatLng>) {
         this.tag = tag
-        this.polygonLatLngList = polygonLatLngList
+        this.polygon_lat_lng_list = polygonLatLngList
     }
 }

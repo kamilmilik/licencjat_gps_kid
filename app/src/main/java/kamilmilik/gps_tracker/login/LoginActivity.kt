@@ -50,25 +50,27 @@ class LoginActivity : ApplicationActivity() {
             val email = emailLoginEditText?.text.toString().replace("\\s".toRegex(), "")
             val password = passwordLoginEditText?.text.toString()
             if (ValidDataUtils.checkIfUserEnterValidData(this, email, password)) {
-                val progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
-                firebaseAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            progressDialog.dismiss()
-                            if (task.isSuccessful) {
-                                ObjectsUtils.safeLet(firebaseAuth.currentUser, firebaseAuth.currentUser?.displayName) { user, userName ->
-                                    if (user.isEmailVerified) {
-                                        Toast.makeText(this@LoginActivity, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
-                                        Tools.addDeviceTokenToDatabaseAndStartNewActivity(this@LoginActivity, MapActivity::class.java)
-                                        addNewUserAccountToDatabase(email, userName)
-                                    } else {
-                                        Toast.makeText(this@LoginActivity, getString(R.string.emailNotVerified), Toast.LENGTH_LONG).show()
-                                        firebaseAuth.signOut()
+                if (Tools.isGooglePlayServicesAvailable(this)) {
+                    val progressDialog = ProgressDialog.show(this, getString(R.string.waitInformation), getString(R.string.waitMessage), true)
+                    firebaseAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                progressDialog.dismiss()
+                                if (task.isSuccessful) {
+                                    ObjectsUtils.safeLet(firebaseAuth.currentUser, firebaseAuth.currentUser?.displayName) { user, userName ->
+                                        if (user.isEmailVerified) {
+                                            Toast.makeText(this@LoginActivity, getString(R.string.loginSuccess), Toast.LENGTH_LONG).show()
+                                            Tools.addDeviceTokenToDatabaseAndStartNewActivity(this@LoginActivity, MapActivity::class.java)
+                                            addNewUserAccountToDatabase(email, userName)
+                                        } else {
+                                            Toast.makeText(this@LoginActivity, getString(R.string.emailNotVerified), Toast.LENGTH_LONG).show()
+                                            firebaseAuth.signOut()
+                                        }
                                     }
+                                } else {
+                                    FirebaseAuthExceptions.translate(this, task)
                                 }
-                            } else {
-                                FirebaseAuthExceptions.translate(this, task)
                             }
-                        }
+                }
             }
         }
     }

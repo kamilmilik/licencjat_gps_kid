@@ -7,6 +7,7 @@ import android.content.Context
 import android.os.Build
 import android.content.Intent
 import android.app.PendingIntent
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 
 

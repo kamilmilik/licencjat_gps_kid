@@ -5,6 +5,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.Polygon
+import com.google.firebase.auth.FirebaseAuth
 import kamilmilik.gps_tracker.map.adapter.GeoLatLng
 import kamilmilik.gps_tracker.models.PolygonModel
 

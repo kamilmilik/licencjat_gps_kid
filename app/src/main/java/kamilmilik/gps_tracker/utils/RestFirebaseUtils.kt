@@ -3,6 +3,8 @@ package kamilmilik.gps_tracker.utils
 import android.os.AsyncTask
 import android.util.Log
 import kamilmilik.gps_tracker.models.TrackingModel
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_DATA_FIELD
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_LOCATIONS
 import kamilmilik.gps_tracker.utils.listeners.OnDataAddedListener
 import org.json.JSONObject
 import java.io.BufferedWriter
@@ -18,7 +20,7 @@ object RestFirebaseUtils {
 
     fun addLocationToFirebaseDatabaseByRest(trackingModel: TrackingModel, tokenId: String) {
         try {
-            val url = URL("https://licencjat-kid-track.firebaseio.com/Locations/${trackingModel.user_id}.json?auth=" + tokenId)
+            val url = URL("https://licencjat-kid-track.firebaseio.com/$DATABASE_LOCATIONS/${trackingModel.user_id}/$DATABASE_DATA_FIELD.json?auth=" + tokenId)
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "PUT"
             conn.setRequestProperty("Accept", "application/json")

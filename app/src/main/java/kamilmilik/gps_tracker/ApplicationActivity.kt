@@ -18,8 +18,6 @@ import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.Crashlytics
 
 
-
-
 /**
  * Created by kamil on 06.05.2018.
  */
@@ -42,7 +40,7 @@ open class ApplicationActivity : AppCompatActivity() {
         deleteUserFromFirebaseAuth()
     }
 
-    private fun initCrashReporting(){
+    private fun initCrashReporting() {
         val fabric = Fabric.Builder(this)
                 .kits(Crashlytics())
                 .debuggable(true)
@@ -53,7 +51,7 @@ open class ApplicationActivity : AppCompatActivity() {
     private fun deleteUserFromFirebaseAuth() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).orderByKey().equalTo(currentUser.uid).addChildEventListener(object : ChildEventListener {
+            FirebaseDatabase.getInstance().getReference(Constants.DATABASE_USER_ACCOUNT_SETTINGS).child(currentUser.uid).addChildEventListener(object : ChildEventListener {
                 override fun onCancelled(databaseError: DatabaseError?) {}
                 override fun onChildAdded(dataSnapshot: DataSnapshot?, previousKey: String?) {}
                 override fun onChildChanged(dataSnapshot: DataSnapshot?, s: String?) {}

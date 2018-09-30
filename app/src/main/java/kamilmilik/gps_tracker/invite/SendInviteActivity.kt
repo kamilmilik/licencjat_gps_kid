@@ -48,7 +48,7 @@ class SendInviteActivity : ApplicationActivity() {
             val uniqueKeyId = FirebaseDatabase.getInstance().reference.push().key
             ObjectsUtils.safeLetFirebaseUser(currentFirebaseUser) { uid, email, name ->
 
-                val userUniqueKey = UserUniqueKey(uid, email, generatedUniqueKey, name)
+                val userUniqueKey = UserUniqueKey(uid, generatedUniqueKey)
                 val reference = FirebaseDatabase.getInstance().reference
                 val query = reference.child(Constants.DATABASE_USER_KEYS)
                         .orderByChild(Constants.DATABASE_UNIQUE_KEY_FIELD)

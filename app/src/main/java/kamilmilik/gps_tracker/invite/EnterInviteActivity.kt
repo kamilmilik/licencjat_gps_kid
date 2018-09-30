@@ -18,10 +18,14 @@ import android.widget.Toast
 import kamilmilik.gps_tracker.ApplicationActivity
 import kamilmilik.gps_tracker.map.MapActivity
 import kamilmilik.gps_tracker.models.ConnectionUser
+import kamilmilik.gps_tracker.models.LocationPermissionModel
 import kamilmilik.gps_tracker.utils.Tools
 import kamilmilik.gps_tracker.utils.Constants
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_LOCATIONS
+import kamilmilik.gps_tracker.utils.Constants.DATABASE_PERMISSIONS_FIELD
 import kamilmilik.gps_tracker.utils.ObjectsUtils
 import kotlinx.android.synthetic.main.progress_bar.*
+import android.support.design.widget.Snackbar
 
 
 class EnterInviteActivity : ApplicationActivity() {
@@ -71,7 +75,6 @@ class EnterInviteActivity : ApplicationActivity() {
                         if (!checkIfGivenUsersAreDifferent(userUniqueKeyModel.user_id, currentUser?.uid)) {// Prevent add user self.
                             addConnectedUserToDatabase(userUniqueKeyModel)
                         }
-                        finish()
                     }
                 }
                 if (dataSnapshot.value == null) {
@@ -100,9 +103,9 @@ class EnterInviteActivity : ApplicationActivity() {
     private fun addConnectedUserToDatabase(userUniqueKeyModel: UserUniqueKey) {
         FirebaseAuth.getInstance().currentUser?.let { currentFirebaseUser ->
             ObjectsUtils.safeLetFirebaseUser(currentFirebaseUser) { currentUserUid, currentUserEmail, currentUserName ->
-                ObjectsUtils.safeLetUserUniqueKey(userUniqueKeyModel) { followedUserUid, followedUserEmail, followedUserName ->
-                    val currentUser = ConnectionUser(currentUserUid, currentUserEmail, currentUserName)
-                    val followedUser = ConnectionUser(followedUserUid, followedUserEmail, followedUserName)
+                userUniqueKeyModel.user_id?.let { followedUserId ->
+                    val currentUser = ConnectionUser(currentUserUid)
+                    val followedUser = ConnectionUser(followedUserId)
 
                     FirebaseDatabase.getInstance().reference
                             .child(Constants.DATABASE_FOLLOWING)
@@ -118,8 +121,18 @@ class EnterInviteActivity : ApplicationActivity() {
                             .child(Constants.DATABASE_USER_FIELD)
                             .setValue(currentUser)
 
-                    progressBarRelative.visibility = View.GONE
+                    FirebaseDatabase.getInstance().reference
+                            .child(DATABASE_LOCATIONS)
+                            .child(currentUserUid)
+                            .child(DATABASE_PERMISSIONS_FIELD)
+                            .child(userUniqueKeyModel.user_id)
+                            .setValue(LocationPermissionModel(true))
                 }
+                Tools.makeAlertDialogBuilder(this, getString(R.string.followingTitle), getString(R.string.inviteUserInformation)).setPositiveButton(R.string.ok) { diaog, whichButton ->
+                    finish()
+                }
+                        .setCancelable(false).create().show()
+                progressBarRelative.visibility = View.GONE
             }
         }
     }

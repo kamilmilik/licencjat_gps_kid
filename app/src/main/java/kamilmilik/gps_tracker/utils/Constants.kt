@@ -88,6 +88,10 @@ object Constants {
 
     val DATABASE_USER_FIELD = "user"
 
+    val DATABASE_DATA_FIELD = "data"
+
+    val DATABASE_PERMISSIONS_FIELD = "permissions"
+
     val DATABASE_USER_LOGGED = "user_logged"
 
     val DATABASE_USER_ID_FIELD = "user_id"

@@ -8,12 +8,12 @@ package kamilmilik.gps_tracker.models
 class TrackingModel{
     var email: String = ""
     var user_id: String? = null
-    var lat : String? = null
-    var lng : String? = null
+    var lat : Double? = null
+    var lng : Double? = null
     var user_name :String? = null
 
     constructor() {}
-    constructor(user_id: String, email: String, lat: String, lng: String, user_name : String){
+    constructor(user_id: String, email: String, lat: Double, lng: Double, user_name : String){
         this.user_id = user_id
         this.email = email
         this.lat = lat
